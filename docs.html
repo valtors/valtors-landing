@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relay Docs - install, tools, config, and recipes</title>
+    <meta name="description" content="Docs for Relay MCP server. Install it fast, connect it to your editor, learn all 40 tools, and copy working config examples.">
+    <meta property="og:title" content="Relay Docs">
+    <meta property="og:description" content="Install Relay, wire it into your editor, and use all 40 built-in tools.">
+    <meta property="og:image" content="assets/images/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Relay Docs">
+    <meta name="twitter:description" content="Single-page docs for the Relay MCP server.">
+    <meta name="twitter:image" content="assets/images/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --serif: 'Instrument Serif', Georgia, serif;
+            --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --hand: 'Caveat', cursive;
+            --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            --bg: #FFFDF9;
+            --ink: #1a1a1a;
+            --ink-light: #555;
+            --ink-faint: #8a8a8a;
+            --accent: #FF6B35;
+            --purple: #7C3AED;
+            --green: #059669;
+            --line: rgba(0, 0, 0, 0.08);
+            --card: rgba(255, 255, 255, 0.88);
+            --code-bg: #1C1C1C;
+            --radius: 18px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.06);
+            --shadow-soft: 0 4px 18px rgba(0,0,0,0.04);
+            --max: 1240px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: var(--bg);
+            line-height: 1.65;
+            font-size: 15px;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at top left, rgba(255,107,53,0.08), transparent 28%),
+                radial-gradient(circle at top right, rgba(124,58,237,0.06), transparent 24%);
+        }
+
+        a { color: inherit; }
+        img { max-width: 100%; display: block; }
+
+        .container,
+        .wide-container {
+            width: min(var(--max), calc(100vw - 32px));
+            margin: 0 auto;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 18px 0;
+            background: rgba(255,253,249,0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--ink);
+        }
+
+        .logo img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+        }
+
+        .logo span {
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-right a {
+            text-decoration: none;
+            color: var(--ink-light);
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .nav-right a:hover { color: var(--ink); }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 18px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .pill-primary { background: var(--ink); color: #fff; }
+
+        .pill-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1.5px solid rgba(0,0,0,0.12);
+        }
+
+        .pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .hero { padding: 54px 0 30px; }
+
+        .hero-shell {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 34px;
+            align-items: center;
+            padding: 28px 0 14px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,107,53,0.1);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            font-family: var(--serif);
+            font-weight: 400;
+            font-size: clamp(44px, 7vw, 66px);
+            line-height: 0.98;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero p.lead {
+            max-width: 640px;
+            color: var(--ink-light);
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 28px 0 12px;
+        }
+
+        .hand-note {
+            font-family: var(--hand);
+            font-size: 24px;
+            color: var(--accent);
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+
+        .hero-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.82));
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .hero-card-top img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+        }
+
+        .hero-card h3 {
+            font-size: 22px;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .hero-card p {
+            color: var(--ink-light);
+            font-size: 14px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            border: 1px solid var(--line);
+            background: rgba(255,253,249,0.84);
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 22px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat span {
+            display: block;
+            color: var(--ink-light);
+            font-size: 13px;
+        }
+
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 36px;
+            align-items: start;
+            padding: 24px 0 72px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 94px;
+            align-self: start;
+        }
+
+        .sidebar-card,
+        .mobile-sections,
+        .section-card,
+        .tool-card,
+        .recipe-card,
+        .faq-item,
+        .cli-card,
+        .mini-card,
+        .note,
+        .subsection,
+        .config-grid > div {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .sidebar-card { padding: 20px; }
+
+        .sidebar-card h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-faint);
+            margin-bottom: 14px;
+        }
+
+        .sidebar-nav { display: grid; gap: 6px; }
+
+        .sidebar-nav a,
+        .mobile-sections-menu a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 11px 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--ink-light);
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .sidebar-nav a:hover,
+        .mobile-sections-menu a:hover,
+        .sidebar-nav a.active,
+        .mobile-sections-menu a.active {
+            background: rgba(124,58,237,0.09);
+            color: var(--purple);
+            transform: translateX(2px);
+        }
+
+        .sidebar-small {
+            margin-top: 16px;
+            color: var(--ink-faint);
+            font-size: 13px;
+        }
+
+        .mobile-sections {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px;
+        }
+
+        .mobile-sections-toggle {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font: inherit;
+            font-weight: 700;
+            color: var(--ink);
+            cursor: pointer;
+            padding: 4px 2px;
+        }
+
+        .mobile-sections-menu {
+            display: none;
+            margin-top: 12px;
+            gap: 6px;
+        }
+
+        .mobile-sections.open .mobile-sections-menu { display: grid; }
+        .content { display: grid; gap: 22px; }
+
+        .section-card {
+            padding: 30px;
+            scroll-margin-top: 110px;
+        }
+
+        .section-head { margin-bottom: 22px; }
+
+        .section-kicker {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--ink-faint);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .section-card h2 {
+            font-family: var(--serif);
+            font-size: clamp(34px, 5vw, 44px);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .section-card h3 {
+            font-size: 20px;
+            line-height: 1.25;
+            margin-bottom: 10px;
+        }
+
+        .section-card p,
+        .section-card li { color: var(--ink-light); }
+        .section-card p + p { margin-top: 10px; }
+
+        .grid-2,
+        .grid-3,
+        .tool-grid,
+        .recipes-grid,
+        .cli-grid,
+        .mini-grid,
+        .config-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid-2,
+        .config-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3,
+        .mini-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .recipes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cli-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+        .subsection,
+        .mini-card,
+        .cli-card,
+        .recipe-card,
+        .tool-card,
+        .config-grid > div,
+        .faq-item,
+        .note { padding: 18px; }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.04);
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .badge.accent { background: rgba(255,107,53,0.12); color: var(--accent); }
+        .badge.purple { background: rgba(124,58,237,0.1); color: var(--purple); }
+        .badge.green { background: rgba(5,150,105,0.1); color: var(--green); }
+
+        .steps {
+            display: grid;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .step-num {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .step p strong,
+        .recipe-card strong,
+        .tool-card strong,
+        .faq-item strong,
+        .mini-card strong,
+        .cli-card strong { color: var(--ink); }
+
+        .list,
+        .param-list,
+        .faq-item ul {
+            display: grid;
+            gap: 8px;
+            padding-left: 18px;
+        }
+
+        .note {
+            background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(124,58,237,0.06));
+        }
+
+        .note strong { color: var(--ink); }
+        .note p,
+        .note li { color: var(--ink-light); }
+
+        .code-block {
+            position: relative;
+            margin-top: 14px;
+            background: var(--code-bg);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .code-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px 0;
+        }
+
+        .dots { display: flex; gap: 6px; }
+
+        .dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .dots span:nth-child(1) { background: #FF5F56; }
+        .dots span:nth-child(2) { background: #FFBD2E; }
+        .dots span:nth-child(3) { background: #27C93F; }
+
+        .copy-btn {
+            border: 0;
+            background: rgba(255,255,255,0.08);
+            color: #F3F3F3;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .copy-btn:hover { background: rgba(255,255,255,0.14); }
+        .copy-btn.done { color: #A8CC8C; }
+
+        .code-block pre { padding: 14px 18px 18px; overflow-x: auto; }
+
+        .code-block code {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.75;
+            color: #E8E8E8;
+            white-space: pre;
+            display: block;
+        }
+
+        .token-key { color: #71BEF2; }
+        .token-string { color: #A8CC8C; }
+        .token-number { color: #DBAB79; }
+        .token-flag { color: #D290E4; }
+        .token-comment { color: #8B8B8B; }
+        .token-command { color: #F3F3F3; }
+        .token-path { color: #F2C879; }
+
+        .inline-code {
+            font-family: var(--mono);
+            font-size: 0.95em;
+            background: rgba(124,58,237,0.08);
+            color: var(--purple);
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .tool-category + .tool-category { margin-top: 24px; }
+
+        .tool-category-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .tool-category h3 { margin-bottom: 0; }
+
+        .tool-meta {
+            color: var(--ink-faint);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .tool-card h4 {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .tool-card p { font-size: 14px; }
+
+        .tool-card .label,
+        .recipe-card .label,
+        .cli-card .label,
+        .mini-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-faint);
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-faint);
+            font-weight: 800;
+        }
+
+        .param-list li,
+        .tool-card .example { font-size: 14px; }
+
+        .tool-card .example {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.03);
+            color: var(--ink);
+        }
+
+        .cli-card code,
+        .mini-card code,
+        .recipe-card code {
+            font-family: var(--mono);
+            font-size: 13px;
+        }
+
+        .recipe-card .tools-used {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(124,58,237,0.07);
+        }
+
+        .recipe-card .tools-used strong { color: var(--purple); }
+
+        .faq-list { display: grid; gap: 14px; }
+
+        .faq-item h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .anchor-link { text-decoration: none; color: inherit; }
+
+        footer {
+            padding: 28px 0 48px;
+            border-top: 1px solid var(--line);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a,
+        footer p {
+            color: var(--ink-light);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        footer a:hover { color: var(--ink); }
+
+        @media (max-width: 1100px) {
+            .tool-grid,
+            .recipes-grid,
+            .cli-grid,
+            .grid-2,
+            .config-grid,
+            .grid-3,
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .docs-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .mobile-sections { display: block; }
+        }
+
+        @media (max-width: 920px) {
+            .hero-shell { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 760px) {
+            nav .container {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .nav-right {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .hero { padding-top: 38px; }
+            .section-card { padding: 22px; }
+            .hero-card { padding: 20px; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 560px) {
+            .hero-actions { display: grid; }
+            .stat-grid { grid-template-columns: 1fr; }
+            .nav-right a.hide-sm { display: none; }
+            .section-card h2 { font-size: 34px; }
+            .hero h1 { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/relay-logo.png" alt="Relay logo">
+                <span>relay</span>
+            </a>
+            <div class="nav-right">
+                <a href="index.html" class="hide-sm">Home</a>
+                <a href="#getting-started" class="hide-sm">Getting started</a>
+                <a href="#tools-reference" class="hide-sm">Tools</a>
+                <a href="https://github.com/valtors/relay" class="hide-sm">GitHub</a>
+                <a href="#install-block" class="pill pill-primary">Install Relay</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="wide-container hero-shell">
+            <div>
+                <div class="eyebrow">Relay docs for real work</div>
+                <h1>Everything you need to <em>get Relay running</em></h1>
+                <p class="lead">Relay is a local MCP server with 40 built-in tools in one Go binary. This page gets you from install to first useful prompt, then gives you the full tool map, CLI reference, config examples, and practical recipes.</p>
+                <div class="hero-actions">
+                    <a class="pill pill-primary" href="#install-block">Start with npx</a>
+                    <a class="pill pill-secondary" href="#tools-reference">See all 40 tools</a>
+                </div>
+                <span class="hand-note">start here, then copy what you need</span>
+            </div>
+
+            <aside class="hero-card">
+                <div class="hero-card-top">
+                    <div>
+                        <h3>Quick take</h3>
+                        <p>One setup flow. One local server. Zero plugin sprawl.</p>
+                    </div>
+                    <img src="assets/images/relay-logo.png" alt="Relay illustration">
+                </div>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <strong>40</strong>
+                        <span>built-in tools</span>
+                    </div>
+                    <div class="stat">
+                        <strong>7</strong>
+                        <span>tool categories</span>
+                    </div>
+                    <div class="stat">
+                        <strong>Go</strong>
+                        <span>single binary</span>
+                    </div>
+                    <div class="stat">
+                        <strong>Local</strong>
+                        <span>your files stay on your machine</span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </header>
+
+    <main class="wide-container docs-layout">
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h3>On this page</h3>
+                <div class="sidebar-nav" id="sidebar-nav">
+                    <a href="#getting-started">Getting Started <span>01</span></a>
+                    <a href="#tools-reference">Tools Reference <span>02</span></a>
+                    <a href="#cli-reference">CLI Reference <span>03</span></a>
+                    <a href="#configuration">Configuration <span>04</span></a>
+                    <a href="#workflows">Workflows / Recipes <span>05</span></a>
+                    <a href="#faq">FAQ <span>06</span></a>
+                </div>
+                <p class="sidebar-small">Everything below is copy-paste friendly, with deep links and copy buttons built in.</p>
+            </div>
+        </aside>
+
+        <section class="content">
+            <div class="mobile-sections" id="mobile-sections">
+                <button class="mobile-sections-toggle" type="button" aria-expanded="false">
+                    <span>Jump to a section</span>
+                    <span>+</span>
+                </button>
+                <div class="mobile-sections-menu" id="mobile-sections-menu">
+                    <a href="#getting-started">Getting Started</a>
+                    <a href="#tools-reference">Tools Reference</a>
+                    <a href="#cli-reference">CLI Reference</a>
+                    <a href="#configuration">Configuration</a>
+                    <a href="#workflows">Workflows / Recipes</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+            </div>
+
+            <section class="section-card" id="getting-started">
+                <div class="section-head">
+                    <div class="section-kicker">01 · Start here</div>
+                    <h2><a class="anchor-link" href="#getting-started">Getting Started</a></h2>
+                    <p>Keep it simple. Install Relay, let it wire itself into your editor, then try one small prompt that proves the whole thing works.</p>
+                </div>
+
+                <div class="subsection" id="install-block">
+                    <h3>Install</h3>
+                    <p>The main path is <span class="inline-code">npx relay-mcp init</span>. It is the quickest way to get the binary in place and set up your editor without hunting through docs.</p>
+                    <div class="badge-row">
+                        <span class="badge accent">Primary: npx relay-mcp init</span>
+                        <span class="badge">Secondary: curl + relay init</span>
+                        <span class="badge">Third: go install + relay init</span>
+                    </div>
+
+                    <div class="grid-3" style="margin-top: 16px;">
+                        <div>
+                            <div class="label">Recommended</div>
+                            <div class="code-block">
+                                <div class="code-top">
+                                    <div class="dots"><span></span><span></span><span></span></div>
+                                    <button class="copy-btn" type="button">Copy</button>
+                                </div>
+                                <pre><code><span class="token-command">npx relay-mcp init</span></code></pre>
+                            </div>
+                            <p style="margin-top: 12px;">Runs the setup flow, installs what you need, and gets you to a working <span class="inline-code">relay</span> command fast.</p>
+                        </div>
+
+                        <div>
+                            <div class="label">Mac / Linux fallback</div>
+                            <div class="code-block">
+                                <div class="code-top">
+                                    <div class="dots"><span></span><span></span><span></span></div>
+                                    <button class="copy-btn" type="button">Copy</button>
+                                </div>
+                                <pre><code><span class="token-command">curl</span> <span class="token-flag">-fsSL</span> <span class="token-string">https://relay.dev/install.sh</span> <span class="token-command">| sh</span>
+<span class="token-command">relay init</span></code></pre>
+                            </div>
+                            <p style="margin-top: 12px;">Good if you want the direct installer path and then the same setup wizard.</p>
+                        </div>
+
+                        <div>
+                            <div class="label">Go fallback</div>
+                            <div class="code-block">
+                                <div class="code-top">
+                                    <div class="dots"><span></span><span></span><span></span></div>
+                                    <button class="copy-btn" type="button">Copy</button>
+                                </div>
+                                <pre><code><span class="token-command">go install</span> <span class="token-string">github.com/valtors/relay@latest</span>
+<span class="token-command">relay init</span></code></pre>
+                            </div>
+                            <p style="margin-top: 12px;">Nice if Go is already part of your day and you want the raw binary straight from source.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 18px;">
+                    <div class="subsection">
+                        <h3>Connect to your editor</h3>
+                        <p><span class="inline-code">relay init</span> should handle this for you. If you want to wire it in manually, jump to the full JSON examples in <a href="#configuration">Configuration</a>.</p>
+                        <ul class="list" style="margin-top: 12px;">
+                            <li>Claude Desktop</li>
+                            <li>Cursor</li>
+                            <li>VS Code with MCP support</li>
+                            <li>Any other MCP client that can run a local command</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>First run</h3>
+                        <p>When you start Relay, it boots the MCP server, loads the 40 tools, and waits for requests from your editor. By default it runs over stdio. If you start it with <span class="inline-code">relay start --http</span>, it exposes a local HTTP MCP endpoint instead.</p>
+                        <ul class="list" style="margin-top: 12px;">
+                            <li>Default transport: stdio</li>
+                            <li>HTTP transport: <span class="inline-code">http://127.0.0.1:8080/mcp</span> by default</li>
+                            <li>Files stay local unless you use the web tools</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection" style="margin-top: 18px;">
+                    <h3>Your first task</h3>
+                    <p>Start with something tiny and obvious. You want a fast win, not a stress test.</p>
+                    <div class="mini-grid" style="margin-top: 14px;">
+                        <div class="mini-card">
+                            <div class="label">Prompt 1</div>
+                            <strong>"Use Relay to count the words in README.md"</strong>
+                            <p style="margin-top: 10px;">Fast proof that your editor can talk to Relay and call a tool.</p>
+                        </div>
+                        <div class="mini-card">
+                            <div class="label">Prompt 2</div>
+                            <strong>"List the files in this folder and summarize what this project is"</strong>
+                            <p style="margin-top: 10px;">Good when there is no README around.</p>
+                        </div>
+                        <div class="mini-card">
+                            <div class="label">Prompt 3</div>
+                            <strong>"Resize every PNG in ./screenshots to 800px wide"</strong>
+                            <p style="margin-top: 10px;">Shows off file tools plus image tools in one go.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note" style="margin-top: 18px;">
+                    <strong>One useful mental model</strong>
+                    <p style="margin-top: 8px;">You do not need to think in tool calls. Just ask naturally. Relay gives your editor the hands. The model decides when to use them.</p>
+                </div>
+            </section>
+
+            <section class="section-card" id="tools-reference">
+                <div class="section-head">
+                    <div class="section-kicker">02 · All built-ins</div>
+                    <h2><a class="anchor-link" href="#tools-reference">Tools Reference</a></h2>
+                    <p>All 40 tools, grouped by category. Every card includes what it does, the params you need, and an example prompt you can actually try.</p>
+                </div>
+
+                <div class="note" style="margin-bottom: 18px;">
+                    <strong>Heads up on workflow tools</strong>
+                    <p style="margin-top: 8px;">The workflow tools are still building. They also need an <span class="inline-code">ANTHROPIC_API_KEY</span> to run the multi-step product workflow.</p>
+                </div>
+
+                <div id="tools-root"></div>
+            </section>
+
+            <section class="section-card" id="cli-reference">
+                <div class="section-head">
+                    <div class="section-kicker">03 · Terminal commands</div>
+                    <h2><a class="anchor-link" href="#cli-reference">CLI Reference</a></h2>
+                    <p>Relay keeps the CLI small on purpose. Most people only use a handful of commands day to day.</p>
+                </div>
+
+                <div class="cli-grid">
+                    <div class="cli-card">
+                        <div class="label">relay</div>
+                        <h3>Start Relay in stdio mode</h3>
+                        <p>Runs the MCP server with the default transport. This is what most editor configs call behind the scenes.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="cli-card">
+                        <div class="label">relay init</div>
+                        <h3>Run the setup wizard</h3>
+                        <p>Detects supported editors, patches the JSON config for you, and gives you a clean next step. This is the manual version of the <span class="inline-code">npx relay-mcp init</span> path.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay init</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="cli-card">
+                        <div class="label">relay start</div>
+                        <h3>Explicitly start the server</h3>
+                        <p>Same idea as <span class="inline-code">relay</span>, but useful when you want the intent to be extra clear or when you want HTTP mode.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay start</span>
+<span class="token-command">relay start</span> <span class="token-flag">--http</span>
+<span class="token-command">relay start</span> <span class="token-flag">--http --addr</span> <span class="token-string">:9090</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="cli-card">
+                        <div class="label">relay tools</div>
+                        <h3>List available tools</h3>
+                        <p>Handy when you want to check what is loaded or inspect the output in JSON.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay tools</span>
+<span class="token-command">relay tools</span> <span class="token-flag">--json</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="cli-card">
+                        <div class="label">relay status</div>
+                        <h3>Quick health snapshot</h3>
+                        <p>Prints the current version, the number of registered tools, and the supported transports.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay status</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="cli-card">
+                        <div class="label">relay version</div>
+                        <h3>Print the current version</h3>
+                        <p>Exactly what it sounds like. Good for bug reports and support questions.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay version</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" id="configuration">
+                <div class="section-head">
+                    <div class="section-kicker">04 · Copy-paste setup</div>
+                    <h2><a class="anchor-link" href="#configuration">Configuration</a></h2>
+                    <p>If <span class="inline-code">relay init</span> already patched these files for you, great. If not, here are clean manual examples you can drop in as-is.</p>
+                </div>
+
+                <div class="config-grid">
+                    <div>
+                        <h3>Claude Desktop</h3>
+                        <p>This is the usual shape for Claude Desktop. If you use workflow tools, add your API key under <span class="inline-code">env</span>.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code>{
+  <span class="token-key">"mcpServers"</span>: {
+    <span class="token-key">"relay"</span>: {
+      <span class="token-key">"command"</span>: <span class="token-string">"relay"</span>,
+      <span class="token-key">"args"</span>: [],
+      <span class="token-key">"env"</span>: {
+        <span class="token-key">"ANTHROPIC_API_KEY"</span>: <span class="token-string">"your-key-here"</span>
+      }
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Cursor</h3>
+                        <p>Cursor uses the same basic idea. Put it in your global config or your project-level <span class="inline-code">.cursor/mcp.json</span>.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code>{
+  <span class="token-key">"mcpServers"</span>: {
+    <span class="token-key">"relay"</span>: {
+      <span class="token-key">"command"</span>: <span class="token-string">"relay"</span>,
+      <span class="token-key">"args"</span>: [],
+      <span class="token-key">"env"</span>: {}
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>VS Code</h3>
+                        <p>VS Code MCP config uses a <span class="inline-code">servers</span> key in many setups. This is the shape you want.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code>{
+  <span class="token-key">"servers"</span>: {
+    <span class="token-key">"relay"</span>: {
+      <span class="token-key">"command"</span>: <span class="token-string">"relay"</span>,
+      <span class="token-key">"args"</span>: [],
+      <span class="token-key">"env"</span>: {}
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Generic HTTP mode</h3>
+                        <p>Start Relay in HTTP mode, then point any MCP client that supports Streamable HTTP at <span class="inline-code">/mcp</span>.</p>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-command">relay start</span> <span class="token-flag">--http --addr</span> <span class="token-string">:8080</span>
+
+{
+  <span class="token-key">"mcpServers"</span>: {
+    <span class="token-key">"relay-http"</span>: {
+      <span class="token-key">"transport"</span>: {
+        <span class="token-key">"type"</span>: <span class="token-string">"streamable-http"</span>,
+        <span class="token-key">"url"</span>: <span class="token-string">"http://127.0.0.1:8080/mcp"</span>
+      }
+    }
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 18px;">
+                    <div class="subsection">
+                        <h3>Environment variables</h3>
+                        <ul class="param-list" style="margin-top: 12px;">
+                            <li><strong>ANTHROPIC_API_KEY</strong> <span style="color: var(--ink-light);">Required for the workflow tools.</span></li>
+                            <li><strong>CHECKPOINT_TIMEOUT_MINUTES</strong> <span style="color: var(--ink-light);">Optional timeout for approval checkpoints.</span></li>
+                            <li><strong>MAX_ITERATIONS_PER_STAGE</strong> <span style="color: var(--ink-light);">Optional cap for workflow retries.</span></li>
+                        </ul>
+                        <div class="code-block">
+                            <div class="code-top">
+                                <div class="dots"><span></span><span></span><span></span></div>
+                                <button class="copy-btn" type="button">Copy</button>
+                            </div>
+                            <pre><code><span class="token-key">ANTHROPIC_API_KEY</span>=<span class="token-string">your_key_here</span>
+<span class="token-comment"># CHECKPOINT_TIMEOUT_MINUTES=30</span>
+<span class="token-comment"># MAX_ITERATIONS_PER_STAGE=5</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="subsection">
+                        <h3>HTTP mode setup notes</h3>
+                        <div class="steps" style="margin-top: 12px;">
+                            <div class="step">
+                                <span class="step-num">1</span>
+                                <div>
+                                    <p><strong>Start Relay</strong></p>
+                                    <p>Run <span class="inline-code">relay start --http</span> or set a custom port with <span class="inline-code">--addr</span>.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">2</span>
+                                <div>
+                                    <p><strong>Point your client at /mcp</strong></p>
+                                    <p>The default endpoint is <span class="inline-code">http://127.0.0.1:8080/mcp</span>.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">3</span>
+                                <div>
+                                    <p><strong>Keep Relay running</strong></p>
+                                    <p>Unlike stdio mode, HTTP mode is a background service, so leave that terminal open or run it in a process manager.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" id="workflows">
+                <div class="section-head">
+                    <div class="section-kicker">05 · Real examples</div>
+                    <h2><a class="anchor-link" href="#workflows">Workflows / Recipes</a></h2>
+                    <p>These are the kinds of tasks Relay is good at right away. Exact prompts included. Copy them, tweak the paths, and go.</p>
+                </div>
+
+                <div class="note" style="margin-bottom: 18px;">
+                    <strong>Workflow tools note</strong>
+                    <p style="margin-top: 8px;">The product workflow commands are still building and need an API key. The recipes below focus on the stable built-in file, image, PDF, text, data, and web tools.</p>
+                </div>
+
+                <div class="recipes-grid">
+                    <div class="recipe-card">
+                        <div class="label">Recipe 1</div>
+                        <h3>Image batch processing</h3>
+                        <p><strong>Prompt</strong></p>
+                        <p><code>"Take every PNG in ./screenshots, resize them to 1200px wide, convert them to JPEG, and save them in ./screenshots/processed"</code></p>
+                        <div class="tools-used">
+                            <strong>Tools used</strong>
+                            <p style="margin-top: 8px;">file_list → image_resize → image_convert → file_write if the client needs a summary file</p>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="label">Recipe 2</div>
+                        <h3>PDF data extraction</h3>
+                        <p><strong>Prompt</strong></p>
+                        <p><code>"Read invoice.pdf, extract all text, then pull out every invoice total and return a JSON array"</code></p>
+                        <div class="tools-used">
+                            <strong>Tools used</strong>
+                            <p style="margin-top: 8px;">pdf_extract_text → text_extract_regex → data_json_format</p>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="label">Recipe 3</div>
+                        <h3>Web scraping to structured data</h3>
+                        <p><strong>Prompt</strong></p>
+                        <p><code>"Fetch https://example.com/pricing, extract the plan names and prices, and return valid JSON"</code></p>
+                        <div class="tools-used">
+                            <strong>Tools used</strong>
+                            <p style="margin-top: 8px;">web_fetch → text_extract_regex or model parsing → data_json_format</p>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="label">Recipe 4</div>
+                        <h3>File organization</h3>
+                        <p><strong>Prompt</strong></p>
+                        <p><code>"List the files in ./downloads, group them by type, then write a cleanup plan to ./downloads/cleanup-plan.md"</code></p>
+                        <div class="tools-used">
+                            <strong>Tools used</strong>
+                            <p style="margin-top: 8px;">file_list → file_size → file_write</p>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card">
+                        <div class="label">Recipe 5</div>
+                        <h3>Data format conversion</h3>
+                        <p><strong>Prompt</strong></p>
+                        <p><code>"Convert this CSV to JSON, grab the first customer's email, and give me both the full JSON and the extracted value"</code></p>
+                        <div class="tools-used">
+                            <strong>Tools used</strong>
+                            <p style="margin-top: 8px;">data_csv_to_json → data_json_query → data_json_format</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-card" id="faq">
+                <div class="section-head">
+                    <div class="section-kicker">06 · Common questions</div>
+                    <h2><a class="anchor-link" href="#faq">FAQ</a></h2>
+                    <p>Short answers, no fluff.</p>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <h3>Does it need internet?</h3>
+                        <p>No for the local tools. Yes only when you use the web tools, or the workflow tools that rely on an API-backed model.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3>Does it send my files anywhere?</h3>
+                        <p>No. Relay runs locally. File, image, PDF, text, and data operations happen on your machine.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3>What editors work?</h3>
+                        <p>Any MCP client. Claude Desktop, Cursor, VS Code, and anything else that can connect to an MCP server.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3>Can I add my own tools?</h3>
+                        <p>Yes. Relay is open source, and the repo includes guidance for adding tools and contributing.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h3>Is it free?</h3>
+                        <p>Yes. MIT licensed, open source, and free to use.</p>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wide-container footer-inner">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="https://github.com/valtors/relay">GitHub</a>
+                <a href="https://github.com/valtors/relay/blob/main/CONTRIBUTING.md">Contributing</a>
+                <a href="https://github.com/valtors/relay/blob/main/SECURITY.md">Security</a>
+            </div>
+            <p>Built by <a href="https://github.com/tamish560">Tamish</a> · Open source under MIT</p>
+        </div>
+    </footer>
+
+    <script>
+        const toolData = [
+            {
+                category: 'File',
+                count: 7,
+                tools: [
+                    { name: 'file_read', description: 'Read the contents of a file.', params: ['path (required) - file path to read'], example: '"Read the contents of config.yaml"' },
+                    { name: 'file_write', description: 'Write text content to a file.', params: ['path (required) - file path to write', 'content (required) - text to save'], example: '"Write a short release note to notes/release.txt"' },
+                    { name: 'file_list', description: 'List files in a directory, with optional recursion.', params: ['path (required) - directory path', 'recursive (optional) - true to walk subfolders'], example: '"List everything inside ./assets recursively"' },
+                    { name: 'file_size', description: 'Get the size of a file in a readable format.', params: ['path (required) - file path'], example: '"Tell me how big build.zip is"' },
+                    { name: 'file_hash', description: 'Compute the SHA-256 hash of a file.', params: ['path (required) - file path'], example: '"Hash installer.pkg so I can compare checksums"' },
+                    { name: 'file_zip', description: 'Zip files or folders into one archive.', params: ['paths (required) - files or folders to archive', 'output (required) - zip file path'], example: '"Zip ./screenshots and ./notes into backups/project.zip"' },
+                    { name: 'file_unzip', description: 'Extract a zip archive.', params: ['path (required) - zip file path', 'output_dir (optional) - folder to extract into'], example: '"Unzip archive/site-assets.zip into ./restored"' }
+                ]
+            },
+            {
+                category: 'Image',
+                count: 7,
+                tools: [
+                    { name: 'image_info', description: 'Get image metadata like width, height, format, and file size.', params: ['path (required) - image path'], example: '"Inspect hero.png and tell me its dimensions"' },
+                    { name: 'image_resize', description: 'Resize an image while keeping aspect ratio if only one dimension is set.', params: ['path (required) - image path', 'width (optional) - target width', 'height (optional) - target height', 'output (optional) - custom output path'], example: '"Resize photo.jpg to 1600px wide"' },
+                    { name: 'image_crop', description: 'Crop an image to a specific rectangle.', params: ['path (required) - image path', 'x (required) - left position', 'y (required) - top position', 'width (required) - crop width', 'height (required) - crop height', 'output (optional) - custom output path'], example: '"Crop avatar.png to a 512 by 512 square starting at x 120 and y 40"' },
+                    { name: 'image_convert', description: 'Convert PNG, JPEG, or GIF into another supported format.', params: ['path (required) - image path', 'format (required) - png, jpeg, or gif', 'quality (optional) - JPEG quality 1 to 100'], example: '"Convert diagram.png to JPEG at quality 90"' },
+                    { name: 'image_rotate', description: 'Rotate an image clockwise by 90, 180, or 270 degrees.', params: ['path (required) - image path', 'degrees (required) - 90, 180, or 270', 'output (optional) - custom output path'], example: '"Rotate scan.jpg by 90 degrees"' },
+                    { name: 'image_grayscale', description: 'Convert an image to grayscale.', params: ['path (required) - image path', 'output (optional) - custom output path'], example: '"Make poster.png grayscale"' },
+                    { name: 'image_flip', description: 'Flip an image horizontally or vertically.', params: ['path (required) - image path', 'direction (required) - horizontal or vertical', 'output (optional) - custom output path'], example: '"Flip logo.png horizontally"' }
+                ]
+            },
+            {
+                category: 'PDF',
+                count: 6,
+                tools: [
+                    { name: 'pdf_info', description: 'Get PDF metadata like page count, title, author, creator, and page dimensions.', params: ['path (required) - PDF path'], example: '"Inspect report.pdf and show me its page count and metadata"' },
+                    { name: 'pdf_extract_text', description: 'Extract text from a PDF, optionally from selected pages only.', params: ['path (required) - PDF path', 'pages (optional) - page selection like 1-3 or 2,4,6'], example: '"Extract the text from pages 2 to 5 of handbook.pdf"' },
+                    { name: 'pdf_page_count', description: 'Return the number of pages in a PDF.', params: ['path (required) - PDF path'], example: '"How many pages are in invoice-batch.pdf?"' },
+                    { name: 'pdf_merge', description: 'Merge multiple PDFs into one file.', params: ['paths (required) - at least two PDF paths', 'output (required) - merged PDF path'], example: '"Merge intro.pdf, appendix.pdf, and pricing.pdf into final-pack.pdf"' },
+                    { name: 'pdf_split', description: 'Split a PDF into separate page files.', params: ['path (required) - PDF path', 'output_dir (optional) - folder for split pages'], example: '"Split workbook.pdf into one PDF per page"' },
+                    { name: 'pdf_extract_pages', description: 'Extract specific pages into a new PDF.', params: ['path (required) - PDF path', 'pages (required) - page selection', 'output (required) - new PDF path'], example: '"Pull pages 1, 3, and 8 from catalog.pdf into sample.pdf"' }
+                ]
+            },
+            {
+                category: 'Text',
+                count: 6,
+                tools: [
+                    { name: 'text_word_count', description: 'Count the words in text.', params: ['text (required) - input text'], example: '"Count the words in this paragraph"' },
+                    { name: 'text_replace', description: 'Replace text once or everywhere.', params: ['text (required) - input text', 'find (required) - text to match', 'replace (required) - replacement text', 'all (optional) - replace all matches, defaults to true'], example: '"Replace every instance of beta with launch in this copy"' },
+                    { name: 'text_extract_regex', description: 'Extract all regex matches from a string.', params: ['text (required) - input text', 'pattern (required) - regex pattern'], example: '"Pull all email addresses out of this text"' },
+                    { name: 'text_base64_encode', description: 'Base64 encode plain text.', params: ['text (required) - input text'], example: '"Encode this JSON payload as base64"' },
+                    { name: 'text_base64_decode', description: 'Decode a base64 string into plain text.', params: ['encoded (required) - base64 input'], example: '"Decode this base64 token so I can inspect it"' },
+                    { name: 'text_md_to_html', description: 'Convert markdown into HTML.', params: ['markdown (required) - markdown text'], example: '"Turn this README section into HTML"' }
+                ]
+            },
+            {
+                category: 'Data',
+                count: 4,
+                tools: [
+                    { name: 'data_json_format', description: 'Pretty-print JSON so it is easier to read.', params: ['json (required) - raw JSON string'], example: '"Format this minified JSON"' },
+                    { name: 'data_csv_to_json', description: 'Convert CSV into a JSON array.', params: ['csv (required) - CSV text'], example: '"Convert this CSV export into JSON"' },
+                    { name: 'data_json_to_csv', description: 'Convert a JSON array into CSV.', params: ['json (required) - JSON array'], example: '"Turn this array of objects into CSV"' },
+                    { name: 'data_json_query', description: 'Query nested JSON with dot-path access.', params: ['json (required) - JSON input', 'path (required) - dot path, with array indexes when needed'], example: '"From this JSON, get customers.0.email"' }
+                ]
+            },
+            {
+                category: 'Web',
+                count: 2,
+                tools: [
+                    { name: 'web_fetch', description: 'Fetch the body of a URL.', params: ['url (required) - URL to fetch', 'method (optional) - HTTP method', 'headers (optional) - request headers object'], example: '"Fetch the pricing page at https://example.com/pricing"' },
+                    { name: 'web_status', description: 'Check whether a URL is reachable and how it responds.', params: ['url (required) - URL to check'], example: '"Check the status of https://example.com"' }
+                ]
+            },
+            {
+                category: 'Workflow',
+                count: 8,
+                note: 'Still building. These tools need an ANTHROPIC_API_KEY and are focused on the multi-agent product workflow.',
+                tools: [
+                    { name: 'run_workflow', description: 'Run the end-to-end product launch pipeline with checkpoints and resume support.', params: ['brief_path (optional) - path to the product brief, defaults to ./product_brief.md', 'resume (optional) - resume the last session when available'], example: '"Run the full workflow for product_brief.md"' },
+                    { name: 'pm_plan', description: 'Read the product brief and write the focused PM handoff for research.', params: ['brief_path (optional) - path to the brief file'], example: '"Create the PM brief from product_brief.md"' },
+                    { name: 'run_research', description: 'Generate the market research stage using web-backed research.', params: ['extra_notes (optional) - iteration notes from a reviewer'], example: '"Run the research stage and incorporate these reviewer notes"' },
+                    { name: 'run_brand', description: 'Generate positioning, brand voice, and messaging pillars.', params: ['extra_notes (optional) - iteration notes from a reviewer'], example: '"Run the brand stage for the latest research output"' },
+                    { name: 'run_ux', description: 'Generate UX flows, screen ideas, and prototype prompts.', params: ['extra_notes (optional) - iteration notes from a reviewer'], example: '"Run the UX stage and include this feedback"' },
+                    { name: 'run_gtm', description: 'Generate the go-to-market plan, including social and B2B outreach tracks.', params: ['extra_notes (optional) - iteration notes from a reviewer'], example: '"Run the GTM stage using the approved research and brand docs"' },
+                    { name: 'request_approval', description: 'Pause at a checkpoint and collect a human approve or iterate decision.', params: ['checkpoint (required) - H1, H2, H3, or H4', 'summary (required) - short PM summary', 'questions (required) - review questions array'], example: '"Request approval at H2 with this summary and these three questions"' },
+                    { name: 'assemble_plan', description: 'Assemble the final product plan from all approved stage outputs.', params: ['product_name (optional) - title used in the final plan'], example: '"Assemble the final plan for Relay"' }
+                ]
+            }
+        ];
+
+        const toolsRoot = document.getElementById('tools-root');
+
+        function renderTools() {
+            toolData.forEach(group => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'tool-category';
+
+                const head = document.createElement('div');
+                head.className = 'tool-category-head';
+                head.innerHTML = `
+                    <div>
+                        <h3>${group.category}</h3>
+                        ${group.note ? `<p style="margin-top:8px; color: var(--ink-light);">${group.note}</p>` : ''}
+                    </div>
+                    <div class="tool-meta">${group.count} tools</div>
+                `;
+                wrapper.appendChild(head);
+
+                const grid = document.createElement('div');
+                grid.className = 'tool-grid';
+
+                group.tools.forEach(tool => {
+                    const card = document.createElement('article');
+                    card.className = 'tool-card';
+                    card.innerHTML = `
+                        <h4>${tool.name}</h4>
+                        <p>${tool.description}</p>
+                        <div class="label" style="margin-top:14px;">Params</div>
+                        <ul class="param-list">${tool.params.map(param => `<li><strong>${param.split(' - ')[0]}</strong>${param.includes(' - ') ? ` <span style="color: var(--ink-light);">- ${param.split(' - ').slice(1).join(' - ')}</span>` : ''}</li>`).join('')}</ul>
+                        <div class="label" style="margin-top:14px;">Example prompt</div>
+                        <div class="example">${tool.example}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                wrapper.appendChild(grid);
+                toolsRoot.appendChild(wrapper);
+            });
+        }
+
+        renderTools();
+
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const block = button.closest('.code-block');
+                const code = block.querySelector('code');
+                const text = code.innerText;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const old = button.textContent;
+                    button.textContent = 'Copied';
+                    button.classList.add('done');
+                    setTimeout(() => {
+                        button.textContent = old;
+                        button.classList.remove('done');
+                    }, 1800);
+                } catch (error) {
+                    button.textContent = 'Copy failed';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 1800);
+                }
+            });
+        });
+
+        const mobileSections = document.getElementById('mobile-sections');
+        const mobileToggle = mobileSections.querySelector('.mobile-sections-toggle');
+        mobileToggle.addEventListener('click', () => {
+            const open = mobileSections.classList.toggle('open');
+            mobileToggle.setAttribute('aria-expanded', String(open));
+            mobileToggle.lastElementChild.textContent = open ? '-' : '+';
+        });
+
+        document.querySelectorAll('#mobile-sections-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileSections.classList.remove('open');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+                mobileToggle.lastElementChild.textContent = '+';
+            });
+        });
+
+        const trackedSections = Array.from(document.querySelectorAll('main section[id]'));
+        const navLinks = Array.from(document.querySelectorAll('#sidebar-nav a, #mobile-sections-menu a'));
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                navLinks.forEach(link => {
+                    const match = link.getAttribute('href') === `#${entry.target.id}`;
+                    link.classList.toggle('active', match);
+                });
+            });
+        }, {
+            rootMargin: '-30% 0px -55% 0px',
+            threshold: 0.1
+        });
+
+        trackedSections.forEach(section => observer.observe(section));
+    </script>
+</body>
+</html>
