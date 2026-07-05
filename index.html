@@ -35,7 +35,7 @@
         img { display: block; max-width: 100%; }
         body::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: 0.02; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); z-index: 9999; }
 
-        .hero-flora { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: auto; max-height: 200px; object-fit: cover; object-position: top; opacity: 0.7; pointer-events: none; z-index: 1; mask-image: linear-gradient(to top, black 40%, transparent); -webkit-mask-image: linear-gradient(to top, black 40%, transparent); }
+        .hero-flora { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 220px; object-fit: cover; object-position: center top; opacity: 0.7; pointer-events: none; z-index: 1; mask-image: linear-gradient(to top, black 30%, transparent); -webkit-mask-image: linear-gradient(to top, black 30%, transparent); }
 
         .visual-img { width: 100%; max-width: 900px; height: auto; border-radius: 8px; opacity: 0.85; }
         .visual-img-lg { max-width: 1100px; }
@@ -93,8 +93,8 @@
         .stack-header p, .tools-header p { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 380px; }
         .tools-header h2 .num { font-family: var(--mono); font-size: 0.4em; color: var(--muted); vertical-align: super; margin-left: 8px; }
 
-        .stack-container { position: relative; height: 420px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: ns-resize; }
-        .stack-viewport { position: relative; width: 100%; max-width: 640px; height: 320px; }
+        .stack-container { position: relative; height: 360px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: ns-resize; }
+        .stack-viewport { position: relative; width: 100%; max-width: 640px; height: 300px; }
         .stack-card { position: absolute; inset: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease, filter 0.3s ease; will-change: transform, opacity, filter; }
         .stack-card-header { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
         .stack-card pre { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--fg); opacity: 0.85; }
@@ -192,11 +192,6 @@
 </div>
 
 <div class="visual-break reveal">
-    <img src="assets/images/mushroom-rock.png" alt="" class="visual-img" style="max-width: 700px; opacity: 0.9;">
-    <span class="visual-break-label">Built different</span>
-</div>
-
-<div class="visual-break reveal" style="border-top: none; padding-top: 0;">
     <img src="assets/images/connection-glow.png" alt="" class="visual-img">
     <span class="visual-break-label">One server, every capability</span>
 </div>
