@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relay — 40 tools. One binary. Zero config.</title>
+    <meta name="description" content="Relay is the MCP server that gives your AI everything it needs: file ops, image processing, PDF, web, data transforms, and workflow orchestration in one zero-config binary.">
+    <meta property="og:image" content="assets/images/og-image.png">
+    <meta property="og:title" content="Relay — 40 tools. One binary. Zero config.">
+    <meta property="og:description" content="The MCP server that gives your AI everything it needs. 40 built-in tools, stdio + HTTP, one binary.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Relay — 40 tools. One binary. Zero config.">
+    <meta name="twitter:description" content="40 built-in tools for files, image, PDF, web, data, text, and workflow. One binary. Zero config.">
+    <meta name="twitter:image" content="assets/images/og-image.png">
+    <meta name="theme-color" content="#0A0C10">
+    <link rel="icon" type="image/png" href="assets/images/relay-logo.png">
+    <link rel="apple-touch-icon" href="assets/images/relay-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --void: #0A0C10;
+            --graphite: #161B22;
+            --graphite-2: #1C2330;
+            --ice: #E6EDF3;
+            --muted: #97A3B6;
+            --line: rgba(230, 237, 243, 0.10);
+            --line-strong: rgba(110, 231, 255, 0.28);
+            --cyan: #6EE7FF;
+            --violet: #B65CFF;
+            --success: #88F0B4;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+            --radius: 24px;
+            --max: 1180px;
+            --mono: "Geist Mono", "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+            --sans: "Inter", "Geist Sans", system-ui, sans-serif;
+            --display: "Space Grotesk", var(--sans);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: var(--void);
+            color-scheme: dark;
+        }
+
+        body {
+            font-family: var(--sans);
+            background:
+                radial-gradient(circle at top left, rgba(110, 231, 255, 0.08), transparent 28%),
+                radial-gradient(circle at top right, rgba(182, 92, 255, 0.10), transparent 34%),
+                var(--void);
+            color: var(--ice);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .page-shell {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .page-shell::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+            background-image:
+                linear-gradient(rgba(230, 237, 243, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(230, 237, 243, 0.04) 1px, transparent 1px),
+                radial-gradient(circle at 1px 1px, rgba(230, 237, 243, 0.12) 1px, transparent 0);
+            background-size: 64px 64px, 64px 64px, 24px 24px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95), rgba(0,0,0,0.35) 55%, transparent 100%);
+            z-index: -1;
+        }
+
+        .container {
+            width: min(var(--max), calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(110, 231, 255, 0.18);
+            background: rgba(22, 27, 34, 0.72);
+            color: var(--muted);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            backdrop-filter: blur(18px);
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyan), var(--violet));
+            box-shadow: 0 0 18px rgba(110, 231, 255, 0.5);
+        }
+
+        .section-heading {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 36px;
+        }
+
+        .section-heading h2 {
+            font-family: var(--display);
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            line-height: 1.02;
+            letter-spacing: -0.04em;
+        }
+
+        .section-heading p {
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 18px 0;
+        }
+
+        .nav-frame {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 14px 18px;
+            border: 1px solid rgba(230, 237, 243, 0.08);
+            border-radius: 18px;
+            background: rgba(10, 12, 16, 0.72);
+            backdrop-filter: blur(22px);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+
+        .brand img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            font-size: 0.95rem;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--ice);
+            transform: translateY(-1px);
+        }
+
+        .pill-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--cyan), #8FF2FF);
+            color: #041218;
+            font-weight: 700;
+            box-shadow: 0 14px 40px rgba(110, 231, 255, 0.22);
+        }
+
+        .hero {
+            padding: clamp(48px, 8vw, 108px) 0 72px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+            gap: 42px;
+            align-items: center;
+        }
+
+        .hero-copy {
+            display: grid;
+            gap: 22px;
+        }
+
+        .hero-logo-wrap {
+            display: inline-flex;
+            width: 124px;
+            padding: 16px;
+            border-radius: 28px;
+            border: 1px solid rgba(230, 237, 243, 0.08);
+            background: linear-gradient(180deg, rgba(22, 27, 34, 0.96), rgba(22, 27, 34, 0.74));
+            box-shadow: var(--shadow);
+        }
+
+        .hero-logo {
+            width: 92px;
+            margin: 0 auto;
+            filter: drop-shadow(0 0 18px rgba(110, 231, 255, 0.22)) drop-shadow(0 0 28px rgba(182, 92, 255, 0.16));
+            animation: spectralDrift 6s ease-in-out infinite;
+        }
+
+        @keyframes spectralDrift {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+                filter: drop-shadow(-6px 0 18px rgba(110, 231, 255, 0.18)) drop-shadow(8px 0 20px rgba(182, 92, 255, 0.14));
+            }
+            50% {
+                transform: translate3d(0, -4px, 0) scale(1.018);
+                filter: drop-shadow(-12px 0 28px rgba(110, 231, 255, 0.28)) drop-shadow(12px 0 30px rgba(182, 92, 255, 0.24));
+            }
+        }
+
+        .hero h1 {
+            max-width: 10ch;
+            font-family: var(--display);
+            font-size: clamp(3rem, 8vw, 6.15rem);
+            line-height: 0.95;
+            letter-spacing: -0.065em;
+            text-wrap: balance;
+        }
+
+        .hero p {
+            max-width: 640px;
+            color: var(--muted);
+            font-size: clamp(1rem, 1.8vw, 1.12rem);
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .ghost-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(230, 237, 243, 0.1);
+            background: rgba(22, 27, 34, 0.86);
+            color: var(--ice);
+            font-weight: 600;
+        }
+
+        .terminal {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line-strong);
+            border-radius: 24px;
+            background:
+                linear-gradient(180deg, rgba(28, 35, 48, 0.96), rgba(22, 27, 34, 0.98)),
+                var(--graphite);
+            box-shadow: var(--shadow);
+        }
+
+        .terminal::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(110, 231, 255, 0.08), transparent 35%, rgba(182, 92, 255, 0.08));
+            pointer-events: none;
+        }
+
+        .terminal-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(230, 237, 243, 0.08);
+            background: rgba(10, 12, 16, 0.42);
+        }
+
+        .terminal-lights {
+            display: inline-flex;
+            gap: 8px;
+        }
+
+        .terminal-lights span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(230, 237, 243, 0.18);
+        }
+
+        .terminal-label {
+            color: var(--muted);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .terminal pre {
+            min-height: 320px;
+            padding: 24px 24px 28px;
+            color: var(--ice);
+            font-family: var(--mono);
+            font-size: clamp(0.74rem, 1.4vw, 0.98rem);
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .section {
+            padding: 88px 0;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            padding: 28px;
+            border-radius: var(--radius);
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(28, 35, 48, 0.94), rgba(22, 27, 34, 0.92));
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(110, 231, 255, 0.22), transparent 35%, rgba(182, 92, 255, 0.18));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .card h3,
+        .tool-group h3,
+        .setup-card h3 {
+            font-family: var(--display);
+            font-size: 1.35rem;
+            letter-spacing: -0.04em;
+            margin-bottom: 10px;
+        }
+
+        .card p,
+        .tool-group p,
+        .setup-card p,
+        .footer-meta {
+            color: var(--muted);
+        }
+
+        .tool-wall {
+            padding-bottom: 116px;
+        }
+
+        .tool-board {
+            position: relative;
+            padding: 24px;
+            border: 1px solid rgba(230, 237, 243, 0.08);
+            border-radius: 32px;
+            background: linear-gradient(180deg, rgba(22, 27, 34, 0.9), rgba(10, 12, 16, 0.98));
+            overflow: hidden;
+        }
+
+        .tool-board::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(110, 231, 255, 0.10), transparent 46%);
+            pointer-events: none;
+        }
+
+        .tool-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            transform-origin: center center;
+        }
+
+        .tool-group {
+            display: grid;
+            gap: 14px;
+            min-height: 100%;
+            padding: 22px;
+            border-radius: 22px;
+            border: 1px solid rgba(230, 237, 243, 0.08);
+            background: rgba(28, 35, 48, 0.72);
+            backdrop-filter: blur(18px);
+            transform-origin: center center;
+        }
+
+        .tool-group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .count-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(230, 237, 243, 0.06);
+            color: var(--ice);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .chip-file { background: rgba(110, 231, 255, 0.10); border-color: rgba(110, 231, 255, 0.24); color: #AEF4FF; }
+        .chip-image { background: rgba(182, 92, 255, 0.12); border-color: rgba(182, 92, 255, 0.24); color: #D9B0FF; }
+        .chip-pdf { background: rgba(255, 137, 137, 0.11); border-color: rgba(255, 137, 137, 0.24); color: #FFC6C6; }
+        .chip-data { background: rgba(136, 240, 180, 0.11); border-color: rgba(136, 240, 180, 0.24); color: #B8F7D1; }
+        .chip-text { background: rgba(255, 220, 128, 0.12); border-color: rgba(255, 220, 128, 0.24); color: #FFE8A8; }
+        .chip-web { background: rgba(128, 164, 255, 0.12); border-color: rgba(128, 164, 255, 0.24); color: #C1D4FF; }
+        .chip-workflow { background: rgba(230, 237, 243, 0.08); border-color: rgba(230, 237, 243, 0.16); color: var(--ice); }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .setup-card {
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(22, 27, 34, 0.94), rgba(12, 15, 20, 0.96));
+        }
+
+        .setup-card small {
+            display: inline-block;
+            margin-bottom: 12px;
+            color: var(--muted);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .setup-card pre {
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(230, 237, 243, 0.08);
+            background: rgba(10, 12, 16, 0.9);
+            color: var(--ice);
+            font-family: var(--mono);
+            font-size: 0.84rem;
+            line-height: 1.55;
+            overflow-x: auto;
+        }
+
+        footer {
+            padding: 0 0 42px;
+        }
+
+        .footer-frame {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 24px;
+            border-top: 1px solid rgba(230, 237, 243, 0.08);
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: var(--muted);
+        }
+
+        .footer-links a:hover,
+        .footer-meta a:hover {
+            color: var(--ice);
+        }
+
+        .muted-code {
+            color: var(--cyan);
+            font-family: var(--mono);
+        }
+
+        @media (max-width: 1080px) {
+            .hero-grid,
+            .tool-grid,
+            .why-grid,
+            .setup-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero h1 {
+                max-width: 12ch;
+            }
+        }
+
+        @media (max-width: 740px) {
+            .site-nav {
+                padding-top: 12px;
+            }
+
+            .nav-frame,
+            .footer-frame {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero,
+            .section {
+                padding: 68px 0;
+            }
+
+            .hero-grid,
+            .tool-grid,
+            .why-grid,
+            .setup-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .hero-logo-wrap {
+                width: 112px;
+            }
+
+            .hero h1 {
+                max-width: none;
+                font-size: clamp(2.8rem, 14vw, 4.4rem);
+            }
+
+            .terminal pre {
+                min-height: 280px;
+                font-size: 0.72rem;
+            }
+
+            .tool-board {
+                padding: 18px;
+            }
+
+            .card,
+            .tool-group,
+            .setup-card {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <nav class="site-nav">
+            <div class="container">
+                <div class="nav-frame">
+                    <a class="brand" href="#top" aria-label="Relay home">
+                        <img src="assets/images/relay-logo.png" alt="Relay logo">
+                        <span>relay</span>
+                    </a>
+                    <div class="nav-links">
+                        <a href="docs.html">Docs</a>
+                        <a href="https://github.com/valtors/relay" target="_blank" rel="noreferrer">GitHub</a>
+                        <a class="pill-button" href="https://www.npmjs.com/package/userelay" target="_blank" rel="noreferrer">npx userelay</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main id="top">
+            <section class="hero">
+                <div class="container hero-grid">
+                    <div class="hero-copy">
+                        <span class="eyebrow">MCP server for serious agents</span>
+                        <div class="hero-logo-wrap">
+                            <img class="hero-logo" src="assets/images/relay-logo.png" alt="Relay spectral-edge cat mascot">
+                        </div>
+                        <div>
+                            <h1>40 tools. One binary. Zero config.</h1>
+                        </div>
+                        <p>The MCP server that gives your AI everything it needs. File ops, image processing, PDF, web, data transforms, workflow orchestration — all in one <span class="muted-code">npx userelay</span>.</p>
+                        <div class="hero-actions">
+                            <a class="pill-button" href="#setup">Run in 10 seconds</a>
+                            <a class="ghost-link" href="https://github.com/valtors/relay" target="_blank" rel="noreferrer">View on GitHub</a>
+                        </div>
+                    </div>
+
+                    <div class="terminal" id="terminal-card">
+                        <div class="terminal-topbar">
+                            <div class="terminal-lights" aria-hidden="true">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <div class="terminal-label">relay boot</div>
+                        </div>
+                        <pre id="terminal-boot" aria-label="Relay terminal boot output"></pre>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="eyebrow">Why Relay</span>
+                        <h2>One install surface. Full agent capability.</h2>
+                        <p>Relay is built for teams that want local-first power without plugin sprawl. It feels like a terminal tool, not a toy integration.</p>
+                    </div>
+                    <div class="why-grid">
+                        <article class="card">
+                            <h3>Single Binary</h3>
+                            <p>One <span class="muted-code">go install</span> or <span class="muted-code">npx userelay</span>. No Docker, no dependencies, no config files.</p>
+                        </article>
+                        <article class="card">
+                            <h3>40 Built-in Tools</h3>
+                            <p>File, image, PDF, web, data, text, workflow. Everything an agent needs, pre-wired.</p>
+                        </article>
+                        <article class="card">
+                            <h3>Stdio + HTTP</h3>
+                            <p>Works with Claude Desktop, Cursor, VS Code, any MCP client. Both transports, one binary.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section tool-wall" id="tools">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="eyebrow">Tool Wall</span>
+                        <h2>Everything your agent needs</h2>
+                        <p>Forty built-in tools across file operations, media handling, structured data, web access, and workflow orchestration — shaped to feel native inside agent loops.</p>
+                    </div>
+                    <div class="tool-board" id="tool-board">
+                        <div class="tool-grid" id="tool-grid">
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>File</h3>
+                                    <span class="count-pill">7</span>
+                                </div>
+                                <p>Read, shape, archive, and verify local assets.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-file">read</span>
+                                    <span class="chip chip-file">write</span>
+                                    <span class="chip chip-file">list</span>
+                                    <span class="chip chip-file">size</span>
+                                    <span class="chip chip-file">hash</span>
+                                    <span class="chip chip-file">zip</span>
+                                    <span class="chip chip-file">unzip</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>Image</h3>
+                                    <span class="count-pill">7</span>
+                                </div>
+                                <p>Inspect and transform images without leaving the flow.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-image">info</span>
+                                    <span class="chip chip-image">resize</span>
+                                    <span class="chip chip-image">crop</span>
+                                    <span class="chip chip-image">convert</span>
+                                    <span class="chip chip-image">rotate</span>
+                                    <span class="chip chip-image">grayscale</span>
+                                    <span class="chip chip-image">flip</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>PDF</h3>
+                                    <span class="count-pill">6</span>
+                                </div>
+                                <p>Extract, split, merge, and inspect document payloads.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-pdf">info</span>
+                                    <span class="chip chip-pdf">page_count</span>
+                                    <span class="chip chip-pdf">extract_text</span>
+                                    <span class="chip chip-pdf">extract_pages</span>
+                                    <span class="chip chip-pdf">merge</span>
+                                    <span class="chip chip-pdf">split</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>Data</h3>
+                                    <span class="count-pill">4</span>
+                                </div>
+                                <p>Move cleanly between formats and query structured content.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-data">csv→json</span>
+                                    <span class="chip chip-data">json→csv</span>
+                                    <span class="chip chip-data">format json</span>
+                                    <span class="chip chip-data">query json</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>Text</h3>
+                                    <span class="count-pill">6</span>
+                                </div>
+                                <p>Count, reshape, extract, encode, and render text fast.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-text">word_count</span>
+                                    <span class="chip chip-text">replace</span>
+                                    <span class="chip chip-text">extract_regex</span>
+                                    <span class="chip chip-text">base64_encode</span>
+                                    <span class="chip chip-text">base64_decode</span>
+                                    <span class="chip chip-text">md→html</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>Web</h3>
+                                    <span class="count-pill">2</span>
+                                </div>
+                                <p>Fetch remote resources and verify HTTP health.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-web">fetch</span>
+                                    <span class="chip chip-web">status</span>
+                                </div>
+                            </article>
+                            <article class="tool-group">
+                                <div class="tool-group-header">
+                                    <h3>Workflow</h3>
+                                    <span class="count-pill">8</span>
+                                </div>
+                                <p>Compose agent plans, reviews, approvals, and deliverables.</p>
+                                <div class="chip-row">
+                                    <span class="chip chip-workflow">run workflow</span>
+                                    <span class="chip chip-workflow">PM plan</span>
+                                    <span class="chip chip-workflow">research</span>
+                                    <span class="chip chip-workflow">brand</span>
+                                    <span class="chip chip-workflow">UX</span>
+                                    <span class="chip chip-workflow">GTM</span>
+                                    <span class="chip chip-workflow">approval</span>
+                                    <span class="chip chip-workflow">assemble plan</span>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="setup">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="eyebrow">Setup</span>
+                        <h2>Running in 10 seconds</h2>
+                        <p>Drop Relay into the MCP client you already use. No service mesh, no sidecar process, no local scripting ceremony.</p>
+                    </div>
+                    <div class="setup-grid">
+                        <article class="setup-card">
+                            <small>Claude Desktop · claude_desktop_config.json</small>
+                            <h3>Local stdio transport</h3>
+                            <p>Point Claude Desktop at Relay and it boots on demand.</p>
+                            <pre><code>{
+  "mcpServers": {
+    "relay": {
+      "command": "npx",
+      "args": ["-y", "userelay"]
+    }
+  }
+}</code></pre>
+                        </article>
+                        <article class="setup-card">
+                            <small>Cursor · .cursor/mcp.json</small>
+                            <h3>Drop into Cursor</h3>
+                            <p>Same contract, same binary, zero extra packaging.</p>
+                            <pre><code>{
+  "mcpServers": {
+    "relay": {
+      "command": "npx",
+      "args": ["-y", "userelay"]
+    }
+  }
+}</code></pre>
+                        </article>
+                        <article class="setup-card">
+                            <small>HTTP mode · any client</small>
+                            <h3>Expose over HTTP</h3>
+                            <p>Run Relay as a networked MCP endpoint when you need it.</p>
+                            <pre><code>npx userelay --http :8080</code></pre>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <div class="footer-frame">
+                    <p class="footer-meta">Built by <a href="https://github.com/valtors" target="_blank" rel="noreferrer">valtors</a> · MIT Licensed</p>
+                    <div class="footer-links">
+                        <a href="https://github.com/valtors/relay" target="_blank" rel="noreferrer">GitHub</a>
+                        <a href="https://www.npmjs.com/package/userelay" target="_blank" rel="noreferrer">npm</a>
+                        <a href="docs.html">Docs</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script>
+        const lenis = new Lenis({
+            duration: 1.05,
+            smoothWheel: true,
+            smoothTouch: false
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+
+        gsap.registerPlugin(ScrollTrigger);
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.lagSmoothing(0);
+
+        const bootOutput = `$ npx userelay\n██████╗ ███████╗██╗      █████╗ ██╗   ██╗\n██╔══██╗██╔════╝██║     ██╔══██╗╚██╗ ██╔╝\n██████╔╝█████╗  ██║     ███████║ ╚████╔╝\n██╔══██╗██╔══╝  ██║     ██╔══██║  ╚██╔╝\n██║  ██║███████╗███████╗██║  ██║   ██║\n╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝   ╚═╝\nv0.3.0  ·  tools 40  ·  transport stdio | http`;
+        const bootElement = document.getElementById('terminal-boot');
+
+        ScrollTrigger.create({
+            trigger: '#terminal-card',
+            start: 'top 82%',
+            once: true,
+            onEnter: () => {
+                const state = { count: 0 };
+                gsap.to(state, {
+                    count: bootOutput.length,
+                    duration: 2.8,
+                    ease: 'none',
+                    snap: 'count',
+                    onUpdate: () => {
+                        bootElement.textContent = bootOutput.slice(0, state.count);
+                    }
+                });
+            }
+        });
+
+        const toolGroups = gsap.utils.toArray('.tool-group');
+
+        ScrollTrigger.matchMedia({
+            '(min-width: 741px)': () => {
+                const board = document.getElementById('tool-board');
+                const boardCenter = () => ({
+                    x: board.clientWidth / 2,
+                    y: board.clientHeight / 2
+                });
+                const toolTimeline = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#tools',
+                        start: 'top top',
+                        end: '+=150%',
+                        scrub: true,
+                        pin: true,
+                        invalidateOnRefresh: true
+                    }
+                });
+
+                toolGroups.forEach((group, index) => {
+                    toolTimeline.to(group, {
+                        x: () => {
+                            const boardRect = board.getBoundingClientRect();
+                            const rect = group.getBoundingClientRect();
+                            const center = boardCenter();
+                            const groupCenterX = rect.left - boardRect.left + rect.width / 2;
+                            return (center.x - groupCenterX) * 0.62;
+                        },
+                        y: () => {
+                            const boardRect = board.getBoundingClientRect();
+                            const rect = group.getBoundingClientRect();
+                            const center = boardCenter();
+                            const groupCenterY = rect.top - boardRect.top + rect.height / 2;
+                            return (center.y - groupCenterY) * 0.68 + (index - (toolGroups.length - 1) / 2) * 14;
+                        },
+                        scale: 0.78,
+                        opacity: 0.94,
+                        ease: 'none'
+                    }, 0);
+                });
+
+                toolTimeline.to('#tool-grid', {
+                    scale: 0.94,
+                    ease: 'none'
+                }, 0);
+            },
+            '(max-width: 740px)': () => {
+                gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#tools',
+                        start: 'top top',
+                        end: '+=120%',
+                        scrub: true,
+                        pin: true
+                    }
+                }).to('.tool-group', {
+                    yPercent: -8,
+                    scale: 0.96,
+                    stagger: 0.02,
+                    ease: 'none'
+                }, 0);
+            }
+        });
+    </script>
+</body>
+</html>
