@@ -59,8 +59,8 @@
         .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 160px 48px 120px; overflow: hidden; }
         .hero-grid-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
         .hero-grid-bg canvas { width: 100%; height: 100%; }
-        .hero-logo { width: 80px; height: 80px; margin-bottom: 32px; border-radius: 20px; filter: drop-shadow(0 0 30px rgba(110,231,255,0.15)) drop-shadow(0 0 60px rgba(182,92,255,0.1)); animation: logoPulse 4s ease-in-out infinite; position: relative; z-index: 2; }
-        @keyframes logoPulse { 0%,100% { filter: drop-shadow(0 0 20px rgba(110,231,255,0.12)) drop-shadow(0 0 40px rgba(182,92,255,0.08)); } 50% { filter: drop-shadow(0 0 40px rgba(110,231,255,0.25)) drop-shadow(0 0 80px rgba(182,92,255,0.18)); } }
+        .hero-logo { width: 64px; height: 64px; margin-bottom: 32px; border-radius: 16px; filter: drop-shadow(0 0 12px rgba(110,231,255,0.1)); position: relative; z-index: 2; }
+        @keyframes logoPulse { 0%,100% { filter: drop-shadow(0 0 10px rgba(110,231,255,0.08)); } 50% { filter: drop-shadow(0 0 18px rgba(110,231,255,0.15)); } }
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 24px; position: relative; z-index: 2; }
         .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.2); }
         .hero h1 { font-family: var(--serif); font-size: clamp(64px, 12vw, 150px); font-weight: 400; line-height: 0.88; letter-spacing: -0.03em; margin-bottom: 48px; position: relative; z-index: 2; }
@@ -77,7 +77,7 @@
         .terminal-bar { padding: 16px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-subtle); }
         .terminal-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.08); }
         .terminal-title { margin-left: 12px; font-size: 12px; color: var(--muted); font-family: var(--mono); }
-        .terminal pre { padding: 32px; font-family: var(--mono); font-size: 13px; line-height: 1.55; color: var(--fg); overflow-x: auto; min-height: 280px; }
+        .terminal pre { padding: 32px; font-family: var(--mono); font-size: 13px; line-height: 1.55; color: var(--fg); overflow-x: auto; min-height: 280px; white-space: pre; letter-spacing: 0; font-variant-ligatures: none; -webkit-font-feature-settings: "liga" 0; font-feature-settings: "liga" 0; }
         .terminal .cyan { color: var(--accent); }
         .terminal .dim { color: var(--muted); }
 
@@ -95,7 +95,10 @@
 
         .stack-container { position: relative; height: 360px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: ns-resize; }
         .stack-viewport { position: relative; width: 100%; max-width: 640px; height: 300px; }
-        .stack-card { position: absolute; inset: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease, filter 0.3s ease; will-change: transform, opacity, filter; }
+        .stack-card { position: absolute; inset: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease; will-change: transform, opacity; opacity: 0; visibility: hidden; }
+        .stack-card.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .stack-card.next { opacity: 0.4; visibility: visible; transform: translateY(12px) scale(0.96); }
+        .stack-card.next2 { opacity: 0.15; visibility: visible; transform: translateY(24px) scale(0.92); }
         .stack-card-header { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
         .stack-card pre { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--fg); opacity: 0.85; }
         .stack-card pre .dim { color: var(--muted); }
@@ -338,7 +341,7 @@ new IntersectionObserver(es=>{if(es[0].isIntersecting){setTimeout(tn,300);es[0].
 const tEl=document.querySelector('.terminal');const tObs=new IntersectionObserver(es=>{if(es[0].isIntersecting){setTimeout(tn,300);tObs.disconnect()}},{threshold:.3});tObs.observe(tEl);
 
 // Card stack
-!function(){const ct=document.getElementById('stackContainer'),cards=ct.querySelectorAll('.stack-card'),tot=cards.length;let cur=0,acc=0,lt=Date.now();function render(){cards.forEach((c,i)=>{const off=i-cur;if(off<-1||off>4){c.style.opacity='0';c.style.pointerEvents='none';return}c.style.transform=`translateY(${Math.max(off*-28,-112)}px) scale(${Math.max(1-off*.05,.7)})`;c.style.opacity=off<0?'0':'1';c.style.filter=off<0?'blur(2px)':'none';c.style.zIndex=100-i;c.style.pointerEvents=off===0?'auto':'none'})}ct.addEventListener('wheel',e=>{e.preventDefault();acc+=e.deltaY;const n=Date.now();if(Math.abs(acc)>=45&&n-lt>=100){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});let ty=0;ct.addEventListener('touchstart',e=>{ty=e.touches[0].clientY});ct.addEventListener('touchmove',e=>{e.preventDefault();acc+=ty-e.touches[0].clientY;ty=e.touches[0].clientY;const n=Date.now();if(Math.abs(acc)>=45&&n-lt>=100){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});render()}();
+!function(){const ct=document.getElementById('stackContainer'),cards=ct.querySelectorAll('.stack-card'),tot=cards.length;let cur=0,acc=0,lt=Date.now();function render(){cards.forEach((c,i)=>{c.classList.remove('active','next','next2');const off=((i-cur)%tot+tot)%tot;if(off===0)c.classList.add('active');else if(off===1)c.classList.add('next');else if(off===2)c.classList.add('next2');c.style.zIndex=100-off})}ct.addEventListener('wheel',e=>{e.preventDefault();acc+=e.deltaY;const n=Date.now();if(Math.abs(acc)>=40&&n-lt>=80){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});let ty=0;ct.addEventListener('touchstart',e=>{ty=e.touches[0].clientY});ct.addEventListener('touchmove',e=>{e.preventDefault();acc+=ty-e.touches[0].clientY;ty=e.touches[0].clientY;const n=Date.now();if(Math.abs(acc)>=40&&n-lt>=80){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});render()}();
 </script>
 </body>
 </html>
