@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relay</title>
+    <meta name="description" content="40 tools. One binary. Zero config. The MCP server for AI agents.">
+    <meta property="og:image" content="assets/images/og-image.png">
+    <meta property="og:title" content="Relay">
+    <meta property="og:description" content="40 tools. One binary. Zero config.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/png" href="assets/images/relay-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #000000;
+            --fg: #fafafa;
+            --muted: #666;
+            --border: rgba(255,255,255,0.06);
+            --border-subtle: rgba(255,255,255,0.04);
+            --surface: rgba(255,255,255,0.025);
+            --accent: #6ee7ff;
+            --violet: #b65cff;
+            --serif: 'Instrument Serif', Georgia, serif;
+            --sans: 'Inter', -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        html { background: var(--bg); scroll-behavior: smooth; }
+        body { font-family: var(--sans); color: var(--fg); background: var(--bg); line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        a { color: inherit; text-decoration: none; }
+        img { display: block; max-width: 100%; }
+        body::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: 0.02; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); z-index: 9999; }
+
+        .hero-flora { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 220px; object-fit: cover; object-position: center top; opacity: 0.7; pointer-events: none; z-index: 1; mask-image: linear-gradient(to top, black 30%, transparent); -webkit-mask-image: linear-gradient(to top, black 30%, transparent); }
+
+        .visual-img { width: 100%; max-width: 900px; height: auto; border-radius: 8px; opacity: 0.85; }
+        .visual-img-lg { max-width: 1100px; }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 24px 48px; display: flex; align-items: center; justify-content: space-between; transition: all 0.5s; }
+        nav.scrolled { padding: 14px 32px; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-brand img { width: 32px; height: 32px; border-radius: 8px; }
+        .nav-brand span { font-weight: 600; font-size: 16px; letter-spacing: -0.03em; }
+        .nav-links { display: flex; align-items: center; gap: 32px; }
+        .nav-links a { font-size: 14px; color: var(--muted); transition: color 0.2s; }
+        .nav-links a:hover { color: var(--fg); }
+
+        .shader-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 142px; height: 46px; cursor: pointer; border: none; background: transparent; outline: none; }
+        .shader-btn-bg { position: absolute; inset: 0; border-radius: 100px; overflow: hidden; }
+        .shader-btn-bg canvas { width: 100% !important; height: 100% !important; display: block !important; position: absolute !important; inset: 0 !important; border-radius: 100px !important; }
+        .shader-btn-inner { position: absolute; inset: 2px; border-radius: 100px; background: linear-gradient(180deg, #202020, #000); }
+        .shader-btn-label { position: relative; z-index: 10; font-family: var(--sans); font-size: 13px; font-weight: 500; color: #999; pointer-events: none; }
+        .shader-btn:hover .shader-btn-label { color: #ccc; }
+
+        .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 160px 48px 120px; overflow: hidden; }
+        .hero-grid-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .hero-grid-bg canvas { width: 100%; height: 100%; }
+        .hero-logo { width: 64px; height: 64px; margin-bottom: 32px; border-radius: 16px; filter: drop-shadow(0 0 12px rgba(110,231,255,0.1)); position: relative; z-index: 2; }
+        @keyframes logoPulse { 0%,100% { filter: drop-shadow(0 0 10px rgba(110,231,255,0.08)); } 50% { filter: drop-shadow(0 0 18px rgba(110,231,255,0.15)); } }
+        .hero-eyebrow { display: inline-flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 24px; position: relative; z-index: 2; }
+        .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.2); }
+        .hero h1 { font-family: var(--serif); font-size: clamp(64px, 12vw, 150px); font-weight: 400; line-height: 0.88; letter-spacing: -0.03em; margin-bottom: 48px; position: relative; z-index: 2; }
+        .hero h1 .muted { color: var(--muted); }
+        .hero h1 em { font-style: italic; }
+        .hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; position: relative; z-index: 2; }
+        .hero-desc { max-width: 420px; font-size: 16px; color: var(--muted); line-height: 1.7; }
+        .hero-copy-btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-family: var(--mono); font-size: 14px; color: var(--fg); cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; }
+        .hero-copy-btn:hover { border-color: rgba(110,231,255,0.2); box-shadow: 0 0 30px rgba(110,231,255,0.04); }
+        .hero-copy-btn .dollar { color: var(--muted); user-select: none; }
+
+        .terminal-wrap { padding: 0 48px; max-width: 820px; }
+        .terminal { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: rgba(10,10,10,0.8); }
+        .terminal-bar { padding: 16px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-subtle); }
+        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+        .terminal-title { margin-left: 12px; font-size: 12px; color: var(--muted); font-family: var(--mono); }
+        .terminal pre { padding: 32px; font-family: var(--mono); font-size: 13px; line-height: 1.55; color: var(--fg); overflow-x: auto; min-height: 280px; white-space: pre; letter-spacing: 0; font-variant-ligatures: none; -webkit-font-feature-settings: "liga" 0; font-feature-settings: "liga" 0; }
+        .terminal .cyan { color: var(--accent); }
+        .terminal .dim { color: var(--muted); }
+
+        .visual-break { padding: 80px 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; gap: 24px; overflow: hidden; }
+        .visual-break-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+        .section { padding: 120px 48px; }
+        .section-label { display: inline-flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 48px; }
+        .section-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.15); }
+
+        .stack-header, .tools-header { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-bottom: 64px; align-items: end; }
+        .stack-header h2, .tools-header h2, .setup-header h2 { font-family: var(--serif); font-size: clamp(48px, 8vw, 100px); font-weight: 400; line-height: 0.9; letter-spacing: -0.03em; }
+        .stack-header p, .tools-header p { color: var(--muted); font-size: 16px; line-height: 1.7; max-width: 380px; }
+        .tools-header h2 .num { font-family: var(--mono); font-size: 0.4em; color: var(--muted); vertical-align: super; margin-left: 8px; }
+
+        .stack-container { position: relative; height: 360px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: ns-resize; }
+        .stack-viewport { position: relative; width: 100%; max-width: 640px; height: 300px; }
+        .stack-card { position: absolute; inset: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.4s ease; will-change: transform, opacity; opacity: 0; visibility: hidden; }
+        .stack-card.active { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .stack-card.next { opacity: 0.4; visibility: visible; transform: translateY(12px) scale(0.96); }
+        .stack-card.next2 { opacity: 0.15; visibility: visible; transform: translateY(24px) scale(0.92); }
+        .stack-card-header { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+        .stack-card pre { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--fg); opacity: 0.85; }
+        .stack-card pre .dim { color: var(--muted); }
+        .stack-card pre .cyan { color: var(--accent); }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .tool-group { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; transition: border-color 0.3s, background 0.3s; }
+        .tool-group:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.035); }
+        .tool-group h3 { font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
+        .tool-group ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .tool-group li { font-family: var(--mono); font-size: 13px; color: var(--fg); opacity: 0.7; }
+
+        .marquee-section { padding: 100px 0; overflow: hidden; position: relative; }
+        .marquee-section::before, .marquee-section::after { content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none; }
+        .marquee-section::before { left: 0; background: linear-gradient(to right, #000, transparent); }
+        .marquee-section::after { right: 0; background: linear-gradient(to left, #000, transparent); }
+        .marquee-label { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 32px; }
+        .marquee-track { display: flex; gap: 64px; animation: mscroll 25s linear infinite; width: max-content; }
+        .marquee-track span { font-size: 15px; color: rgba(255,255,255,0.4); white-space: nowrap; font-weight: 500; }
+        @keyframes mscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .setup-header { margin-bottom: 64px; }
+        .setup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .setup-card { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+        .setup-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .setup-card .setup-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; font-family: var(--mono); }
+        .setup-card pre { font-family: var(--mono); font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.6); overflow-x: auto; }
+        .setup-card pre .key { color: var(--accent); }
+        .setup-card pre .str { color: #a5d6ff; }
+
+        footer { padding: 64px 48px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--muted); }
+        footer a:hover { color: var(--fg); }
+        .footer-links { display: flex; gap: 32px; }
+
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 900px) {
+            .hero { padding: 140px 24px 80px; }
+            .terminal-wrap { padding: 0 24px; }
+            .visual-break { padding: 80px 24px; }
+            .section { padding: 100px 24px; }
+            .stack-header, .tools-header { grid-template-columns: 1fr; gap: 24px; }
+            .tools-grid { grid-template-columns: 1fr 1fr; }
+            .setup-grid { grid-template-columns: 1fr; }
+            .hero-bottom { flex-direction: column; align-items: flex-start; }
+            nav { padding: 16px 24px; }
+            .nav-links { gap: 20px; }
+            footer { padding: 32px 24px; flex-direction: column; gap: 16px; align-items: flex-start; }
+        }
+        @media (max-width: 600px) {
+            .tools-grid { grid-template-columns: 1fr; }
+            .nav-links .hide-mobile { display: none; }
+            .shader-btn { width: 120px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav id="nav">
+    <a href="/" class="nav-brand"><img src="assets/images/relay-logo.png" alt=""><span>relay</span></a>
+    <div class="nav-links">
+        <a href="#tools" class="hide-mobile">Tools</a>
+        <a href="#setup" class="hide-mobile">Setup</a>
+        <a href="docs.html">Docs</a>
+        <a href="https://github.com/valtors/relay">GitHub</a>
+        <button class="shader-btn" id="navShaderBtn" onclick="window.open('https://npmjs.com/package/userelay')">
+            <div class="shader-btn-bg" id="navShaderBg"></div>
+            <div class="shader-btn-inner"></div>
+            <span class="shader-btn-label">npx userelay</span>
+        </button>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-grid-bg"><canvas id="gridCanvas"></canvas></div>
+    <img src="assets/images/relay-logo.png" alt="Relay" class="hero-logo reveal">
+    <span class="hero-eyebrow">MCP server for AI agents</span>
+    <h1 class="reveal">Forty tools,<br><span class="muted"><em>one binary.</em></span></h1>
+    <div class="hero-bottom reveal">
+        <p class="hero-desc">File ops, image processing, PDF, web, data transforms, workflow orchestration. Everything your agent needs ships in a single zero-config binary.</p>
+        <div class="hero-copy-btn" onclick="navigator.clipboard.writeText('npx userelay');this.querySelector('span:last-child').textContent='copied!'">
+            <span class="dollar">$</span><span>npx userelay</span>
+        </div>
+    </div>
+    
+</section>
+
+<div class="terminal-wrap reveal">
+    <div class="terminal">
+        <div class="terminal-bar"><div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div><span class="terminal-title">relay status</span></div>
+        <pre id="term"></pre>
+    </div>
+</div>
+
+<div class="visual-break reveal">
+    <img src="assets/images/connection-glow.png" alt="" class="visual-img">
+    <span class="visual-break-label">One server, every capability</span>
+</div>
+
+<section class="section" id="demos">
+    <span class="section-label">In action</span>
+    <div class="stack-header reveal">
+        <h2>See it<br><em>work.</em></h2>
+        <p>Scroll through real tool executions. Each card is one agent call to Relay.</p>
+    </div>
+    <div class="stack-container" id="stackContainer">
+        <div class="stack-viewport">
+            <div class="stack-card"><div class="stack-card-header">image resize</div><pre><span class="dim">// Agent resizes a hero image for OG</span>
+relay.image_resize({
+  path: "hero.png",
+  width: 1200, height: 630,
+  format: "webp"
+})
+<span class="cyan">-> hero.webp (42kb, 1200x630)</span></pre></div>
+            <div class="stack-card"><div class="stack-card-header">pdf extract</div><pre><span class="dim">// Pull text from a contract</span>
+relay.pdf_extract_text({
+  path: "contract.pdf",
+  pages: [1, 2, 3]
+})
+<span class="cyan">-> 2,847 words extracted</span></pre></div>
+            <div class="stack-card"><div class="stack-card-header">data transform</div><pre><span class="dim">// Convert analytics export</span>
+relay.data_csv_to_json({
+  path: "metrics.csv",
+  output: "metrics.json"
+})
+<span class="cyan">-> 1,204 rows converted</span></pre></div>
+            <div class="stack-card"><div class="stack-card-header">web fetch</div><pre><span class="dim">// Scrape documentation</span>
+relay.web_fetch({
+  url: "https://api.stripe.com/docs",
+  format: "markdown"
+})
+<span class="cyan">-> 48kb markdown returned</span></pre></div>
+            <div class="stack-card"><div class="stack-card-header">file hash</div><pre><span class="dim">// Verify release binary</span>
+relay.file_hash({
+  path: "relay_0.3.0_linux_amd64",
+  algorithm: "sha256"
+})
+<span class="cyan">-> a7f3c2...9e1b04</span></pre></div>
+            <div class="stack-card"><div class="stack-card-header">workflow</div><pre><span class="dim">// Full research pipeline</span>
+relay.run_workflow({
+  session: "launch-prep",
+  stages: ["research","brand","ux","gtm"]
+})
+<span class="cyan">-> 4/4 stages complete (12m 34s)</span></pre></div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="tools">
+    <span class="section-label">Capabilities</span>
+    <div class="tools-header reveal">
+        <h2>Everything<br>built in.<span class="num">40</span></h2>
+        <p>No plugins. No config files. No Docker. Every tool compiles into the binary.</p>
+    </div>
+    <div class="tools-grid reveal">
+        <div class="tool-group"><h3>File</h3><ul><li>read</li><li>write</li><li>list</li><li>size</li><li>hash</li><li>zip</li><li>unzip</li></ul></div>
+        <div class="tool-group"><h3>Image</h3><ul><li>info</li><li>resize</li><li>crop</li><li>convert</li><li>rotate</li><li>grayscale</li><li>flip</li></ul></div>
+        <div class="tool-group"><h3>PDF</h3><ul><li>info</li><li>page count</li><li>extract text</li><li>extract pages</li><li>merge</li><li>split</li></ul></div>
+        <div class="tool-group"><h3>Data</h3><ul><li>csv to json</li><li>json to csv</li><li>format json</li><li>query json</li></ul></div>
+        <div class="tool-group"><h3>Text</h3><ul><li>word count</li><li>replace</li><li>regex extract</li><li>base64 encode</li><li>base64 decode</li><li>md to html</li></ul></div>
+        <div class="tool-group"><h3>Web</h3><ul><li>fetch</li><li>status</li></ul></div>
+        <div class="tool-group"><h3>Workflow</h3><ul><li>run workflow</li><li>PM plan</li><li>research</li><li>brand</li><li>UX</li><li>GTM</li><li>approval</li><li>assemble</li></ul></div>
+    </div>
+</section>
+
+<div class="visual-break reveal">
+    <img src="assets/images/bridge-trees.png" alt="" class="visual-img visual-img-lg">
+</div>
+
+<div class="marquee-section">
+    <p class="marquee-label">Works with</p>
+    <div class="marquee-track">
+        <span>Claude Desktop</span><span>Cursor</span><span>VS Code</span><span>Windsurf</span><span>Continue.dev</span><span>Cline</span><span>Any MCP Client</span>
+        <span>Claude Desktop</span><span>Cursor</span><span>VS Code</span><span>Windsurf</span><span>Continue.dev</span><span>Cline</span><span>Any MCP Client</span>
+    </div>
+</div>
+
+<section class="section" id="setup">
+    <span class="section-label">Setup</span>
+    <div class="setup-header reveal"><h2>Running in<br><em>ten seconds.</em></h2></div>
+    <div class="setup-grid reveal">
+        <div class="setup-card"><h3>Claude Desktop</h3><p class="setup-sub">claude_desktop_config.json</p><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"relay"</span>: {
+      <span class="key">"command"</span>: <span class="str">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="str">"-y"</span>, <span class="str">"userelay"</span>]
+    }
+  }
+}</pre></div>
+        <div class="setup-card"><h3>Cursor</h3><p class="setup-sub">.cursor/mcp.json</p><pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"relay"</span>: {
+      <span class="key">"command"</span>: <span class="str">"npx"</span>,
+      <span class="key">"args"</span>: [<span class="str">"-y"</span>, <span class="str">"userelay"</span>]
+    }
+  }
+}</pre></div>
+        <div class="setup-card"><h3>HTTP mode</h3><p class="setup-sub">any MCP client</p><pre><span class="dim">$ npx userelay --http :8080</span>
+
+<span class="dim"># connect your client to</span>
+<span class="str">http://localhost:8080/mcp</span></pre></div>
+    </div>
+</section>
+
+<footer>
+    <span>Built by <a href="https://github.com/valtors">valtors</a>. MIT Licensed.</span>
+    <div class="footer-links"><a href="https://github.com/valtors/relay">GitHub</a><a href="https://npmjs.com/package/userelay">npm</a><a href="docs.html">Docs</a></div>
+</footer>
+
+<script type="module">
+import { liquidMetalFragmentShader, ShaderMount } from 'https://esm.sh/@paper-design/shaders@0.0.69';
+const bg = document.getElementById('navShaderBg');
+if (bg) {
+    const m = new ShaderMount(bg, liquidMetalFragmentShader, {
+        u_repetition:4, u_softness:0.5, u_shiftRed:0.3, u_shiftBlue:0.3,
+        u_distortion:0, u_contour:0, u_angle:45, u_scale:8, u_shape:1, u_offsetX:0.1, u_offsetY:-0.1
+    }, undefined, 0.6);
+    const btn = document.getElementById('navShaderBtn');
+    btn.onmouseenter = () => m.setSpeed?.(1.2);
+    btn.onmouseleave = () => m.setSpeed?.(0.6);
+}
+</script>
+<script>
+// Dot grid
+!function(){const c=document.getElementById('gridCanvas'),x=c.getContext('2d');let w,h,dots=[],mouse={x:-1e3,y:-1e3},f=0;function resize(){w=c.width=c.offsetWidth*devicePixelRatio;h=c.height=c.offsetHeight*devicePixelRatio;x.scale(devicePixelRatio,devicePixelRatio);dots=[];const cols=Math.ceil(c.offsetWidth/40)+1,rows=Math.ceil(c.offsetHeight/40)+1;for(let r=0;r<rows;r++)for(let cl=0;cl<cols;cl++)dots.push({x:cl*40,y:r*40})}function draw(){f++;x.clearRect(0,0,c.offsetWidth,c.offsetHeight);for(const d of dots){const dx=mouse.x-d.x,dy=mouse.y-d.y,dist=Math.sqrt(dx*dx+dy*dy),inf=Math.max(0,1-dist/180),wave=Math.sin(f*.012+d.x*.008+d.y*.008)*.3+.7,r=1+inf*3,a=(.1+inf*.5)*wave;x.beginPath();x.arc(d.x,d.y,r,0,Math.PI*2);x.fillStyle=inf>.1?`rgba(110,231,255,${a})`:`rgba(255,255,255,${a*.5})`;x.fill()}requestAnimationFrame(draw)}c.onmousemove=e=>{const r=c.getBoundingClientRect();mouse={x:e.clientX-r.left,y:e.clientY-r.top}};c.onmouseleave=()=>{mouse={x:-1e3,y:-1e3}};window.onresize=()=>{x.setTransform(1,0,0,1,0,0);resize()};resize();draw()}();
+
+// Nav
+window.onscroll=()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>40)};
+
+// Reveals
+const reveals=document.querySelectorAll('.reveal');const rio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');rio.unobserve(e.target)}})},{threshold:.1});reveals.forEach(el=>rio.observe(el));
+
+// Terminal typewriter
+const tc=`<span class="dim">$</span> npx userelay status\n\n<span class="cyan">\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2557      \u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557   \u2588\u2588\u2557</span>\n<span class="cyan">\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u255a\u2588\u2588\u2557 \u2588\u2588\u2554\u255d</span>\n<span class="cyan">\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551     \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2554\u255d</span>\n<span class="cyan">\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u255d  \u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551  \u255a\u2588\u2588\u2554\u255d</span>\n<span class="cyan">\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2551  \u2588\u2588\u2551   \u2588\u2588\u2551</span>\n<span class="cyan">\u255a\u2550\u255d  \u255a\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d   \u255a\u2550\u255d</span>\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n<span class="cyan">v0.3.0</span>  <span class="dim">\u00b7</span>  tools <span class="cyan">40</span>  <span class="dim">\u00b7</span>  transport <span class="cyan">stdio | http</span>`;
+const te=document.getElementById('term');let ti=0;
+function tn(){if(ti>=tc.length)return;if(tc[ti]==='<'){const c=tc.indexOf('>',ti);if(c!==-1){ti=c+1;te.innerHTML=tc.slice(0,ti);tn();return}}ti++;te.innerHTML=tc.slice(0,ti);setTimeout(tn,tc[ti-1]==='\n'?30:6)}
+new IntersectionObserver(es=>{if(es[0].isIntersecting){setTimeout(tn,300);es[0].target._obs.disconnect()}},{threshold:.3}).observe(Object.assign(document.querySelector('.terminal'),{_obs:new IntersectionObserver(es=>{if(es[0].isIntersecting){setTimeout(tn,300)}},{threshold:.3})}));
+// Fix: simpler observer
+const tEl=document.querySelector('.terminal');const tObs=new IntersectionObserver(es=>{if(es[0].isIntersecting){setTimeout(tn,300);tObs.disconnect()}},{threshold:.3});tObs.observe(tEl);
+
+// Card stack
+!function(){const ct=document.getElementById('stackContainer'),cards=ct.querySelectorAll('.stack-card'),tot=cards.length;let cur=0,acc=0,lt=Date.now();function render(){cards.forEach((c,i)=>{c.classList.remove('active','next','next2');const off=((i-cur)%tot+tot)%tot;if(off===0)c.classList.add('active');else if(off===1)c.classList.add('next');else if(off===2)c.classList.add('next2');c.style.zIndex=100-off})}ct.addEventListener('wheel',e=>{e.preventDefault();acc+=e.deltaY;const n=Date.now();if(Math.abs(acc)>=40&&n-lt>=80){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});let ty=0;ct.addEventListener('touchstart',e=>{ty=e.touches[0].clientY});ct.addEventListener('touchmove',e=>{e.preventDefault();acc+=ty-e.touches[0].clientY;ty=e.touches[0].clientY;const n=Date.now();if(Math.abs(acc)>=40&&n-lt>=80){cur=((cur+(acc>0?1:-1))%tot+tot)%tot;acc=0;lt=n;render()}},{passive:false});render()}();
+</script>
+</body>
+</html>
