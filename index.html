@@ -449,6 +449,87 @@
 
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
+        /* Stack cards */
+        .stack-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            margin-bottom: 64px;
+            align-items: end;
+        }
+
+        .stack-header h2 {
+            font-family: var(--serif);
+            font-size: clamp(48px, 8vw, 100px);
+            font-weight: 400;
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+        }
+
+        .stack-header p {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 380px;
+        }
+
+        .stack-container {
+            position: relative;
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .stack-viewport {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: 320px;
+        }
+
+        .stack-card {
+            position: absolute;
+            inset: 0;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 28px;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.3s ease,
+                        filter 0.3s ease;
+            will-change: transform, opacity, filter;
+        }
+
+        .stack-card-header {
+            font-family: var(--mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stack-card pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--fg);
+            opacity: 0.85;
+        }
+
+        .stack-card pre .dim { color: var(--muted); }
+        .stack-card pre .cyan { color: var(--accent); }
+
+        @media (max-width: 900px) {
+            .stack-header { grid-template-columns: 1fr; gap: 24px; }
+            .stack-container { height: 360px; }
+            .stack-viewport { height: 280px; }
+        }
+
         @media (max-width: 900px) {
             .hero { padding: 140px 24px 80px; }
             .terminal-wrap { padding: 0 24px 120px; }
@@ -524,6 +605,75 @@
         <pre id="term"></pre>
     </div>
 </div>
+
+<!-- Infinite scroll card stack — tool demos -->
+<section class="section stack-section" id="demos">
+    <span class="section-label">In action</span>
+    <div class="stack-header reveal">
+        <h2>See it<br><em>work.</em></h2>
+        <p>Scroll to flip through real tool executions. Each card is one agent call.</p>
+    </div>
+    <div class="stack-container" id="stackContainer">
+        <div class="stack-viewport">
+            <div class="stack-card" data-index="0">
+                <div class="stack-card-header">image resize</div>
+                <pre><span class="dim">// Agent resizes a hero image</span>
+relay.image_resize({
+  path: "hero.png",
+  width: 1200,
+  height: 630,
+  format: "webp"
+})
+<span class="cyan">// -> hero.webp (42kb, 1200x630)</span></pre>
+            </div>
+            <div class="stack-card" data-index="1">
+                <div class="stack-card-header">pdf extract</div>
+                <pre><span class="dim">// Pull text from a contract</span>
+relay.pdf_extract_text({
+  path: "contract.pdf",
+  pages: [1, 2, 3]
+})
+<span class="cyan">// -> 2,847 words extracted</span></pre>
+            </div>
+            <div class="stack-card" data-index="2">
+                <div class="stack-card-header">data transform</div>
+                <pre><span class="dim">// Convert analytics CSV</span>
+relay.data_csv_to_json({
+  path: "metrics.csv",
+  output: "metrics.json"
+})
+<span class="cyan">// -> 1,204 rows converted</span></pre>
+            </div>
+            <div class="stack-card" data-index="3">
+                <div class="stack-card-header">web fetch</div>
+                <pre><span class="dim">// Scrape API docs</span>
+relay.web_fetch({
+  url: "https://api.example.com/docs",
+  format: "markdown"
+})
+<span class="cyan">// -> 48kb markdown returned</span></pre>
+            </div>
+            <div class="stack-card" data-index="4">
+                <div class="stack-card-header">file hash</div>
+                <pre><span class="dim">// Verify binary integrity</span>
+relay.file_hash({
+  path: "relay_0.3.0_linux_amd64",
+  algorithm: "sha256"
+})
+<span class="cyan">// -> a7f3c2...9e1b04</span></pre>
+            </div>
+            <div class="stack-card" data-index="5">
+                <div class="stack-card-header">workflow orchestration</div>
+                <pre><span class="dim">// Full research + brand pipeline</span>
+relay.run_workflow({
+  session: "launch-prep",
+  stages: ["research", "brand", "ux", "gtm"]
+})
+<span class="cyan">// -> 4/4 stages complete</span></pre>
+            </div>
+        </div>
+    </div>
+</section>
 
 <section class="section" id="tools">
     <span class="section-label">Capabilities</span>
@@ -728,6 +878,75 @@ const termObs = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting) { setTimeout(typeNext, 300); termObs.disconnect(); }
 }, { threshold: 0.3 });
 termObs.observe(document.querySelector('.terminal'));
+
+// Infinite scroll card stack
+(function() {
+    const container = document.getElementById('stackContainer');
+    const cards = container.querySelectorAll('.stack-card');
+    const total = cards.length;
+    let current = 0;
+    let accumulator = 0;
+    const THRESHOLD = 50;
+    let lastUpdate = Date.now();
+    const MIN_INTERVAL = 120;
+
+    function render() {
+        cards.forEach((card, i) => {
+            const offset = i - current;
+            if (offset < -1 || offset > 3) {
+                card.style.opacity = '0';
+                card.style.pointerEvents = 'none';
+                return;
+            }
+
+            const y = Math.max(offset * -30, -30 * 3);
+            const scale = Math.max(1 - offset * 0.06, 0.7);
+            const blur = offset < 0 ? 2 : 0;
+            const opacity = offset < 0 ? 0 : 1;
+
+            card.style.transform = `translateY(${y}px) scale(${scale})`;
+            card.style.opacity = opacity;
+            card.style.filter = `blur(${blur}px)`;
+            card.style.zIndex = 100 - i;
+            card.style.pointerEvents = offset === 0 ? 'auto' : 'none';
+        });
+    }
+
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        accumulator += e.deltaY;
+
+        const now = Date.now();
+        if (Math.abs(accumulator) >= THRESHOLD && (now - lastUpdate) >= MIN_INTERVAL) {
+            const dir = accumulator > 0 ? 1 : -1;
+            current = ((current + dir) % total + total) % total;
+            accumulator = 0;
+            lastUpdate = now;
+            render();
+        }
+    }, { passive: false });
+
+    // Touch support
+    let touchY = 0;
+    container.addEventListener('touchstart', (e) => { touchY = e.touches[0].clientY; });
+    container.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const delta = touchY - e.touches[0].clientY;
+        touchY = e.touches[0].clientY;
+        accumulator += delta;
+
+        const now = Date.now();
+        if (Math.abs(accumulator) >= THRESHOLD && (now - lastUpdate) >= MIN_INTERVAL) {
+            const dir = accumulator > 0 ? 1 : -1;
+            current = ((current + dir) % total + total) % total;
+            accumulator = 0;
+            lastUpdate = now;
+            render();
+        }
+    }, { passive: false });
+
+    render();
+})();
 </script>
 
 </body>
