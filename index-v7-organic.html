@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relay - it just figures out and gets it done</title>
+    <meta name="description" content="One MCP server that gives your AI agents memory, coordination, and hands. Orchestration + tools. Single binary. Zero config.">
+    <meta property="og:image" content="assets/images/og-image.png">
+    <meta property="og:title" content="Relay - it just figures out and gets it done">
+    <meta property="og:description" content="All-in-one MCP server. Agents get memory, tools, and coordination in one binary.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Relay - it just figures out and gets it done">
+    <meta name="twitter:description" content="All-in-one MCP server. Agents get memory, tools, and coordination in one binary.">
+    <meta name="twitter:image" content="assets/images/og-image.png">
+    <link rel="icon" type="image/png" href="assets/images/relay-logo.png">
+    <link rel="apple-touch-icon" href="assets/images/relay-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --serif: 'Instrument Serif', Georgia, serif;
+            --sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --hand: 'Caveat', cursive;
+            --mono: 'SF Mono', 'Cascadia Code', monospace;
+            --bg: #FFFDF9;
+            --ink: #1a1a1a;
+            --ink-light: #555;
+            --ink-faint: #999;
+            --accent: #FF6B35;
+            --purple: #7C3AED;
+            --green: #059669;
+            --blue: #2563EB;
+            --line: rgba(0,0,0,0.06);
+            --radius: 16px;
+            --shadow: 0 2px 16px rgba(0,0,0,0.04);
+            --shadow-hover: 0 8px 32px rgba(0,0,0,0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .wide-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        nav {
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            background: rgba(255,253,249,0.92);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid var(--line);
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--ink);
+        }
+
+        .logo img {
+            height: 44px;
+            width: 44px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .logo span {
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-right a {
+            color: var(--ink-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-right a:hover { color: var(--ink); }
+
+        .nav-right a.pill,
+        .nav-right a.pill:hover {
+            color: white;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--ink);
+            color: white;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .pill-outline {
+            background: transparent;
+            color: var(--ink);
+            border: 1.5px solid rgba(0,0,0,0.15);
+        }
+
+        .pill-outline:hover {
+            background: var(--ink);
+            color: white;
+            border-color: var(--ink);
+        }
+
+        .hero {
+            padding: 56px 0 32px;
+            text-align: center;
+        }
+
+        .hero-illustration {
+            width: 180px;
+            height: auto;
+            margin: 0 auto 24px;
+            display: block;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero h1 {
+            font-family: var(--serif);
+            font-size: clamp(40px, 7vw, 60px);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-size: 17px;
+            color: var(--ink-light);
+            max-width: 460px;
+            margin: 0 auto 32px;
+            line-height: 1.65;
+        }
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .hero-annotation {
+            font-family: var(--hand);
+            font-size: 20px;
+            color: var(--accent);
+            transform: rotate(-2deg);
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .baton-scene {
+            margin: 32px auto 0;
+            max-width: 520px;
+        }
+
+        .baton-scene img {
+            width: 100%;
+            height: auto;
+        }
+
+        .baton-caption {
+            text-align: center;
+            font-family: var(--hand);
+            font-size: 18px;
+            color: var(--ink-faint);
+            margin-top: 12px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: var(--line);
+            margin: 64px auto;
+        }
+
+        .doodle-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .doodle-divider img {
+            width: 40px;
+            height: 40px;
+            opacity: 0.85;
+        }
+
+        .doodle-divider span {
+            width: 40px;
+            height: 1px;
+            background: var(--line);
+        }
+
+        section {
+            padding: 32px 0;
+        }
+
+        .problem-section {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .problem-section .text h2 {
+            font-family: var(--serif);
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .problem-section .text p {
+            color: var(--ink-light);
+            line-height: 1.7;
+        }
+
+        .problem-section img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .solution-section {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .solution-section img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            display: block;
+        }
+
+        .solution-section .text h2 {
+            font-family: var(--serif);
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .solution-section .text p {
+            color: var(--ink-light);
+            line-height: 1.7;
+        }
+
+        .marginal-note {
+            font-family: var(--hand);
+            font-size: 18px;
+            color: var(--accent);
+            margin-top: 12px;
+            display: block;
+        }
+
+        .agents-section {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .agents-section h2 {
+            font-family: var(--serif);
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .agents-section > p {
+            color: var(--ink-light);
+            margin-bottom: 40px;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .agent-card {
+            text-align: center;
+            padding: 28px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--line);
+            background: white;
+            transition: all 0.25s;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .agent-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin: 0 auto 12px;
+            display: block;
+        }
+
+        .agent-card h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .agent-card p {
+            font-size: 12px;
+            color: var(--ink-faint);
+            line-height: 1.4;
+        }
+
+        .how-section {
+            padding: 40px 0;
+        }
+
+        .how-section h2 {
+            font-family: var(--serif);
+            font-size: 32px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .steps {
+            display: grid;
+            gap: 28px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .step h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .step p {
+            font-size: 14px;
+            color: var(--ink-light);
+        }
+
+        .step code {
+            display: inline-block;
+            margin-top: 6px;
+            font-family: var(--mono);
+            font-size: 12px;
+            background: #f5f5f4;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--purple);
+            font-weight: 500;
+        }
+
+        .terminal-section {
+            margin: 32px auto;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 24px;
+            align-items: center;
+            max-width: 800px;
+        }
+
+        .terminal-section img {
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+        }
+
+        .terminal-block {
+            background: #1C1C1C;
+            border-radius: 12px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .terminal-dots span {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-dots .r { background: #FF5F56; }
+        .terminal-dots .y { background: #FFBD2E; }
+        .terminal-dots .g { background: #27C93F; }
+
+        .terminal-block pre {
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.8;
+            color: #E4E4E4;
+            overflow-x: auto;
+        }
+
+        .terminal-block .dim { color: #666; }
+        .terminal-block .grn { color: #A8CC8C; }
+        .terminal-block .blu { color: #71BEF2; }
+        .terminal-block .prp { color: #D290E4; }
+        .terminal-block .org { color: #DBAB79; }
+
+        .sleep-section {
+            text-align: center;
+            padding: 32px 0 24px;
+        }
+
+        .sleep-section img {
+            width: 240px;
+            height: auto;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sleep-section h2 {
+            font-family: var(--serif);
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .sleep-section p {
+            color: var(--ink-light);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .comparison {
+            margin: 32px auto;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        .comparison img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 48px 0 40px;
+        }
+
+        .cta-section h2 {
+            font-family: var(--serif);
+            font-size: 36px;
+            font-weight: 400;
+            margin-bottom: 12px;
+        }
+
+        .cta-section p {
+            color: var(--ink-light);
+            margin-bottom: 28px;
+            font-size: 16px;
+        }
+
+        .cta-section .doodle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .cta-section .doodle-row img {
+            width: 40px;
+            height: 40px;
+            opacity: 0.85;
+        }
+
+        .cta-annotation {
+            font-family: var(--hand);
+            font-size: 20px;
+            color: var(--accent);
+            margin-top: 16px;
+            display: block;
+            transform: rotate(-1.5deg);
+        }
+
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 40px 0;
+            text-align: center;
+            background: #F9F8F6;
+        }
+
+        footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-bottom: 14px;
+        }
+
+        footer a {
+            color: var(--ink-light);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        footer a:hover { color: var(--ink); }
+
+        footer p {
+            font-size: 13px;
+            color: var(--ink-light);
+        }
+
+        footer p a {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tools-overview {
+            padding: 20px 0;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .tool-category {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: white;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tool-category:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .tool-cat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .tool-category h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tool-category p {
+            font-size: 12px;
+            color: var(--ink-light);
+            line-height: 1.4;
+        }
+
+        .roadmap-section {
+            padding: 20px 0;
+        }
+
+        .roadmap {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .roadmap-phase {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 16px 0;
+            border-left: 2px solid var(--line);
+            margin-left: 15px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .roadmap-phase:last-child { border-left-color: transparent; }
+
+        .phase-marker {
+            position: absolute;
+            left: -12px;
+            top: 16px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--bg);
+            border: 2px solid var(--line);
+            color: var(--ink-faint);
+        }
+
+        .roadmap-phase.done .phase-marker {
+            background: #D1FAE5;
+            border-color: #059669;
+            color: #059669;
+        }
+
+        .roadmap-phase.active .phase-marker {
+            background: #FEF3C7;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .roadmap-phase.active .phase-marker.pulse {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.3); }
+            50% { box-shadow: 0 0 0 6px rgba(255,107,53,0); }
+        }
+
+        .phase-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .phase-content p {
+            font-size: 13px;
+            color: var(--ink-light);
+            line-height: 1.5;
+        }
+
+        .section-header h2 {
+            font-family: var(--serif);
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--ink-light);
+        }
+
+        @media (max-width: 768px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+            .problem-section,
+            .solution-section { grid-template-columns: 1fr; text-align: center; }
+            .terminal-section { grid-template-columns: 1fr; }
+            .terminal-section img { margin: 0 auto; max-width: 180px; }
+            .agent-grid { grid-template-columns: repeat(2, 1fr); }
+            .comparison { grid-template-columns: 1fr; }
+            .hero-illustration { width: 140px; }
+            .solution-section img,
+            .problem-section img { max-width: 180px; margin: 0 auto; }
+            .wide-container { padding: 0 16px; }
+            .container { padding: 0 16px; }
+            .hero { padding: 36px 0 24px; }
+            .hero h1 { font-size: 36px; letter-spacing: -1px; }
+            .hero-sub { font-size: 15px; }
+            .baton-scene { max-width: 100%; }
+            .steps-grid { grid-template-columns: 1fr; gap: 20px; }
+            .sleep-section img { max-width: 200px; }
+            .sleep-section h2 { font-size: 24px; }
+            .doodle-divider img { width: 28px; opacity: 0.7; }
+            section { padding: 24px 0; }
+            .faq-section { padding: 24px 0; }
+            .cta-section { padding: 40px 0; }
+            .cta-section h2 { font-size: 28px; }
+            nav .container { padding: 0 16px; }
+            .pill { font-size: 13px; padding: 8px 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 28px; }
+            .hero-sub { font-size: 14px; margin-bottom: 20px; }
+            .hero-buttons { flex-direction: column; gap: 10px; }
+            .hero-buttons .btn { width: 100%; text-align: center; }
+            .nav-right .hide-sm { display: none; }
+            .agent-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .agent-card img { max-width: 80px; }
+            .agent-card h4 { font-size: 13px; }
+            .terminal-block pre { font-size: 11px; }
+            .faq-item summary { font-size: 14px; }
+            .footer-inner { flex-direction: column; text-align: center; gap: 12px; }
+            .wide-container { padding: 0 12px; }
+            .container { padding: 0 12px; }
+        }
+
+        .compare-section {
+            padding: 20px 0;
+        }
+
+        .compare-table-wrap {
+            overflow-x: auto;
+            margin-top: 32px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .compare-table thead {
+            background: #f9f8f6;
+        }
+
+        .compare-table th {
+            padding: 14px 12px;
+            font-weight: 700;
+            font-size: 13px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .compare-table th:nth-child(2) {
+            background: #FFF3ED;
+            color: var(--accent);
+        }
+
+        .compare-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+            color: var(--ink-light);
+        }
+
+        .compare-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .compare-table td:nth-child(2) {
+            background: #FFFBF8;
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .compare-table tr:last-child td { border-bottom: none; }
+
+        .faq-section {
+            padding: 40px 0;
+        }
+
+        .faq-list {
+            max-width: 600px;
+            margin: 24px auto 0;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--line);
+            padding: 16px 0;
+        }
+
+        .faq-item summary {
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .faq-item summary::-webkit-details-marker { display: none; }
+
+        .faq-item summary::after {
+            content: '+';
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--ink-faint);
+            transition: transform 0.2s;
+        }
+
+        .faq-item[open] summary::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-item p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--ink-light);
+            line-height: 1.7;
+        }
+
+        .faq-item a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .terminal-section { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="container">
+        <a href="#" class="logo">
+            <img src="assets/images/relay-logo.png" alt="Relay">
+            <span>relay</span>
+        </a>
+        <div class="nav-right">
+            <a href="https://github.com/valtors/relay" class="hide-sm">GitHub</a>
+            <a href="#how" class="hide-sm">Docs</a>
+            <a href="https://github.com/valtors/relay" class="pill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Star on GitHub
+            </a>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <img src="assets/images/hero-character.png" alt="Developer with AI agents" class="hero-illustration">
+
+        <h1>It just figures out<br>and <em>gets it done</em></h1>
+
+        <p class="hero-sub">One MCP server that gives your AI agents memory, coordination, and hands. Orchestration + image tools + PDF tools + file ops. Single binary. Zero config.</p>
+
+        <div class="hero-buttons">
+            <a href="https://github.com/valtors/relay" class="pill">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                Get Relay
+            </a>
+            <a href="#how" class="pill pill-outline">How it works</a>
+        </div>
+
+        <span class="hero-annotation">^ open source, free forever</span>
+    </div>
+</section>
+
+<div class="wide-container">
+    <div class="baton-scene fade-in">
+        <img src="assets/images/baton-pass.png" alt="Agents passing the baton">
+        <p class="baton-caption">PM passes to Dev, Dev passes to QA, QA ships it &#10024;</p>
+    </div>
+</div>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/star.png" alt="">
+    <span></span>
+</div>
+
+<section>
+    <div class="wide-container">
+        <div class="problem-section fade-in">
+            <div class="text">
+                <h2>AI agents forget everything</h2>
+                <p>You spent an hour explaining your architecture. The agent wrote perfect code. Next morning, new chat, blank slate. You start over. Again.</p>
+                <span class="marginal-note">^ goldfish with PhDs</span>
+            </div>
+            <img src="assets/images/confused.png" alt="Confused agent forgetting context">
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/lightning.png" alt="">
+    <span></span>
+</div>
+
+<section>
+    <div class="wide-container">
+        <div class="solution-section fade-in">
+            <img src="assets/images/connected.png" alt="Agents connected and sharing context">
+            <div class="text">
+                <h2>What if they could pass notes?</h2>
+                <p>Relay gives your agents persistent memory and structured handoffs. Agent A checkpoints its work, Agent B picks up exactly where A left off. Like a relay race, but for shipping software.</p>
+                <span class="marginal-note">context flows, never lost</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/sparkle.png" alt="">
+    <span></span>
+</div>
+
+<section class="agents-section">
+    <div class="wide-container">
+        <h2>Meet the agents</h2>
+        <p>Each one has a role. Together, they ship products.</p>
+
+        <div class="agent-grid">
+            <div class="agent-card fade-in">
+                <img src="assets/images/agents/agent-pm.png" alt="PM Agent">
+                <h3>PM Agent</h3>
+                <p>Breaks down features, creates issues, writes specs</p>
+            </div>
+            <div class="agent-card fade-in">
+                <img src="assets/images/agents/agent-dev.png" alt="Dev Agent">
+                <h3>Dev Agent</h3>
+                <p>Writes code, runs tests, opens pull requests</p>
+            </div>
+            <div class="agent-card fade-in">
+                <img src="assets/images/agents/agent-qa.png" alt="QA Agent">
+                <h3>QA Agent</h3>
+                <p>Reviews diffs, catches bugs, approves merges</p>
+            </div>
+            <div class="agent-card fade-in">
+                <img src="assets/images/agents/agent-ship.png" alt="Ship Agent">
+                <h3>Ship Agent</h3>
+                <p>Deploys, writes changelogs, announces launches</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/heart.png" alt="">
+    <span></span>
+</div>
+
+<section class="how-section" id="how">
+    <div class="container">
+        <h2>Get started in 3 steps</h2>
+
+        <div class="steps">
+            <div class="step fade-in">
+                <div class="step-num">1</div>
+                <div>
+                    <h3>Install Relay</h3>
+                    <p>Single Go binary. Mac, Linux, Windows. Zero dependencies.</p>
+                    <code>go install github.com/valtors/relay@latest</code>
+                </div>
+            </div>
+            <div class="step fade-in">
+                <div class="step-num">2</div>
+                <div>
+                    <h3>Connect your MCP client</h3>
+                    <p>Works with Claude Desktop, Cursor, Windsurf, or any MCP tool.</p>
+                    <code>relay serve --port 3000</code>
+                </div>
+            </div>
+            <div class="step fade-in">
+                <div class="step-num">3</div>
+                <div>
+                    <h3>Let your agents cook</h3>
+                    <p>They pass context, checkpoint, and pick up where others left off.</p>
+                    <code>relay status</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="wide-container">
+        <div class="terminal-section fade-in">
+            <img src="assets/images/terminal-cozy.png" alt="Terminal with agent peeking">
+            <div class="terminal-block">
+                <div class="terminal-dots">
+                    <span class="r"></span>
+                    <span class="y"></span>
+                    <span class="g"></span>
+                </div>
+                <pre><span class="dim">$</span> <span class="blu">relay</span> <span class="org">status</span>
+
+<span class="prp">  pm-agent</span>      <span class="grn">&#10003;</span> 3 tasks created
+<span class="prp">  dev-agent</span>     <span class="grn">&#10003;</span> auth module shipped
+<span class="prp">  qa-agent</span>      <span class="org">&#9679;</span> reviewing PR #14...
+<span class="prp">  docs-agent</span>    <span class="dim">&#9676;</span> waiting for merge
+
+  <span class="grn">&#10003; 2 checkpoints saved</span>
+  <span class="dim">  12.4kb context shared</span></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/arrow.png" alt="">
+    <span></span>
+</div>
+
+<section class="sleep-section fade-in">
+    <div class="container">
+        <img src="assets/images/sleeping-dev.png" alt="Developer sleeping while agents work">
+        <h2>Ships while you sleep</h2>
+        <p>Your agents keep working after you log off. Wake up to merged PRs, updated docs, and a shipped product. Seriously.</p>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="comparison fade-in">
+            <img src="assets/images/comparison.png" alt="Without Relay vs With Relay comparison">
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/lightning.png" alt="">
+    <span></span>
+</div>
+
+<section class="tools-overview">
+    <div class="wide-container fade-in" style="text-align:center;">
+        <img src="assets/images/tools-section.png" alt="Tools built in - Image, PDF, Files, Text, Web, Data" style="max-width:100%; height:auto; border-radius:12px;">
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/star.png" alt="">
+    <span></span>
+</div>
+
+<section class="roadmap-section">
+    <div class="wide-container fade-in" style="text-align:center;">
+        <img src="assets/images/roadmap-section.png" alt="Roadmap - Foundation, Tools + CLI, Orchestration, Hermes Bridge" style="max-width:100%; height:auto; border-radius:12px;">
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/heart.png" alt="">
+    <span></span>
+</div>
+
+<section class="compare-section">
+    <div class="wide-container fade-in" style="text-align:center;">
+        <img src="assets/images/comparison-section.png" alt="Why Relay wins - comparison table vs CrewAI, LangGraph, AutoGen, Swarm" style="max-width:100%; height:auto; border-radius:12px;">
+    </div>
+</section>
+
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header fade-in" style="text-align:center;">
+            <h2>FAQ</h2>
+        </div>
+
+        <div class="faq-list">
+            <details class="faq-item fade-in">
+                <summary>What exactly is an MCP server?</summary>
+                <p>MCP (Model Context Protocol) is a standard that lets AI tools like Claude Desktop and Cursor connect to external servers for extra capabilities. Relay is one of those servers. You plug it in, and your AI gets access to tools, memory, and coordination it didn't have before.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>Do I need to know Go to use Relay?</summary>
+                <p>Nope. You install the binary and connect it. It works with whatever AI client you already use. If you want to contribute or extend it, then yes, the codebase is Go.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>How is this different from just using Claude/GPT directly?</summary>
+                <p>AI models forget everything between chats. Relay gives them persistent memory (checkpoints), the ability to hand off work to other agents (orchestration), and real-world capabilities like resizing images or parsing PDFs (tools). Think of it as upgrading your AI from a chatbot to a coworker.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>Is it actually free? What's the catch?</summary>
+                <p>MIT licensed, fully open source, no telemetry, no paid tier planned. We build in the open because we use it ourselves and want others to benefit. The "catch" is it's early and we'd love your contributions.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>Can I use this with Cursor / Windsurf / other tools?</summary>
+                <p>Yes. Any MCP-compatible client works. Claude Desktop, Cursor, Windsurf, and even terminal-based clients. If it speaks MCP, it connects to Relay.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>What's the WhatsApp / Discord / Telegram thing?</summary>
+                <p>Hermes is our messaging bridge (coming soon). It lets you talk to your Relay agents from messaging apps. Send a message on WhatsApp, your agents pick it up, do the work, and reply back. Like having a team in your pocket.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>How can I contribute?</summary>
+                <p>Check out our <a href="https://github.com/valtors/relay/blob/main/CONTRIBUTING.md">contributing guide</a>. We have open issues tagged for first-timers. The codebase is clean Go with zero magic. Pick a tool that interests you and send a PR.</p>
+            </details>
+
+            <details class="faq-item fade-in">
+                <summary>Is my data safe? Does Relay phone home?</summary>
+                <p>Relay runs 100% locally on your machine. No cloud, no analytics, no telemetry. Your checkpoints and agent data stay in your project directory. We never see them.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<div class="doodle-divider">
+    <span></span>
+    <img src="assets/images/doodles/sparkle.png" alt="">
+    <span></span>
+</div>
+
+<section class="cta-section">
+    <div class="container fade-in">
+        <div class="doodle-row">
+            <img src="assets/images/doodles/star.png" alt="">
+            <img src="assets/images/doodles/sparkle.png" alt="">
+            <img src="assets/images/doodles/heart.png" alt="">
+        </div>
+
+        <h2>Ready to let your agents<br>do the heavy lifting?</h2>
+        <p>Open source. Written in Go. Free forever.</p>
+
+        <a href="https://github.com/valtors/relay" class="pill">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            Get Relay on GitHub
+        </a>
+        <span class="cta-annotation">^ takes 30 seconds, promise</span>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-links">
+            <a href="https://github.com/valtors/relay">GitHub</a>
+            <a href="https://github.com/valtors/relay/blob/main/CONTRIBUTING.md">Contribute</a>
+            <a href="https://github.com/valtors/relay/blob/main/SECURITY.md">Security</a>
+        </div>
+        <p>Built by <a href="https://github.com/tamish560">Tamish</a> &middot; Open source under MIT</p>
+    </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
