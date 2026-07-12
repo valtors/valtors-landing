@@ -11,12 +11,13 @@
 :root {
   --bg: #ffffff;
   --text: #000000;
-  --text-soft: #666666;
+  --text-soft: #555555;
   --text-light: #999999;
   --border: #eeeeee;
   --radius: 24px;
   --radius-pill: 50px;
   --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  --card-shadow-hover: 0 20px 40px rgba(0,0,0,0.08);
 }
 
 body {
@@ -63,7 +64,6 @@ nav {
   display: flex;
   gap: 28px;
   font-size: 14px;
-  color: var(--text);
 }
 .nav-links a { color: var(--text); }
 .nav-links a:hover { opacity: 0.6; }
@@ -101,32 +101,38 @@ nav {
 }
 .nav-cta:hover { opacity: 0.85; }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .nav-links { display: none; }
   .nav-star { display: none; }
 }
 
 /* Hero */
 .hero {
-  padding: 60px 0 80px;
-}
-.hero-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: center;
-}
-.hero-image {
-  border-radius: var(--radius);
+  position: relative;
+  width: 100%;
+  height: 520px;
+  border-radius: 0;
   overflow: hidden;
-  width: 100%;
+  margin-bottom: 0;
 }
-.hero-image img {
+.hero img {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
-.hero-content {
-  max-width: 520px;
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 48px;
+  max-width: 600px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 60%, transparent 100%);
 }
 .hero-tag {
   font-size: 12px;
@@ -134,19 +140,21 @@ nav {
   letter-spacing: 1.5px;
   color: var(--text-soft);
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
-.hero h1 {
-  font-size: 52px;
+.hero-overlay h1 {
+  font-size: 48px;
   font-weight: 700;
   line-height: 1.1;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   letter-spacing: -1px;
+  color: var(--text);
 }
-.hero p {
-  font-size: 18px;
+.hero-overlay p {
+  font-size: 17px;
   color: var(--text-soft);
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+  max-width: 440px;
 }
 .hero-buttons {
   display: flex;
@@ -185,15 +193,16 @@ nav {
 .btn-secondary:hover { opacity: 0.7; }
 
 @media (max-width: 768px) {
-  .hero-inner { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 36px; }
-  .hero p { font-size: 16px; }
+  .hero { height: 400px; }
+  .hero-overlay { padding: 0 24px; max-width: 100%; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%); }
+  .hero-overlay h1 { font-size: 32px; }
+  .hero-overlay p { font-size: 15px; }
 }
 
 /* Trust Bar */
 .trust {
   text-align: center;
-  padding: 40px 0 60px;
+  padding: 48px 0 56px;
 }
 .trust-label {
   font-size: 12px;
@@ -213,12 +222,12 @@ nav {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-light);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 /* Products */
 .products {
-  padding: 80px 0;
+  padding: 60px 0 80px;
 }
 .section-label {
   font-size: 12px;
@@ -250,34 +259,33 @@ nav {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  padding: 40px 32px;
+  text-align: center;
   box-shadow: var(--card-shadow);
   transition: box-shadow 0.3s;
 }
 .product-card:hover {
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  box-shadow: var(--card-shadow-hover);
 }
-.product-card-img {
-  width: 100%;
-  aspect-ratio: 1;
+.product-card-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 16px;
   overflow: hidden;
 }
-.product-card-img img {
+.product-card-icon img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-.product-card-body {
-  padding: 32px;
-  text-align: center;
-}
-.product-card-body h3 {
+.product-card h3 {
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 12px;
 }
-.product-card-body p {
+.product-card p {
   font-size: 15px;
   color: var(--text-soft);
   margin-bottom: 24px;
@@ -306,29 +314,48 @@ nav {
 /* Principles */
 .principles {
   padding: 80px 0;
+  background: #fafafa;
 }
 .principles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 48px 32px;
-  margin-top: 56px;
+  gap: 24px;
+  margin-top: 48px;
 }
-.principle {
+.principle-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 24px;
   text-align: center;
+  box-shadow: var(--card-shadow);
 }
-.principle h4 {
-  font-size: 17px;
+.principle-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.principle-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.principle-card h4 {
+  font-size: 16px;
   font-weight: 700;
   margin-bottom: 8px;
 }
-.principle p {
+.principle-card p {
   font-size: 14px;
   color: var(--text-soft);
   line-height: 1.5;
 }
 
 @media (max-width: 768px) {
-  .principles-grid { grid-template-columns: 1fr; gap: 32px; }
+  .principles-grid { grid-template-columns: 1fr; }
 }
 
 /* Community */
@@ -431,7 +458,7 @@ footer {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
     </a>
     <a href="https://github.com/valtors" class="nav-star">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       Star us
     </a>
     <a href="https://github.com/valtors" class="nav-cta">Get Started</a>
@@ -439,23 +466,17 @@ footer {
 </nav>
 
 <section class="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="hero-content">
-        <div class="hero-tag">Open Source - MIT Licensed</div>
-        <h1>Developer tools that get out of your way.</h1>
-        <p>Fast, reliable and open source. Valtors helps you ship better software with less friction.</p>
-        <div class="hero-buttons">
-          <a href="#products" class="btn-primary">Explore Products -></a>
-          <a href="https://github.com/valtors" class="btn-secondary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-            View on GitHub
-          </a>
-        </div>
-      </div>
-      <div class="hero-image">
-        <img src="assets/hero-illustration.png" alt="A person relaxing at golden hour, looking at a city skyline across calm water">
-      </div>
+  <img src="assets/hero.png" alt="A person at a wooden table looking out at a city skyline at golden hour">
+  <div class="hero-overlay">
+    <div class="hero-tag">Open Source - MIT Licensed</div>
+    <h1>Developer tools that get out of your way.</h1>
+    <p>Fast, reliable and open source. Valtors helps you ship better software with less friction.</p>
+    <div class="hero-buttons">
+      <a href="#products" class="btn-primary">Explore Products &#8594;</a>
+      <a href="https://github.com/valtors" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
     </div>
   </div>
 </section>
@@ -480,34 +501,28 @@ footer {
     <div class="section-sub">Built for modern development workflows.</div>
     <div class="product-grid">
       <div class="product-card">
-        <div class="product-card-img">
-          <img src="assets/card-relay.png" alt="Illustration of a bridge connecting two garden plots">
+        <div class="product-card-icon">
+          <img src="assets/icon-relay.png" alt="Relay icon">
         </div>
-        <div class="product-card-body">
-          <h3>Relay</h3>
-          <p>One MCP server for files, images, PDFs, and more.</p>
-          <a href="https://github.com/valtors/relay" class="product-link">Explore Relay -></a>
-        </div>
+        <h3>Relay</h3>
+        <p>One MCP server for files, images, PDFs, and more.</p>
+        <a href="https://github.com/valtors/relay" class="product-link">Explore Relay &#8594;</a>
       </div>
       <div class="product-card">
-        <div class="product-card-img">
-          <img src="assets/card-reflow.png" alt="Illustration of a window with multiple frames reflecting the same light">
+        <div class="product-card-icon">
+          <img src="assets/icon-reflow.png" alt="Reflow icon">
         </div>
-        <div class="product-card-body">
-          <h3>Reflow</h3>
-          <p>SSR-safe toolkit for TypeScript. One API, every framework.</p>
-          <a href="https://github.com/valtors/reflow" class="product-link">Explore Reflow -></a>
-        </div>
+        <h3>Reflow</h3>
+        <p>SSR-safe toolkit for TypeScript. One API, every framework.</p>
+        <a href="https://github.com/valtors/reflow" class="product-link">Explore Reflow &#8594;</a>
       </div>
       <div class="product-card">
-        <div class="product-card-img">
-          <img src="assets/card-observer.png" alt="Illustration of a person reading on a park bench at golden hour">
+        <div class="product-card-icon">
+          <img src="assets/icon-observer.png" alt="Observer icon">
         </div>
-        <div class="product-card-body">
-          <h3>Observer</h3>
-          <p>Transparent MCP proxy for agent observability.</p>
-          <a href="https://github.com/valtors/observer" class="product-link">Explore Observer -></a>
-        </div>
+        <h3>Observer</h3>
+        <p>Transparent MCP proxy for agent observability.</p>
+        <a href="https://github.com/valtors/observer" class="product-link">Explore Observer &#8594;</a>
       </div>
     </div>
   </div>
@@ -518,27 +533,33 @@ footer {
     <div class="section-label">Built on solid principles</div>
     <div class="section-title">What we believe.</div>
     <div class="principles-grid">
-      <div class="principle">
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-opensource.png" alt="Open Source"></div>
         <h4>Open Source</h4>
         <p>MIT licensed. Free to use, modify, and build on.</p>
       </div>
-      <div class="principle">
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-docs.png" alt="Well Documented"></div>
         <h4>Well Documented</h4>
         <p>Clear docs, examples, and guides for every step.</p>
       </div>
-      <div class="principle">
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-community.png" alt="Community Driven"></div>
         <h4>Community Driven</h4>
         <p>Built with feedback from developers like you.</p>
       </div>
-      <div class="principle">
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-license.png" alt="MIT Licensed"></div>
         <h4>MIT Licensed</h4>
         <p>Permissive license. Use it anywhere.</p>
       </div>
-      <div class="principle">
-        <h4>Fast and Reliable</h4>
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-fast.png" alt="Fast and Reliable"></div>
+        <h4>Fast &amp; Reliable</h4>
         <p>Performance first. Built for scale.</p>
       </div>
-      <div class="principle">
+      <div class="principle-card">
+        <div class="principle-icon"><img src="assets/icon-cli.png" alt="CLI Friendly"></div>
         <h4>CLI Friendly</h4>
         <p>Works where you work. Terminal native.</p>
       </div>
@@ -550,13 +571,13 @@ footer {
   <div class="container">
     <div class="community-grid">
       <div class="community-img">
-        <img src="assets/community-illustration.png" alt="Three people sitting around a table in a garden, talking and laughing">
+        <img src="assets/community.png" alt="Three people collaborating around a table">
       </div>
       <div class="community-text">
         <h2>Community First</h2>
         <div class="sub">built in public. For everyone.</div>
         <p>We believe the best tools are built together. Join the community, contribute, and help shape the future of open source developer tools.</p>
-        <a href="https://github.com/valtors" class="btn-primary">Join the Community -></a>
+        <a href="https://github.com/valtors" class="btn-primary">Join the Community &#8594;</a>
       </div>
     </div>
   </div>
@@ -567,7 +588,7 @@ footer {
     <div class="footer-content">
       <div class="footer-left">
         <div class="nav-logo-mark">V</div>
-        <span class="footer-copy">(c) 2025 Valtors</span>
+        <span class="footer-copy">&#169; 2025 Valtors</span>
       </div>
       <div class="footer-links">
         <a href="https://github.com/valtors">Docs</a>
