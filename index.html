@@ -152,8 +152,8 @@ nav.scrolled {
 
 /* Hero */
 .hero {
-  background: var(--bg);
-  padding: 140px 24px 60px;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+  padding: 140px 24px 80px;
   color: var(--text);
   transition: background 0.3s, color 0.3s;
 }
@@ -167,12 +167,12 @@ nav.scrolled {
   margin-bottom: 16px;
 }
 .hero h1 {
-  font-size: 40px;
+  font-size: 46px;
   font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  margin-bottom: 16px;
-  max-width: 600px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 18px;
+  max-width: 640px;
 }
 .hero-sub {
   font-size: 18px;
@@ -240,7 +240,7 @@ nav.scrolled {
 
 @media (max-width: 768px) {
   .hero { padding: 100px 24px 40px; }
-  .hero h1 { font-size: 28px; }
+  .hero h1 { font-size: 32px; }
   .hero-sub { font-size: 16px; }
 }
 
@@ -268,7 +268,7 @@ nav.scrolled {
   padding-top: 16px;
 }
 .stat-num {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 300;
   letter-spacing: -0.02em;
   margin-bottom: 4px;
@@ -298,11 +298,11 @@ nav.scrolled {
   margin-bottom: 16px;
 }
 .section-heading {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 300;
   letter-spacing: -0.02em;
-  margin-bottom: 12px;
-  max-width: 600px;
+  margin-bottom: 14px;
+  max-width: 650px;
   line-height: 1.2;
 }
 .section-sub {
@@ -384,43 +384,26 @@ nav.scrolled {
 
 /* Art section - like Open WebUI's oil painting imagery */
 .art-section {
-  padding: 0 24px;
+  padding: 20px 24px;
   background: var(--bg);
 }
 .art-inner { max-width: 1000px; margin: 0 auto; }
 .art-banner {
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  height: 340px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 420px;
   position: relative;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+}
+.dark .art-banner {
+  box-shadow: 0 4px 32px rgba(0,0,0,0.3);
 }
 .art-banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.art-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
-  display: flex;
-  align-items: flex-end;
-  padding: 32px;
-}
-.art-text {
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 300;
-  max-width: 400px;
-  letter-spacing: -0.01em;
-}
-@media (max-width: 768px) { .art-banner { height: 240px; } }
+@media (max-width: 768px) { .art-banner { height: 280px; } }
 
 /* Contribution graph */
 .contrib-section {
@@ -530,13 +513,14 @@ nav.scrolled {
 .install-code {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px 28px;
-  margin-top: 32px;
+  border-radius: 14px;
+  padding: 28px 32px;
+  margin-top: 36px;
   font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-soft);
   overflow-x: auto;
+  line-height: 1.8;
 }
 .install-code .prompt { color: var(--text-muted); }
 .install-code .cmd { color: var(--text); }
@@ -548,13 +532,15 @@ nav.scrolled {
 }
 .mission-inner { max-width: 800px; margin: 0 auto; }
 .mission-quote {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 300;
   line-height: 1.5;
   letter-spacing: -0.01em;
   color: var(--text);
   text-align: center;
   font-style: italic;
+  max-width: 640px;
+  margin: 0 auto;
 }
 .mission-attr {
   font-size: 13px;
@@ -580,7 +566,7 @@ nav.scrolled {
   flex-wrap: wrap;
 }
 .cta-text {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 300;
   max-width: 500px;
   line-height: 1.3;
