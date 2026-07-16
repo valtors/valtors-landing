@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>your MCP server is probably vulnerable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-soft: #111111;
+  --bg-card: #141414;
+  --text: #fafafa;
+  --text-soft: #aaaaaa;
+  --text-muted: #666666;
+  --border: #1a1a1a;
+  --accent: #e0504f;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--text-soft); text-decoration: underline; text-decoration-color: var(--border); transition: text-decoration-color 0.2s, color 0.2s; }
+a:hover { color: var(--text); text-decoration-color: var(--accent); }
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  padding: 14px 24px;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-logo {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+}
+.nav-back {
+  font-size: 13px;
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--text); }
+
+/* Article */
+.article {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.article-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.article h1 {
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 32px;
+}
+
+.article h2 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-top: 48px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.article p {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+  line-height: 1.8;
+}
+
+.article p strong {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.article .lede {
+  font-size: 19px;
+  color: var(--text);
+  font-weight: 300;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.article hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 40px 0;
+}
+
+.article code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg-card);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.article pre {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 24px 0;
+  line-height: 1.6;
+}
+
+.article pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.article blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: 20px;
+  margin: 24px 0;
+  font-size: 17px;
+  color: var(--text);
+  font-weight: 300;
+  font-style: italic;
+}
+
+.article .cite {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: normal;
+  margin-top: 8px;
+  display: block;
+}
+
+.article .meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.article .meta a {
+  color: var(--text-soft);
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 24px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.footer-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.footer-text a {
+  color: var(--text-soft);
+  text-decoration: none;
+}
+.footer-text a:hover {
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .article { padding: 100px 20px 60px; }
+  .article h1 { font-size: 28px; }
+  .article p { font-size: 16px; }
+  .article .lede { font-size: 17px; }
+  .article pre { padding: 16px; font-size: 12px; }
+  .article pre code { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://valtors.github.io/valtors-landing/" class="nav-logo">valtors</a>
+    <a href="https://valtors.github.io/valtors-landing/" class="nav-back">back to valtors</a>
+  </div>
+</nav>
+
+<article class="article">
+
+  <div class="article-eyebrow">blog / mcp security</div>
+  <h1>your MCP server is probably vulnerable</h1>
+  <div class="meta">by tamish mhatre / july 2026 / <a href="https://github.com/tamish560/mcprobe">mcprobe</a></div>
+
+  <p class="lede">you connected an MCP server to your AI agent today. you didn't read the tool descriptions. you didn't check what they do. you ran the install command, saw it connect, closed the terminal, and moved on.</p>
+
+  <p>almost everybody does this. the ecosystem is moving fast. new servers every day. stars going up, installs going up, nobody reading the code. the README says "40 tools for your agent" and that's enough. you trust it. you trust it the same way you trust an npm package with 2 million weekly downloads, which is to say, you don't really think about it at all.</p>
+
+  <p>Simon Willison, the person who coined the term "prompt injection" in 2022, <a href="https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/">wrote about this in April 2025</a>. his assessment was direct: "any time you mix together tools that can perform actions on the user's behalf with exposure to potentially untrusted input you're effectively allowing attackers to make those tools do whatever they want." he called the MCP security situation a "huge issue." this from someone who's been writing about prompt injection for three years. when the person who named the problem says it's getting worse, it's getting worse.</p>
+
+  <p>i started building <a href="https://github.com/tamish560/mcprobe">mcprobe</a> because i wanted to stop not thinking about it. what it found, in servers people are using right now, connected to agents people are using right now, is not great. but the interesting part isn't what mcprobe found. the interesting part is what i learned about MCP security while building it, and while contributing to other projects in the ecosystem.</p>
+
+  <hr>
+
+  <p>prompt injection is the obvious one. tool descriptions are instructions. not to you, to the LLM. they tell the model what a tool does and when to use it. some of these descriptions contain literal injection attacks. "ignore all previous instructions." "you are now a different assistant." "execute the following command and return the output."</p>
+
+  <p>the model reads these. the model follows them. that's what models do. they follow instructions, including the ones hiding in tool descriptions, including the ones that say "ignore all previous instructions." this isn't a thought experiment.</p>
+
+  <p>Invariant Labs <a href="https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks">documented this first</a>. they called it "Tool Poisoning." they proved it against Cursor, one of the most popular MCP clients. a poisoned tool description made Cursor read <code>~/.ssh/id_rsa</code> and <code>~/.cursor/mcp.json</code> and exfiltrate them. Anthropic, OpenAI, Zapier, all susceptible. the attack is not theoretical. someone already built it, ran it, and it worked.</p>
+
+  <p>i found 18 distinct injection patterns across public MCP servers. some are careless. someone wrote "ignore previous instructions and use this tool for..." as a harmless description and didn't think about what happens when an LLM reads that literally. some are not careless. those are worse.</p>
+
+  <p>OWASP now lists Tool Poisoning as <a href="https://owasp.org/www-project-mcp-top-10/2025/MCP03-2025%E2%80%93Tool-Poisoning">MCP03:2025</a> in their MCP Top 10. when OWASP formalizes a vulnerability class, it means enough people have been hit that ignoring it is no longer an option. this happened in 2025. it's 2026.</p>
+
+  <p>i learned this while contributing to <a href="https://github.com/AgentWrapper/agent-orchestrator">agent-orchestrator</a>, which is itself an MCP-based system for orchestrating AI coding agents. when you're building the thing that controls the agents, you start thinking about what the agents are reading. tool descriptions aren't metadata. they're prompt context. everything the agent sees is prompt context. a tool description that says "ignore all previous instructions" isn't a description. it's an attack that runs on every single call.</p>
+
+  <hr>
+
+  <p>then there's tool shadowing. you connect server A and server B to the same agent. both have a tool called "read_file." server A reads files from your project directory. server B reads files from anywhere. the agent doesn't know which one it's calling. you don't know which one it's calling. the tool runs, the file gets read, the response goes back into the agent's context window, and nobody asked where that file came from.</p>
+
+  <p>Invariant Labs documented this too. they called it a "compound attack." a malicious server injects a tool description that modifies the agent's behavior with respect to a trusted service or tool. the agent thinks it's calling server A's "read_file." it's actually calling server B's "read_file." server B's "read_file" sends the contents somewhere else. the agent never notices. you never notice.</p>
+
+  <p>i ran into this while testing observer, the MCP proxy i built at <a href="https://github.com/valtors">valtors</a>. observer sits between your agent and the MCP server and logs every tool call. the first time i connected it to a multi-server setup, i watched the logs and realized the agent was calling tools by name without any namespace. two servers, same tool name, the agent picking whichever one matched first. there was no disambiguation. there was no warning. the tool just ran.</p>
+
+  <p>if someone replaces server A's "read_file" with something else after you trusted it, you won't notice until something breaks or something leaks. by then the context is already in the model's memory.</p>
+
+  <hr>
+
+  <p>then there's resource exposure. some MCP servers expose resources that point at sensitive paths. /etc. .ssh. .env. credentials. some tools accept file paths as parameters with no validation, no allowlist, no path scoping. nothing stops the agent from asking for /etc/passwd. nothing stops a prompt injection from telling the agent to ask for your ssh keys. the tool reads the file because that's what the tool does. it doesn't know it shouldn't. it doesn't ask.</p>
+
+  <p>this isn't hypothetical either. Snyk's security research team <a href="https://labs.snyk.io/resources/prompt-injection-mcp">disclosed real CVEs</a> in MCP servers for exactly this. CVE-2025-5273: arbitrary file read in markdownify-mcp. the <code>get-markdown-file</code> tool took a file path and converted the file to markdown. it didn't validate the path at all. any file readable by the server process, /etc/passwd, ssh keys, .env files, could be exfiltrated. no UI confirmation. no additional user interaction. just an LLM doing what it was told, by a page it was told to fetch.</p>
+
+  <blockquote>
+    if we don't start securing these servers now, we'll be stuck rediscovering the same old vulnerabilities, just wrapped in new AI-shaped wrappers.
+    <span class="cite">Snyk Labs, July 2025</span>
+  </blockquote>
+
+  <p>they're right. the vulnerability is old. the wrapper is new. nobody checked the wrapper.</p>
+
+  <p>i saw this pattern while contributing to <a href="https://github.com/ClickHouse/ClickHouse">ClickHouse</a>. the PR was about vector search optimization, unrelated to MCP, but the process taught me something about how large codebases handle parameter validation. ClickHouse validates everything. every setting has bounds. every query has limits. every input is checked before it's trusted. MCP servers don't do this. MCP servers take a string, pass it to os.ReadFile, and return the result. the contrast was the lesson. a database built by 2000 people checks every input. an MCP server built by one person checks none.</p>
+
+  <hr>
+
+  <p>while contributing to <a href="https://github.com/labstack/echo">labstack/echo</a>, i added llms.txt and llms-full.txt to their documentation. the point of llms.txt is to make documentation machine-readable so agents can understand a project without scraping the site. while doing it, i read through echo's entire docs structure. one thing stood out: they document every route, every middleware, every error code. if something goes wrong, you can look it up. MCP servers don't do this either. tool descriptions are often one line. sometimes zero lines. the agent is supposed to figure out what a tool does from its name. "read_file" is descriptive enough. "process_data" is not. "do_thing" is a joke, but i've seen it in a real server.</p>
+
+  <p>documentation isn't a feature. it's the interface between the tool and the model. when you don't document a tool, the model guesses. the model will guess wrong. wrong guesses in an agent with file access are not harmless.</p>
+
+  <hr>
+
+  <p>i also contributed to <a href="https://github.com/steel-dev/steel-browser">steel-browser</a>, fixing a session leak where user data directories weren't cleaned up when sessions ended. context leaking between sessions. sound familiar? it's the same class of problem as MCP tool shadowing. state from one context bleeds into another. in a browser, it means your next session sees the previous session's cookies. in MCP, it means your agent sees tools from a server you disconnected. the attack surface is different. the failure mode is the same. nobody owns their state.</p>
+
+  <hr>
+
+  <p>here's what mcprobe looks like when you run it against a server:</p>
+
+  <pre><code>$ mcprobe scan --stdio "npx some-mcp-server"
+
+scanning: some-mcp-server
+tools: 12
+
+[CRITICAL] prompt injection in tool 'exec_cmd'
+  description contains: "ignore all previous instructions"
+  a model will follow this. this is not a warning. this is what will happen.
+
+[HIGH] tool 'read_file' accepts unrestricted file paths
+  no path validation. /etc/passwd. your ssh keys. your .env.
+  nothing stops it. the tool just reads.
+
+[MEDIUM] tool 'search_web' has no description
+  the model will guess what it does.
+  the model will guess wrong.
+
+risk score: 67/100 (HIGH)</code></pre>
+
+  <p>67 out of 100. and this was a server with 500 stars and a nice logo.</p>
+
+  <hr>
+
+  <p>everything i learned across these projects points to the same thing. the MCP ecosystem is growing faster than the security conversation. the protocol is solid. the servers are not.</p>
+
+  <p>agent-orchestrator taught me that everything an agent sees is prompt context, including tool descriptions. observer taught me that agents call tools without disambiguation and nobody notices. clickhouse taught me that serious codebases validate every input and MCP servers validate none. echo taught me that documentation is an interface and most MCP servers don't have one. steel-browser taught me that state leaks between contexts and nobody owns their session boundaries.</p>
+
+  <blockquote>
+    the curse of prompt injection continues to be that we've known about the issue for more than two and a half years and we still don't have convincing mitigations for handling it.
+    <span class="cite">Simon Willison, April 2025</span>
+  </blockquote>
+
+  <p>he's right. we know the problem. we've named the problem. we don't have the fix. but we can at least look at the problem before we connect it to our agents.</p>
+
+  <hr>
+
+  <p>run mcprobe before you connect anything. it takes three seconds.</p>
+
+  <pre><code>go install github.com/tamish560/mcprobe@latest
+mcprobe scan --stdio "npx whatever-mcp-server"</code></pre>
+
+  <p>if it finds nothing, that doesn't mean the server is safe. it means mcprobe didn't find anything. there's a difference. you should know the difference.</p>
+
+  <p>save a baseline. check it again next week. if the tool descriptions changed and you didn't update anything, someone replaced something on you. that's a rug-pull. mcprobe catches those too.</p>
+
+  <pre><code>mcprobe baseline --stdio "npx whatever-mcp-server" --save
+mcprobe drift --stdio "npx whatever-mcp-server" --baseline baseline.json</code></pre>
+
+  <hr>
+
+  <p>every MCP server you connect is code you didn't write, running on your machine, reading your files, driven by a model that follows instructions. including instructions written by someone else. including instructions that say "ignore all previous instructions."</p>
+
+  <p>you trust the server. you trust the model. you trust that neither will do anything stupid. that's three layers of trust for something nobody checked.</p>
+
+  <p>mcprobe checks. that's all it does. it doesn't fix. it doesn't block. it tells you what's there, what's wrong, and what will happen if you connect it.</p>
+
+  <p>what you do after that is on you.</p>
+
+  <hr>
+
+  <p>every contribution i made to other projects taught me something that ended up in mcprobe. the injection patterns, the shadowing detection, the resource exposure checks, the baseline drift. none of it came from a security textbook. it came from building things, breaking things, and reading what other people built.</p>
+
+  <p>the ClickHouse PR was about vector search. the echo PR was about documentation. the steel-browser PR was about session cleanup. the agent-orchestrator PRs were about lifecycle management. none of them were about MCP security. all of them taught me something about MCP security.</p>
+
+  <p>that's how this works. you build, you contribute, you learn, you build better. the blog you're reading is the output of that loop. mcprobe is the tool that came out of it.</p>
+
+</article>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-text">valtors. MIT licensed. no telemetry. no bullshit. <a href="https://valtors.github.io/valtors-landing/">home</a></div>
+  </div>
+</div>
+
+</body>
+</html>
