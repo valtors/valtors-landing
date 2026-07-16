@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valtors - Developer tools that get out of the way.</title>
-<meta name="description" content="Open source MCP server and toolkit for building faster, shipping safer, and scaling smarter.">
+<meta name="description" content="Open source developer tools for the MCP ecosystem. Relay, Reflow, Observer, and mcprobe. MIT licensed.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -639,7 +639,7 @@ footer {
   <div class="hero-inner">
     <div class="hero-eyebrow">Valtors</div>
     <h1>Developer tools that get out of the way.</h1>
-    <p class="hero-sub">Open source MCP server and toolkit for building faster, shipping safer, and scaling smarter. Your models, your data, your machine.</p>
+    <p class="hero-sub">Open source tools for the MCP ecosystem. One server, one toolkit, one proxy, one scanner. Built with Go, TypeScript, and boring tech. MIT licensed, zero telemetry, your data stays on your machine.</p>
     <div class="hero-actions">
       <a href="#products" class="btn-primary">Explore Products</a>
       <a href="https://github.com/valtors" class="btn-outline">
@@ -666,15 +666,15 @@ footer {
     <div class="stats-eyebrow">The network</div>
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-num">2.5k+</div>
-        <div class="stat-label">Downloads</div>
+        <div class="stat-num">1.8k+</div>
+        <div class="stat-label">Monthly Downloads</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">16</div>
+        <div class="stat-num">22</div>
         <div class="stat-label">GitHub Stars</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">3</div>
+        <div class="stat-num">4</div>
         <div class="stat-label">Open Source Projects</div>
       </div>
       <div class="stat-item">
@@ -696,12 +696,12 @@ footer {
 <section class="products" id="products">
   <div class="products-inner">
     <div class="section-eyebrow">Products</div>
-    <h2 class="section-heading">Modular. Open. Designed for real-world workflows.</h2>
-    <p class="section-sub">Three tools, one philosophy. Boring tech, zero dependencies where possible, built to last.</p>
+    <h2 class="section-heading">Four tools, one philosophy.</h2>
+    <p class="section-sub">Boring tech, zero dependencies where possible, built to last.</p>
     <div class="product-list">
       <div class="product-item">
         <div class="product-name">Relay</div>
-        <div class="product-desc">One MCP server for files, images, PDFs, and more. 40+ tools exposed through a single Go binary. Stdio transport, zero config.</div>
+        <div class="product-desc">One MCP server for files, images, PDFs, web fetch, and more. 40+ tools across 7 categories in a single Go binary. Stdio and HTTP transport, config command, zero runtime dependencies. npm: userelay.</div>
         <a href="https://github.com/valtors/relay" class="product-link">
           GitHub
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
@@ -709,7 +709,7 @@ footer {
       </div>
       <div class="product-item">
         <div class="product-name">Reflow</div>
-        <div class="product-desc">SSR-safe, responsive toolkit for TypeScript. Responsive primitives that work on the server, in the browser, and everywhere in between. htm, no build step.</div>
+        <div class="product-desc">SSR-safe responsive toolkit for TypeScript. Responsive primitives that work on the server and in the browser. Framework-agnostic core with adapters for React, Vue, Svelte, Solid, Preact, Qwik, and Angular. npm: usereflow.</div>
         <a href="https://github.com/valtors/reflow" class="product-link">
           GitHub
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
@@ -717,8 +717,16 @@ footer {
       </div>
       <div class="product-item">
         <div class="product-name">Observer</div>
-        <div class="product-desc">Transparent MCP proxy for agent observability. SQLite traces, metadata-only by default, redaction patterns, session isolation. See what your agents actually do.</div>
+        <div class="product-desc">Transparent MCP proxy for agent observability. SQLite traces, metadata-only by default, redaction patterns, session isolation. SSE transport support, tool filtering, trace replay. See what your agents actually do.</div>
         <a href="https://github.com/valtors/observer" class="product-link">
+          GitHub
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+        </a>
+      </div>
+      <div class="product-item">
+        <div class="product-name">mcprobe</div>
+        <div class="product-desc">Security scanner for MCP servers. Detects prompt injection in tool descriptions, tool shadowing across servers, resource exposure to sensitive paths, and baseline drift for rug-pull detection. Text, JSON, and SARIF output. Single Go binary.</div>
+        <a href="https://github.com/tamish560/mcprobe" class="product-link">
           GitHub
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
         </a>
@@ -749,8 +757,8 @@ footer {
         <p>Clear docs, working examples, and guides for every step. No reading source code to understand the API.</p>
       </div>
       <div class="feature-item">
-        <h3>Security hardened</h3>
-        <p>DB permissions locked down, metadata-only traces by default, redaction patterns, session isolation built in.</p>
+        <h3>Security first</h3>
+        <p>mcprobe scans for prompt injection, tool shadowing, and resource exposure. Observer redacts sensitive data by default. Security is built in, not bolted on.</p>
       </div>
       <div class="feature-item">
         <h3>Community driven</h3>
@@ -771,9 +779,9 @@ footer {
 <section class="contrib-section">
   <div class="contrib-inner">
     <div class="section-eyebrow">Activity</div>
-    <h2 class="section-heading">318 contributions in the last year.</h2>
+    <h2 class="section-heading">432 contributions in the last year.</h2>
     <div class="contrib-header">
-      <div class="contrib-total"><strong>318</strong> contributions across all repositories</div>
+      <div class="contrib-total"><strong>432</strong> contributions across all repositories</div>
     </div>
     <div class="contrib-graph" id="contrib-graph"></div>
     <div class="contrib-legend">
@@ -860,7 +868,8 @@ footer {
     <h2 class="section-heading">One command. No account required.</h2>
     <div class="install-code">
 <span class="prompt">$</span> <span class="cmd">go install github.com/valtors/relay@latest</span>
-<span class="prompt">$</span> <span class="cmd">relay --help</span>
+<span class="prompt">$</span> <span class="cmd">npm i userelay usereflow</span>
+<span class="prompt">$</span> <span class="cmd">go install github.com/tamish560/mcprobe@latest</span>
     </div>
   </div>
 </section>
@@ -888,6 +897,7 @@ footer {
       <a href="https://github.com/valtors/relay">Relay</a>
       <a href="https://github.com/valtors/reflow">Reflow</a>
       <a href="https://github.com/valtors/observer">Observer</a>
+      <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
     </div>
   </div>
 </footer>
