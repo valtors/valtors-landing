@@ -177,7 +177,6 @@ pre code {
   color: var(--text-soft);
 }
 
-/* Leaderboard table */
 .leaderboard {
   max-width: 800px;
   margin: 0 auto;
@@ -262,7 +261,6 @@ pre code {
 
 .findings-count .zero { color: var(--text-muted); }
 
-/* Findings detail */
 .findings-detail {
   max-width: 800px;
   margin: 0 auto;
@@ -353,7 +351,7 @@ pre code {
   <a href="https://valtors.github.io/valtors-landing/" class="nav-brand">valtors</a>
   <div class="nav-links">
     <a href="#leaderboard">leaderboard</a>
-    <a href="https://github.com/valtors/mcprobe">mcprobe</a>
+    <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
     <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog</a>
   </div>
 </nav>
@@ -362,7 +360,7 @@ pre code {
   <div class="hero-eyebrow">mcp security leaderboard</div>
   <h1>you connected an MCP server to your AI agent. you didn't check what was inside.</h1>
   <p>nobody does. there are thousands of MCP servers on npm. each one exposes tools to your LLM. each tool has a description. each description is text your agent reads and obeys.</p>
-  <p>we scanned them. with <a href="https://github.com/valtors/mcprobe">mcprobe</a>. real servers, real scores, real findings. no anonymizing. no "trust me bro." the output speaks.</p>
+  <p>we scanned 17 of them. with <a href="https://github.com/tamish560/mcprobe">mcprobe</a>. real servers, real scores, real findings. no anonymizing. no "trust me bro." the output speaks.</p>
   <p class="accent">some of these servers tell your agent to ignore your instructions. and your agent will.</p>
 </div>
 
@@ -379,7 +377,7 @@ pre code {
 <hr>
 
 <div class="leaderboard" id="leaderboard">
-  <div class="section-eyebrow" style="margin-bottom: 20px;">rankings</div>
+  <div class="section-eyebrow" style="margin-bottom: 20px;">rankings - 17 servers scanned</div>
   
   <div class="server-row header">
     <div>rank</div>
@@ -456,6 +454,19 @@ pre code {
   <div class="server-row">
     <div class="rank">6</div>
     <div>
+      <div class="server-name">hostinger-api-mcp</div>
+      <div class="server-meta">223 tools</div>
+    </div>
+    <div>
+      <div class="risk-score risk-medium">25</div>
+      <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
+    </div>
+    <div class="findings-count">1</div>
+  </div>
+
+  <div class="server-row">
+    <div class="rank">7</div>
+    <div>
       <div class="server-name">@dollhousemcp/mcp-server</div>
       <div class="server-meta">5 tools</div>
     </div>
@@ -467,7 +478,59 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">7</div>
+    <div class="rank">8</div>
+    <div>
+      <div class="server-name">@doitintl/doit-mcp-server</div>
+      <div class="server-meta">135 tools</div>
+    </div>
+    <div>
+      <div class="risk-score risk-low">10</div>
+      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 10%"></div></div>
+    </div>
+    <div class="findings-count">1</div>
+  </div>
+
+  <div class="server-row">
+    <div class="rank">9</div>
+    <div>
+      <div class="server-name">agent-browser-mcp-server</div>
+      <div class="server-meta">44 tools</div>
+    </div>
+    <div>
+      <div class="risk-score risk-low">10</div>
+      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 10%"></div></div>
+    </div>
+    <div class="findings-count">4</div>
+  </div>
+
+  <div class="server-row">
+    <div class="rank">10</div>
+    <div>
+      <div class="server-name">d33naz-mcp-filesystem</div>
+      <div class="server-meta">2 tools</div>
+    </div>
+    <div>
+      <div class="risk-score risk-low">5</div>
+      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 5%"></div></div>
+    </div>
+    <div class="findings-count">2</div>
+  </div>
+
+  <div class="server-row">
+    <div class="rank">11</div>
+    <div>
+      <div class="server-name">mcp-calculator-server</div>
+      <div class="server-meta">6 tools</div>
+    </div>
+    <div>
+      <div class="risk-score risk-low">5</div>
+      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 5%"></div></div>
+    </div>
+    <div class="findings-count">6</div>
+  </div>
+
+  <div class="server-row">
+    <div class="rank">12</div>
     <div>
       <div class="server-name">@bitcompare/mcp-server</div>
       <div class="server-meta">18 tools</div>
@@ -480,7 +543,7 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">8</div>
+    <div class="rank">13</div>
     <div>
       <div class="server-name">@contextium/mcp-server</div>
       <div class="server-meta">68 tools</div>
@@ -493,33 +556,7 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">9</div>
-    <div>
-      <div class="server-name">@doitintl/doit-mcp-server</div>
-      <div class="server-meta">135 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">10</div>
-    <div>
-      <div class="server-name">hostinger-api-mcp</div>
-      <div class="server-meta">223 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">11</div>
+    <div class="rank">14</div>
     <div>
       <div class="server-name">@bluesprincemedia/thiri-mcp</div>
       <div class="server-meta">5 tools</div>
@@ -532,7 +569,7 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">12</div>
+    <div class="rank">15</div>
     <div>
       <div class="server-name">@clicks-protocol/mcp-server</div>
       <div class="server-meta">10 tools</div>
@@ -545,7 +582,7 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">13</div>
+    <div class="rank">16</div>
     <div>
       <div class="server-name">@endiagram/mcp</div>
       <div class="server-meta">7 tools</div>
@@ -558,7 +595,7 @@ pre code {
   </div>
 
   <div class="server-row">
-    <div class="rank">14</div>
+    <div class="rank">17</div>
     <div>
       <div class="server-name">@impri/mcp</div>
       <div class="server-meta">8 tools</div>
@@ -752,6 +789,18 @@ pre code {
   </div>
 
   <div class="server-detail">
+    <h3>hostinger-api-mcp</h3>
+    <div class="meta">risk 25/100 (MEDIUM) - 223 tools - 1 finding</div>
+    <div class="finding">
+      <span class="finding-severity sev-critical">CRITICAL</span>
+      <div class="finding-content">
+        <div class="finding-title">tool description contains injection pattern</div>
+        <div class="finding-desc">tool description contains known prompt injection pattern</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="server-detail">
     <h3>@artifacta-mcp/mcp</h3>
     <div class="meta">risk 25/100 (MEDIUM) - 10 tools - 1 finding</div>
     <div class="finding">
@@ -789,6 +838,54 @@ pre code {
     </div>
   </div>
 
+  <div class="server-detail">
+    <h3>agent-browser-mcp-server</h3>
+    <div class="meta">risk 10/100 (LOW) - 44 tools - 4 findings</div>
+    <div class="finding">
+      <span class="finding-severity sev-medium">MEDIUM</span>
+      <div class="finding-content">
+        <div class="finding-title">tool description is unusually large</div>
+        <div class="finding-desc">description exceeds 500 chars (4 tools)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="server-detail">
+    <h3>@doitintl/doit-mcp-server</h3>
+    <div class="meta">risk 10/100 (LOW) - 135 tools - 1 finding</div>
+    <div class="finding">
+      <span class="finding-severity sev-medium">MEDIUM</span>
+      <div class="finding-content">
+        <div class="finding-title">tool description is unusually large</div>
+        <div class="finding-desc">description exceeds 500 chars</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="server-detail">
+    <h3>d33naz-mcp-filesystem</h3>
+    <div class="meta">risk 5/100 (LOW) - 2 tools - 2 findings</div>
+    <div class="finding">
+      <span class="finding-severity sev-low">LOW</span>
+      <div class="finding-content">
+        <div class="finding-title">missing tool description</div>
+        <div class="finding-desc">tool has no description (2 tools)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="server-detail">
+    <h3>mcp-calculator-server</h3>
+    <div class="meta">risk 5/100 (LOW) - 6 tools - 6 findings</div>
+    <div class="finding">
+      <span class="finding-severity sev-low">LOW</span>
+      <div class="finding-content">
+        <div class="finding-title">missing tool description</div>
+        <div class="finding-desc">tool has no description (6 tools - all of them)</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <hr>
@@ -799,11 +896,11 @@ pre code {
   <p>it means we didn't find anything. there's a difference. you should know the difference.</p>
   <p>mcprobe checks tool descriptions, schemas, and parameter patterns. it doesn't execute tool calls. it doesn't test runtime behavior. it doesn't check the server's network calls. a server can score 0 and still exfiltrate your data at runtime. a server can score 100 and be perfectly safe if you never connect it to an LLM that follows instructions.</p>
   <p>but you will connect it to an LLM that follows instructions. that's the point of MCP. so maybe check what's inside first.</p>
-  <p>scanned with <a href="https://github.com/valtors/mcprobe">mcprobe</a> v0.1.0. read the <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog post</a> for the full context on why this matters.</p>
+  <p>scanned with <a href="https://github.com/tamish560/mcprobe">mcprobe</a> v0.1.0. read the <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog post</a> for the full context on why this matters.</p>
 </div>
 
 <div class="footer">
-  mcp security leaderboard by <a href="https://valtors.github.io/valtors-landing/">valtors</a>. scanned with <a href="https://github.com/valtors/mcprobe">mcprobe</a>. MIT licensed. no telemetry. no tracking. no "trust me bro." the output speaks.
+  mcp security leaderboard by <a href="https://valtors.github.io/valtors-landing/">valtors</a>. scanned with <a href="https://github.com/tamish560/mcprobe">mcprobe</a>. MIT licensed. no telemetry. no tracking. no "trust me bro." the output speaks.
 </div>
 
 </body>
