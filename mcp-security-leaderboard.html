@@ -4,903 +4,450 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>mcp security leaderboard</title>
-<meta name="description" content="real MCP servers, real scores, real findings. scanned with mcprobe.">
+<meta name="description" content="real MCP servers. real scores. no anonymizing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --bg: #0a0a0a;
-  --bg-soft: #111;
-  --bg-card: #141414;
-  --text: #fafafa;
-  --text-soft: #aaa;
-  --text-muted: #555;
-  --border: #1a1a1a;
-  --accent: #e0504f;
-  --crit: #ff4444;
-  --high: #ff8800;
-  --med: #ffcc00;
-  --low: #666;
-  --clean: #2a2a2a;
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.8;
-  -webkit-font-smoothing: antialiased;
-}
-
-a { color: var(--text-soft); text-decoration: underline; text-decoration-color: var(--border); transition: color 0.2s, text-decoration-color 0.2s; }
-a:hover { color: var(--text); text-decoration-color: var(--accent); }
-
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 32px;
-  background: rgba(10,10,10,0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-
-nav a { text-decoration: none; font-size: 14px; }
-nav a:hover { color: var(--text); }
-
-.nav-brand { font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
-.nav-links { display: flex; gap: 24px; align-items: center; }
-.nav-cta {
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--text);
-  transition: border-color 0.2s;
-}
-.nav-cta:hover { border-color: var(--text-soft); text-decoration: none; }
-
-.hero {
-  min-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 140px 24px 60px;
-}
-
-.hero-eyebrow {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-}
-
-.hero h1 {
-  font-size: 40px;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 24px;
-}
-
-.hero p {
-  font-size: 18px;
-  font-weight: 300;
-  color: var(--text-soft);
-  line-height: 1.7;
-  margin-bottom: 16px;
-  max-width: 560px;
-}
-
-.hero .accent { color: var(--accent); }
-
-.section {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px;
-}
-
-.section-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-.section h2 {
-  font-size: 26px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  margin-bottom: 20px;
-  line-height: 1.3;
-}
-
-.section p {
-  font-size: 17px;
-  font-weight: 300;
-  color: var(--text-soft);
-  line-height: 1.85;
-  margin-bottom: 18px;
-}
-
-.section p strong { font-weight: 500; color: var(--text); }
-
-hr {
-  border: none;
-  border-top: 1px solid var(--border);
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-code {
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg-card);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-
-pre {
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 18px 22px;
-  overflow-x: auto;
-  margin: 24px 0;
-  line-height: 1.6;
-}
-
-pre code {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 13px;
-  color: var(--text-soft);
-}
-
-.leaderboard {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px 24px 60px;
-}
-
-.server-row {
-  display: grid;
-  grid-template-columns: 60px 1fr 80px 80px;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
-}
-
-.server-row:hover { background: var(--bg-soft); }
-
-.server-row.header {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
-  padding: 12px 20px;
-}
-
-.rank { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--text-muted); font-weight: 500; }
-
-.server-name {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: var(--text);
-  font-weight: 500;
-}
-
-.server-meta {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
-.risk-score {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 600;
-  text-align: right;
-}
-
-.risk-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--bg-card);
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.risk-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-}
-
-.risk-critical { color: var(--crit); }
-.risk-high { color: var(--high); }
-.risk-medium { color: var(--med); }
-.risk-low { color: var(--text-soft); }
-.risk-clean { color: var(--text-muted); }
-
-.bg-critical { background: var(--crit); }
-.bg-high { background: var(--high); }
-.bg-medium { background: var(--med); }
-.bg-low { background: var(--low); }
-.bg-clean { background: var(--clean); }
-
-.findings-count {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: var(--text-soft);
-  text-align: right;
-}
-
-.findings-count .zero { color: var(--text-muted); }
-
-.findings-detail {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px 60px;
-}
-
-.server-detail {
-  margin-bottom: 32px;
-  padding: 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-.server-detail h3 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.server-detail .meta {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-}
-
-.finding {
-  display: flex;
-  gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-}
-
-.finding-severity {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  height: fit-content;
-}
-
-.sev-critical { background: rgba(255,68,68,0.15); color: var(--crit); border: 1px solid rgba(255,68,68,0.3); }
-.sev-high { background: rgba(255,136,0,0.15); color: var(--high); border: 1px solid rgba(255,136,0,0.3); }
-.sev-medium { background: rgba(255,204,0,0.15); color: var(--med); border: 1px solid rgba(255,204,0,0.3); }
-.sev-low { background: rgba(102,102,102,0.15); color: var(--text-soft); border: 1px solid var(--border); }
-
-.finding-content { flex: 1; }
-.finding-title { font-size: 15px; color: var(--text); font-weight: 500; }
-.finding-desc { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
-
-.footer {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px 60px;
-  border-top: 1px solid var(--border);
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.footer a { color: var(--text-soft); }
-
+body { font-family: 'Archivo', sans-serif; background: #0a0a0a; color: #e5e5e5; line-height: 1.7; max-width: 720px; margin: 0 auto; padding: 0 24px; -webkit-font-smoothing: antialiased; }
+.nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid #1a1a1a; }
+.nav-links { display: flex; gap: 20px; }
+.nav-links a { color: #888; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+.nav-links a:hover { color: #e5e5e5; }
+.brand { color: #e5e5e5; font-weight: 600; text-decoration: none; font-size: 0.95rem; }
+.hero { padding: 60px 0 40px; }
+.hero h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 16px; }
+.hero p { color: #999; font-size: 1rem; margin-bottom: 12px; }
+.stats-row { display: flex; gap: 30px; margin: 24px 0; flex-wrap: wrap; }
+.stat { }
+.stat-num { font-size: 1.6rem; font-weight: 700; color: #e5e5e5; }
+.stat-label { font-size: 0.75rem; color: #666; text-transform: lowercase; }
+.section-head { font-size: 1.3rem; font-weight: 600; margin: 40px 0 16px; letter-spacing: -0.02em; }
+.server-row { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid #1a1a1a; }
+.rank { color: #555; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; text-align: center; }
+.server-info { }
+.server-name { font-size: 0.95rem; font-weight: 500; color: #e5e5e5; font-family: 'JetBrains Mono', monospace; }
+.server-meta { font-size: 0.75rem; color: #666; margin-top: 2px; }
+.risk-cell { text-align: right; }
+.risk-score { font-size: 1.1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.risk-critical { color: #ef4444; }
+.risk-high { color: #f97316; }
+.risk-medium { color: #eab308; }
+.risk-low { color: #6b7280; }
+.risk-clean { color: #3b3b3b; }
+.risk-bar { width: 80px; height: 4px; background: #1a1a1a; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.risk-bar-fill { height: 100%; border-radius: 2px; }
+.bg-critical { background: #ef4444; }
+.bg-high { background: #f97316; }
+.bg-medium { background: #eab308; }
+.bg-low { background: #6b7280; }
+.bg-clean { background: #3b3b3b; }
+.findings-count { font-size: 0.75rem; color: #666; font-family: 'JetBrains Mono', monospace; }
+.detail-box { background: #111; border: 1px solid #1a1a1a; border-radius: 8px; padding: 16px 20px; margin: 12px 0; }
+.detail-box h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+.finding { padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+.finding:last-child { border-bottom: none; }
+.finding-sev { font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 4px; }
+.sev-critical { background: #3b0a0a; color: #ef4444; }
+.sev-high { background: #2b1a08; color: #f97316; }
+.sev-medium { background: #2b2408; color: #eab308; }
+.sev-low { background: #1a1a1a; color: #6b7280; }
+.finding-title { font-size: 0.85rem; color: #e5e5e5; font-weight: 500; }
+.finding-detail { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.cta { padding: 50px 0; border-top: 1px solid #1a1a1a; }
+.cta p { color: #999; margin-bottom: 16px; }
+.links { display: flex; gap: 16px; flex-wrap: wrap; }
+.links a { color: #888; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 2px; }
+.links a:hover { color: #e5e5e5; }
+.footer { padding: 30px 0; border-top: 1px solid #1a1a1a; }
+.footer p { color: #555; font-size: 0.8rem; }
 @media (max-width: 640px) {
-  .hero { padding: 120px 20px 40px; }
-  .hero h1 { font-size: 28px; }
-  .hero p { font-size: 16px; }
-  .section { padding: 40px 20px; }
-  .section h2 { font-size: 22px; }
-  .section p { font-size: 16px; }
-  .server-row { grid-template-columns: 40px 1fr 60px 60px; gap: 8px; padding: 12px; }
-  .server-row.header { font-size: 10px; padding: 10px 12px; }
-  .rank { font-size: 14px; }
-  .server-name { font-size: 12px; }
-  .risk-score { font-size: 16px; }
-  .findings-count { font-size: 12px; }
-  pre { padding: 14px; font-size: 12px; }
-  nav { padding: 14px 20px; }
-  .nav-links { gap: 14px; }
-  .server-detail { padding: 16px; }
+  .hero h1 { font-size: 1.6rem; }
+  .server-row { grid-template-columns: 28px 1fr auto; }
+  .stat-num { font-size: 1.3rem; }
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="https://valtors.github.io/valtors-landing/" class="nav-brand">valtors</a>
+<nav class="nav">
+  <a href="https://valtors.github.io/valtors-landing/" class="brand">valtors</a>
   <div class="nav-links">
-    <a href="#leaderboard">leaderboard</a>
-    <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
     <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog</a>
+    <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
+    <a href="https://github.com/tamish560">github</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="hero-eyebrow">mcp security leaderboard</div>
-  <h1>you connected an MCP server to your AI agent. you didn't check what was inside.</h1>
-  <p>nobody does. there are thousands of MCP servers on npm. each one exposes tools to your LLM. each tool has a description. each description is text your agent reads and obeys.</p>
-  <p>we scanned 17 of them. with <a href="https://github.com/tamish560/mcprobe">mcprobe</a>. real servers, real scores, real findings. no anonymizing. no "trust me bro." the output speaks.</p>
-  <p class="accent">some of these servers tell your agent to ignore your instructions. and your agent will.</p>
-</div>
-
-<hr>
-
-<div class="section">
-  <div class="section-eyebrow">methodology</div>
-  <h2>how we scored them.</h2>
-  <p>each server was started via <code>npx -y &lt;package&gt;</code> and scanned with mcprobe. mcprobe enumerates tools, parses descriptions, checks for injection patterns, unrestricted file paths, missing schemas, and tool name shadowing. every finding is real. every score is calculated. nothing is opinion.</p>
-  <p>risk scores: <strong>CRITICAL</strong> = prompt injection found (tool descriptions containing "ignore all previous instructions" or "you are now a"). <strong>HIGH</strong> = unrestricted file paths or sensitive resource exposure. <strong>MEDIUM</strong> = injection-adjacent patterns, missing descriptions, oversized descriptions. <strong>LOW</strong> = missing schemas, name shadowing, unrestricted parameters.</p>
-  <p>a score of 0 doesn't mean safe. it means we didn't find anything. there's a difference. you should know the difference.</p>
-</div>
-
-<hr>
-
-<div class="leaderboard" id="leaderboard">
-  <div class="section-eyebrow" style="margin-bottom: 20px;">rankings - 17 servers scanned</div>
+  <h1>mcp security leaderboard</h1>
+  <p>you connected an MCP server to your AI agent. you didn't check what was inside. we did.</p>
+  <p>real servers. real scores. no anonymizing. scanned with <a href="https://github.com/tamish560/mcprobe" style="color: #888; border-bottom: 1px solid #333;">mcprobe</a>.</p>
   
-  <div class="server-row header">
-    <div>rank</div>
-    <div>server</div>
-    <div style="text-align: right;">risk</div>
-    <div style="text-align: right;">findings</div>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">98</div>
+      <div class="stat-label">packages tried</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24</div>
+      <div class="stat-label">servers scanned</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">13</div>
+      <div class="stat-label">with findings</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">11</div>
+      <div class="stat-label">clean</div>
+    </div>
   </div>
-
-  <div class="server-row">
-    <div class="rank">1</div>
-    <div>
-      <div class="server-name">@dronelytics/mcp</div>
-      <div class="server-meta">25 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-critical">100</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-critical" style="width: 100%"></div></div>
-    </div>
-    <div class="findings-count">8</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">2</div>
-    <div>
-      <div class="server-name">@agenticmail/mcp</div>
-      <div class="server-meta">101 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-high">62</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-high" style="width: 62%"></div></div>
-    </div>
-    <div class="findings-count">4</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">3</div>
-    <div>
-      <div class="server-name">@gitdealflow/mcp-signal</div>
-      <div class="server-meta">13 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-high">56</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-high" style="width: 56%"></div></div>
-    </div>
-    <div class="findings-count">8</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">4</div>
-    <div>
-      <div class="server-name">@automatelab/n8n-mcp</div>
-      <div class="server-meta">12 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-medium">50</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 50%"></div></div>
-    </div>
-    <div class="findings-count">2</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">5</div>
-    <div>
-      <div class="server-name">@artifacta-mcp/mcp</div>
-      <div class="server-meta">10 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-medium">25</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
-    </div>
-    <div class="findings-count">1</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">6</div>
-    <div>
-      <div class="server-name">hostinger-api-mcp</div>
-      <div class="server-meta">223 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-medium">25</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
-    </div>
-    <div class="findings-count">1</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">7</div>
-    <div>
-      <div class="server-name">@dollhousemcp/mcp-server</div>
-      <div class="server-meta">5 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-low">21</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 21%"></div></div>
-    </div>
-    <div class="findings-count">3</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">8</div>
-    <div>
-      <div class="server-name">@doitintl/doit-mcp-server</div>
-      <div class="server-meta">135 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">7</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 7%"></div></div>
-    </div>
-    <div class="findings-count">1</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">9</div>
-    <div>
-      <div class="server-name">agent-browser-mcp-server</div>
-      <div class="server-meta">44 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-medium">28</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 28%"></div></div>
-    </div>
-    <div class="findings-count">4</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">10</div>
-    <div>
-      <div class="server-name">d33naz-mcp-filesystem</div>
-      <div class="server-meta">2 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-low">4</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 4%"></div></div>
-    </div>
-    <div class="findings-count">2</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">11</div>
-    <div>
-      <div class="server-name">mcp-calculator-server</div>
-      <div class="server-meta">6 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-low">5</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 5%"></div></div>
-    </div>
-    <div class="findings-count">6</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">12</div>
-    <div>
-      <div class="server-name">@bitcompare/mcp-server</div>
-      <div class="server-meta">18 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">13</div>
-    <div>
-      <div class="server-name">@contextium/mcp-server</div>
-      <div class="server-meta">68 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">14</div>
-    <div>
-      <div class="server-name">@bluesprincemedia/thiri-mcp</div>
-      <div class="server-meta">5 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">15</div>
-    <div>
-      <div class="server-name">@clicks-protocol/mcp-server</div>
-      <div class="server-meta">10 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">16</div>
-    <div>
-      <div class="server-name">@endiagram/mcp</div>
-      <div class="server-meta">7 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
-  <div class="server-row">
-    <div class="rank">17</div>
-    <div>
-      <div class="server-name">@impri/mcp</div>
-      <div class="server-meta">8 tools</div>
-    </div>
-    <div>
-      <div class="risk-score risk-clean">0</div>
-      <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 2%"></div></div>
-    </div>
-    <div class="findings-count zero">0</div>
-  </div>
-
 </div>
 
-<hr>
+<div class="section-head">ranked by risk score</div>
 
-<div class="findings-detail">
-  <div class="section-eyebrow" style="margin-bottom: 20px;">findings</div>
-
-  <div class="server-detail">
-    <h3>@dronelytics/mcp</h3>
-    <div class="meta">risk 100/100 (CRITICAL) - 25 tools - 8 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-critical">CRITICAL</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains "ignore all previous instructions"</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-critical">CRITICAL</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains "you are now a"</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-high">HIGH</span>
-      <div class="finding-content">
-        <div class="finding-title">unrestricted file path parameter</div>
-        <div class="finding-desc">tool accepts file paths with no validation</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-high">HIGH</span>
-      <div class="finding-content">
-        <div class="finding-title">resource exposure to sensitive path</div>
-        <div class="finding-desc">resource references /etc or .ssh</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">tool name shadowing risk</div>
-        <div class="finding-desc">tool name overlaps with common tools</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">missing input schema</div>
-        <div class="finding-desc">tool has no input schema</div>
-      </div>
-    </div>
+<div class="server-row">
+  <div class="rank">1</div>
+  <div class="server-info">
+    <div class="server-name">@dronelytics/mcp</div>
+    <div class="server-meta">25 tools - 8 findings - 2 CRITICAL, 2 HIGH, 4 MEDIUM</div>
   </div>
-
-  <div class="server-detail">
-    <h3>@agenticmail/mcp</h3>
-    <div class="meta">risk 62/100 (HIGH) - 101 tools - 4 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-high">HIGH</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains known injection pattern</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">unrestricted parameter</div>
-        <div class="finding-desc">tool accepts file path without validation</div>
-      </div>
-    </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-critical">100</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-critical" style="width: 100%"></div></div>
   </div>
-
-  <div class="server-detail">
-    <h3>@gitdealflow/mcp-signal</h3>
-    <div class="meta">risk 56/100 (HIGH) - 13 tools - 8 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-high">HIGH</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains injection pattern</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-high">HIGH</span>
-      <div class="finding-content">
-        <div class="finding-title">unrestricted file path parameter</div>
-        <div class="finding-desc">tool accepts file paths with no validation</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains injection pattern</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">tool name shadowing risk</div>
-        <div class="finding-desc">tool name overlaps with common tools</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">missing input schema</div>
-        <div class="finding-desc">tool has no input schema</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">unrestricted parameter</div>
-        <div class="finding-desc">tool accepts file path without validation</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>@automatelab/n8n-mcp</h3>
-    <div class="meta">risk 50/100 (MEDIUM) - 12 tools - 2 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">prompt injection in tool description</div>
-        <div class="finding-desc">tool description contains injection pattern</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>hostinger-api-mcp</h3>
-    <div class="meta">risk 25/100 (MEDIUM) - 223 tools - 1 finding</div>
-    <div class="finding">
-      <span class="finding-severity sev-critical">CRITICAL</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description contains injection pattern</div>
-        <div class="finding-desc">tool description contains known prompt injection pattern</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>@artifacta-mcp/mcp</h3>
-    <div class="meta">risk 25/100 (MEDIUM) - 10 tools - 1 finding</div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>@dollhousemcp/mcp-server</h3>
-    <div class="meta">risk 21/100 (LOW) - 5 tools - 3 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">unrestricted parameter</div>
-        <div class="finding-desc">tool accepts file path without validation</div>
-      </div>
-    </div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>agent-browser-mcp-server</h3>
-    <div class="meta">risk 28/100 (MEDIUM) - 44 tools - 4 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars (4 tools)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>@doitintl/doit-mcp-server</h3>
-    <div class="meta">risk 7/100 (MINIMAL) - 135 tools - 1 finding</div>
-    <div class="finding">
-      <span class="finding-severity sev-medium">MEDIUM</span>
-      <div class="finding-content">
-        <div class="finding-title">tool description is unusually large</div>
-        <div class="finding-desc">description exceeds 500 chars</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>d33naz-mcp-filesystem</h3>
-    <div class="meta">risk 4/100 (MINIMAL) - 2 tools - 2 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description (2 tools)</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="server-detail">
-    <h3>mcp-calculator-server</h3>
-    <div class="meta">risk 5/100 (LOW) - 6 tools - 6 findings</div>
-    <div class="finding">
-      <span class="finding-severity sev-low">LOW</span>
-      <div class="finding-content">
-        <div class="finding-title">missing tool description</div>
-        <div class="finding-desc">tool has no description (6 tools - all of them)</div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<hr>
+<div class="detail-box">
+  <h3 style="color: #ef4444;">risk 100/100 (CRITICAL) - 25 tools - 8 findings</h3>
+  <div class="finding">
+    <span class="finding-sev sev-critical">CRITICAL</span>
+    <div class="finding-title">prompt injection in tool description</div>
+    <div class="finding-detail">tool description contains "ignore all previous instructions" - your agent reads this before every call</div>
+  </div>
+  <div class="finding">
+    <span class="finding-sev sev-critical">CRITICAL</span>
+    <div class="finding-title">prompt injection in tool description</div>
+    <div class="finding-detail">tool description contains "you are now a" - identity override attempt</div>
+  </div>
+</div>
 
-<div class="section">
-  <div class="section-eyebrow">disclaimer</div>
-  <h2>a score of 0 doesn't mean safe.</h2>
-  <p>it means we didn't find anything. there's a difference. you should know the difference.</p>
-  <p>mcprobe checks tool descriptions, schemas, and parameter patterns. it doesn't execute tool calls. it doesn't test runtime behavior. it doesn't check the server's network calls. a server can score 0 and still exfiltrate your data at runtime. a server can score 100 and be perfectly safe if you never connect it to an LLM that follows instructions.</p>
-  <p>but you will connect it to an LLM that follows instructions. that's the point of MCP. so maybe check what's inside first.</p>
-  <p>scanned with <a href="https://github.com/tamish560/mcprobe">mcprobe</a> v0.1.0. read the <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog post</a> for the full context on why this matters.</p>
+<div class="server-row">
+  <div class="rank">2</div>
+  <div class="server-info">
+    <div class="server-name">@agenticmail/mcp</div>
+    <div class="server-meta">101 tools - 4 findings - 2 HIGH, 2 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-high">62</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-high" style="width: 62%"></div></div>
+  </div>
+</div>
+
+<div class="detail-box">
+  <h3 style="color: #f97316;">risk 62/100 (HIGH) - 101 tools - 4 findings</h3>
+  <div class="finding">
+    <span class="finding-sev sev-high">HIGH</span>
+    <div class="finding-title">prompt injection in tool description</div>
+    <div class="finding-detail">tool description contains injection pattern - the LLM will read it before deciding what to call</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">3</div>
+  <div class="server-info">
+    <div class="server-name">@gitdealflow/mcp-signal</div>
+    <div class="server-meta">13 tools - 8 findings - 2 HIGH, 6 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-high">56</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-high" style="width: 56%"></div></div>
+  </div>
+</div>
+
+<div class="detail-box">
+  <h3 style="color: #f97316;">risk 56/100 (HIGH) - 13 tools - 8 findings</h3>
+  <div class="finding">
+    <span class="finding-sev sev-high">HIGH</span>
+    <div class="finding-title">prompt injection patterns detected</div>
+    <div class="finding-detail">multiple tool descriptions contain injection text</div>
+  </div>
+  <div class="finding">
+    <span class="finding-sev sev-medium">MEDIUM</span>
+    <div class="finding-title">unrestricted file access</div>
+    <div class="finding-detail">tool parameters accept arbitrary file paths without validation</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">4</div>
+  <div class="server-info">
+    <div class="server-name">@automatelab/n8n-mcp</div>
+    <div class="server-meta">12 tools - 2 findings - 2 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-medium">50</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 50%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">5</div>
+  <div class="server-info">
+    <div class="server-name">agent-browser-mcp-server</div>
+    <div class="server-meta">44 tools - 4 findings - 4 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-medium">28</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 28%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">6</div>
+  <div class="server-info">
+    <div class="server-name">@artifacta-mcp/mcp</div>
+    <div class="server-meta">10 tools - 1 finding - 1 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-medium">25</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">7</div>
+  <div class="server-info">
+    <div class="server-name">hostinger-api-mcp</div>
+    <div class="server-meta">223 tools - 1 finding - 1 CRITICAL</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-medium">25</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">8</div>
+  <div class="server-info">
+    <div class="server-name">mcp-db-server</div>
+    <div class="server-meta">5 tools - 1 finding - 1 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-medium">25</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-medium" style="width: 25%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">9</div>
+  <div class="server-info">
+    <div class="server-name">@dollhousemcp/mcp-server</div>
+    <div class="server-meta">5 tools - 3 findings - 3 LOW</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-low">21</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-low" style="width: 21%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">10</div>
+  <div class="server-info">
+    <div class="server-name">@doitintl/doit-mcp-server</div>
+    <div class="server-meta">135 tools - 1 finding - 1 MEDIUM</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">7</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 7%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">11</div>
+  <div class="server-info">
+    <div class="server-name">@modelcontextprotocol/server-sequential-thinking</div>
+    <div class="server-meta">1 tool - 1 finding - 1 LOW</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">7</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 7%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">12</div>
+  <div class="server-info">
+    <div class="server-name">mcp-calculator-server</div>
+    <div class="server-meta">6 tools - 6 findings - 6 LOW</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">5</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 5%"></div></div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">13</div>
+  <div class="server-info">
+    <div class="server-name">d33naz-mcp-filesystem</div>
+    <div class="server-meta">2 tools - 2 findings - 2 LOW</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">4</div>
+    <div class="risk-bar"><div class="risk-bar-fill bg-clean" style="width: 4%"></div></div>
+  </div>
+</div>
+
+<div class="section-head">clean (0 findings)</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">mcp-calculator</div>
+    <div class="server-meta">101 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@contextium/mcp-server</div>
+    <div class="server-meta">68 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">mcp-server-slack</div>
+    <div class="server-meta">20 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@bitcompare/mcp-server</div>
+    <div class="server-meta">18 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@modelcontextprotocol/server-everything</div>
+    <div class="server-meta">13 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@clicks-protocol/mcp-server</div>
+    <div class="server-meta">10 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@impri/mcp</div>
+    <div class="server-meta">8 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@endiagram/mcp</div>
+    <div class="server-meta">7 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">@bluesprincemedia/thiri-mcp</div>
+    <div class="server-meta">5 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">mcp-time-server</div>
+    <div class="server-meta">2 tools - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="server-row">
+  <div class="rank">-</div>
+  <div class="server-info">
+    <div class="server-name">mcp-server-docker</div>
+    <div class="server-meta">1 tool - 0 findings</div>
+  </div>
+  <div class="risk-cell">
+    <div class="risk-score risk-clean">0</div>
+    <div class="findings-count">clean</div>
+  </div>
+</div>
+
+<div class="cta">
+  <p>a score of 0 doesn't mean safe. it means we didn't find anything. there's a difference. you should know the difference.</p>
+  <p>mcprobe checks descriptions, schemas, and parameters. it doesn't execute tool calls. a server can score 0 and still exfiltrate your data at runtime.</p>
+  <p>but sure, connect it. what could go wrong.</p>
+  <div class="links" style="margin-top: 20px;">
+    <a href="https://github.com/tamish560/mcprobe">scan your own servers</a>
+    <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">read the blog</a>
+    <a href="https://valtors.github.io/valtors-landing/">valtors</a>
+  </div>
 </div>
 
 <div class="footer">
-  mcp security leaderboard by <a href="https://valtors.github.io/valtors-landing/">valtors</a>. scanned with <a href="https://github.com/tamish560/mcprobe">mcprobe</a>. MIT licensed. no telemetry. no tracking. no "trust me bro." the output speaks.
+  <p>scanned with mcprobe. open source. MIT. one go binary.</p>
+  <p>98 packages tried. 74 failed to start without api keys or config. that's not a limitation of the scanner. that's a problem with the ecosystem.</p>
 </div>
 
 </body>
