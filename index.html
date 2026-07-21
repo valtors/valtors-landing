@@ -855,7 +855,7 @@ footer {
         <button type="button" class="toggle-btn active" id="toggle-monthly" onclick="switchView('monthly')">monthly</button>
       </div>
     </div>
-    <div class="contrib-graph" id="contrib-graph-weekly" style="display:none"></div>
+    <div class="contrib-graph-monthly" id="contrib-graph-weekly" style="display:none"></div>
     <div class="contrib-graph-monthly" id="contrib-graph-monthly"></div>
     <div class="contrib-legend">
       <span>Less</span>
@@ -1011,21 +1011,38 @@ window.addEventListener('scroll', function() {
   var data = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,8],[0,0,0,1,8,35,46],[199,6,15,0,0,0,0]];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  // Render weekly
+  // Render weekly - last 12 weeks as bars
   var weeklyGraph = document.getElementById('contrib-graph-weekly');
-  data.forEach(function(week) {
+  var recentWeeks = data.slice(-12);
+  var weekSums = recentWeeks.map(function(week) {
+    return week.reduce(function(a, b) { return a + b; }, 0);
+  });
+  var maxWeek = Math.max.apply(null, weekSums);
+  var weekLabels = ['w1','w2','w3','w4','w5','w6','w7','w8','w9','w10','w11','now'];
+  weekSums.forEach(function(sum, idx) {
     var col = document.createElement('div');
-    col.className = 'contrib-week';
-    week.forEach(function(count) {
-      var cell = document.createElement('div');
-      cell.className = 'contrib-day';
-      if (count === 0) cell.classList.add('level-0');
-      else if (count <= 3) cell.classList.add('level-1');
-      else if (count <= 6) cell.classList.add('level-2');
-      else if (count <= 9) cell.classList.add('level-3');
-      else cell.classList.add('level-4');
-      col.appendChild(cell);
-    });
+    col.className = 'month-col';
+    var bar = document.createElement('div');
+    bar.className = 'month-bar';
+    var pct = maxWeek > 0 ? (sum / maxWeek) : 0;
+    bar.style.height = Math.max(2, pct * 140) + 'px';
+    if (sum === 0) {
+      bar.style.background = 'var(--contrib-0)';
+    } else if (pct <= 0.25) {
+      bar.style.background = 'var(--contrib-1)';
+    } else if (pct <= 0.5) {
+      bar.style.background = 'var(--contrib-2)';
+    } else if (pct <= 0.75) {
+      bar.style.background = 'var(--contrib-3)';
+    } else {
+      bar.style.background = 'var(--contrib-4)';
+    }
+    bar.title = weekLabels[idx] + ': ' + sum + ' contributions';
+    var label = document.createElement('div');
+    label.className = 'month-label';
+    label.textContent = weekLabels[idx];
+    col.appendChild(label);
+    col.appendChild(bar);
     weeklyGraph.appendChild(col);
   });
 
