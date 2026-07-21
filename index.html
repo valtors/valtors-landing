@@ -623,7 +623,6 @@ footer {
     <div class="nav-links">
       <a href="#products">products</a>
       <a href="https://github.com/valtors">docs</a>
-      <a href="https://valtors.github.io/valtors-landing/mcp-security-leaderboard.html">leaderboard</a>
       <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog</a>
       <a href="#community">community</a>
     </div>
@@ -640,7 +639,7 @@ footer {
   <div class="hero-inner">
     <div class="hero-eyebrow">valtors</div>
     <h1>tools that don't lie to you.</h1>
-    <p class="hero-sub">four open source tools for the MCP ecosystem. a server, a toolkit, a proxy, a scanner. Go, TypeScript, boring tech. MIT licensed, zero telemetry, your data stays on your machine. nobody's reading your traffic. nobody's phoning home. nobody's watching.</p>
+    <p class="hero-sub">six open source tools. a server, a toolkit, a proxy, a scanner, a sandbox, and an ai agent that connects to everything you use. Go, TypeScript, boring tech. MIT licensed, zero telemetry, your data stays on your machine. nobody's reading your traffic. nobody's phoning home. nobody's watching.</p>
     <div class="hero-actions">
       <a href="#products" class="btn-primary">see what we built</a>
       <a href="https://github.com/valtors" class="btn-outline">
@@ -675,7 +674,7 @@ footer {
         <div class="stat-label">GitHub Stars</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">4</div>
+        <div class="stat-num">6</div>
         <div class="stat-label">Open Source Projects</div>
       </div>
       <div class="stat-item">
@@ -697,17 +696,9 @@ footer {
 <section class="products" id="products">
   <div class="products-inner">
     <div class="section-eyebrow">what we built</div>
-    <h2 class="section-heading">four tools. one philosophy.</h2>
+    <h2 class="section-heading">six tools. one philosophy.</h2>
     <p class="section-sub">boring tech, zero dependencies where possible, built to outlast the hype cycle.</p>
     <div class="product-list">
-      <div class="product-item">
-        <div class="product-name">Vault</div>
-        <div class="product-desc">sandbox for ai agents. filesystem overlay, network proxy, mcp gate, prompt injection scanner, audit log. run your agent in it. it can't destroy your machine. single Go binary, zero dependencies.</div>
-        <a href="https://github.com/valtors/vault" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
       <div class="product-item">
         <div class="product-name">Relay</div>
         <div class="product-desc">one MCP server, 40 tools, one binary. files, images, PDFs, web fetch, workflows. stdio and HTTP transport. zero runtime dependencies. other people install 5 servers to do what this does alone. npm: userelay.</div>
@@ -736,6 +727,22 @@ footer {
         <div class="product-name">mcprobe</div>
         <div class="product-desc">security scanner for MCP servers. finds prompt injection in tool descriptions, tool shadowing, resource exposure to sensitive paths, baseline drift. your MCP server is probably vulnerable. you connected it to your agent without checking. this tells you what you missed. single Go binary.</div>
         <a href="https://github.com/tamish560/mcprobe" class="product-link">
+          GitHub
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+        </a>
+      </div>
+      <div class="product-item">
+        <div class="product-name">Vault</div>
+        <div class="product-desc">run untrusted MCP tools without burning down your machine. strips secrets from environment, blocks sensitive file paths, scans for prompt injection in tool descriptions, logs every action to SQLite. not a real sandbox. an audit layer. honest about what it is.</div>
+        <a href="https://github.com/valtors/vault" class="product-link">
+          GitHub
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+        </a>
+      </div>
+      <div class="product-item">
+        <div class="product-name">Pulse</div>
+        <div class="product-desc">connect everything. your ai does the rest. github, gmail, calendar in one place. asks "what did i miss" and gets a real answer. 38 notifications become 3 urgent items. remembers what matters, forgets what doesn't. local-first, single binary, your data on your machine. not a framework. a product.</div>
+        <a href="https://github.com/valtors/pulse" class="product-link">
           GitHub
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
         </a>
@@ -903,11 +910,12 @@ footer {
     <div class="footer-text">valtors. MIT licensed. no telemetry. no bullshit.</div>
     <div class="footer-links">
       <a href="https://github.com/valtors">GitHub</a>
-      <a href="https://github.com/valtors/vault">Vault</a>
-        <a href="https://github.com/valtors/relay">Relay</a>
+      <a href="https://github.com/valtors/relay">Relay</a>
       <a href="https://github.com/valtors/reflow">Reflow</a>
       <a href="https://github.com/valtors/observer">Observer</a>
       <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
+      <a href="https://github.com/valtors/vault">Vault</a>
+      <a href="https://github.com/valtors/pulse">Pulse</a>
     </div>
   </div>
 </footer>
