@@ -1059,6 +1059,9 @@ window.addEventListener('scroll', function() {
       bar.style.background = 'var(--contrib-4)';
     }
     bar.title = months[idx] + ': ' + sum + ' contributions';
+    var label = document.createElement('div');
+    label.className = 'month-label';
+    label.textContent = months[idx];
     col.appendChild(label);
     col.appendChild(bar);
     monthlyGraph.appendChild(col);
