@@ -490,26 +490,31 @@ nav.scrolled {
 
 .contrib-graph-monthly {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   padding-bottom: 8px;
   align-items: flex-end;
+  height: 100px;
+  min-height: 100px;
 }
 .month-col {
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 .month-bar {
-  width: 28px;
-  border-radius: 4px 4px 0 0;
-  min-height: 2px;
+  width: 100%;
+  max-width: 30px;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
   transition: opacity 0.2s;
 }
 .month-bar:hover { opacity: 0.75; }
 .month-label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-muted);
   text-align: center;
   white-space: nowrap;
@@ -1028,9 +1033,10 @@ window.addEventListener('scroll', function() {
     var bar = document.createElement('div');
     bar.className = 'month-bar';
     var pct = maxWeek > 0 ? (sum / maxWeek) : 0;
-    bar.style.height = Math.max(2, pct * 140) + 'px';
+    bar.style.height = Math.max(4, pct * 80) + 'px';
     if (sum === 0) {
-      bar.style.background = 'var(--contrib-0)';
+      bar.style.background = '#1a1a1a';
+      bar.style.border = '1px solid #222';
     } else if (pct <= 0.25) {
       bar.style.background = 'var(--contrib-1)';
     } else if (pct <= 0.5) {
@@ -1066,9 +1072,10 @@ window.addEventListener('scroll', function() {
     var bar = document.createElement('div');
     bar.className = 'month-bar';
     var pct = maxMonth > 0 ? (sum / maxMonth) : 0;
-    bar.style.height = Math.max(2, pct * 140) + 'px';
+    bar.style.height = Math.max(4, pct * 80) + 'px';
     if (sum === 0) {
-      bar.style.background = 'var(--contrib-0)';
+      bar.style.background = '#1a1a1a';
+      bar.style.border = '1px solid #222';
     } else if (pct <= 0.25) {
       bar.style.background = 'var(--contrib-1)';
     } else if (pct <= 0.5) {
