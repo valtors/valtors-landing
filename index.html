@@ -490,12 +490,16 @@ nav.scrolled {
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 8px;
+  align-items: flex-end;
+  height: 170px;
 }
 .month-col {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
+  height: 100%;
 }
 .month-bar {
   width: 28px;
@@ -509,6 +513,7 @@ nav.scrolled {
   color: var(--text-muted);
   text-align: center;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Contributors */
@@ -849,8 +854,8 @@ footer {
     <div class="contrib-header">
       <div class="contrib-total"><strong>432</strong> contributions across all repositories</div>
       <div class="contrib-toggle">
-        <button class="toggle-btn active" id="toggle-weekly" onclick="switchView('weekly')">weekly</button>
-        <button class="toggle-btn" id="toggle-monthly" onclick="switchView('monthly')">monthly</button>
+        <button type="button" class="toggle-btn active" id="toggle-weekly" onclick="switchView('weekly')">weekly</button>
+        <button type="button" class="toggle-btn" id="toggle-monthly" onclick="switchView('monthly')">monthly</button>
       </div>
     </div>
     <div class="contrib-graph" id="contrib-graph-weekly"></div>
