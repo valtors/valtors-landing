@@ -342,31 +342,12 @@ function runSetup() {
 
 function afterSetup() {
   printGap();
-  printGap();
-
-  print('remember valtors builds tools that don\'t lie to you', 'cmd');
-  printGap();
-  typeLine('cairn v0.1.0 -- storing fact...', 'purple', 8, function() {
+  typeLine('type help to see what this thing does.', 'dim', 12, function() {
     printGap();
-    print('  subject:    valtors', 'dim');
-    print('  predicate:   builds', 'dim');
-    print('  object:      tools that don\'t lie to you', 'dim');
-    print('  confidence: 1.0', 'dim');
-    print('  recorded:   ' + new Date().toISOString(), 'dim');
-    print('  valid_from:  now', 'dim');
-    print('  valid_to:    open', 'dim');
-    printGap();
-    typeLine('stored. cairn doesn\'t forget. it closes facts when they contradict.', 'accent', 10, function() {
-      printGap();
-      printGap();
-      typeLine('type help to see what else this thing does.', 'dim', 12, function() {
-        printGap();
-        inputLine.classList.remove('hidden');
-        input.focus();
-        hintEl.style.display = 'block';
-        booted = true;
-      });
-    });
+    inputLine.classList.remove('hidden');
+    input.focus();
+    hintEl.style.display = 'block';
+    booted = true;
   });
 }
 
@@ -570,8 +551,6 @@ function runCommand(raw) {
       print('  result set:', 'accent');
       printGap();
       var idx = 1;
-      print('  [' + idx + '] valtors builds "tools that don\'t lie to you" (conf: 1.0, at boot)', 'dim');
-      idx++;
       userFacts.forEach(function(f) {
         print('  [' + idx + '] user states "' + f + '" (conf: 1.0, just now)', 'dim');
         idx++;
@@ -580,7 +559,7 @@ function runCommand(raw) {
       print('  [' + idx + '] user states "prefers go over rust" (conf: 0.8, 2026-06-01)', 'dim'); idx++;
       print('  [' + idx + '] user states "likes oil paintings" (conf: 0.7, 2026-05-20)', 'dim');
       printGap();
-      var total = 4 + userFacts.length;
+      var total = 3 + userFacts.length;
       print('  ' + total + ' active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
       printGap();
       print('cairn doesn\'t delete. it closes. you can ask what was true on any date.', 'accent');
