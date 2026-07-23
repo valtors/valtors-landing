@@ -39,7 +39,6 @@ a:hover{text-decoration:underline}
 .line.bold{font-weight:bold}
 .line.gap{margin-top:12px}
 .line.small{font-size:13px}
-.line.ascii{white-space:pre;line-height:1.2}
 
 .link-row{padding:2px 0}
 .link-row a{color:var(--blue)}
@@ -47,9 +46,12 @@ a:hover{text-decoration:underline}
 
 .press-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:var(--bg)}
 .press-screen.gone{display:none}
-.press-logo{font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:32px;line-height:1.2;text-align:center;white-space:pre}
+#logoCanvas{font-family:var(--mono);font-size:12px;line-height:1;letter-spacing:0;white-space:pre;margin-bottom:24px}
 .press-key{font-size:20px;color:var(--accent);animation:pulse 1.5s ease-in-out infinite;margin-bottom:8px}
 .press-sub{font-size:12px;color:var(--dim);margin-top:16px}
+.press-tag{font-size:14px;color:var(--fg);margin-top:8px}
+.press-tag2{font-size:12px;color:var(--dim);margin-top:4px}
+.gradient-rule{width:320px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:16px auto}
 
 .hint{position:fixed;bottom:8px;right:16px;font-size:12px;color:var(--dim);pointer-events:none}
 .hint kbd{background:var(--border);padding:1px 5px;border-radius:2px;font-family:var(--mono);color:var(--fg)}
@@ -58,22 +60,23 @@ a:hover{text-decoration:underline}
   html{font-size:13px}
   .hint{display:none}
   .screen{padding:12px}
-  .press-logo{font-size:10px}
+  #logoCanvas{font-size:7px}
+  .gradient-rule{width:200px}
+}
+@media(max-width:400px){
+  #logoCanvas{font-size:5px}
 }
 </style>
 </head>
 <body>
 
 <div class="press-screen" id="pressScreen">
-<pre class="press-logo">
-    _    __   ____    _    ____
-   /|  / /  /  _/  /|  / /  __/
-  / | / /  / /   / | / /  / /
- /  |/ / _/ /   /  |/ / _/ /
-/_/|__/ /___/  /_/|__/ /___/
-</pre>
+  <pre id="logoCanvas"></pre>
+  <div class="gradient-rule"></div>
+  <div class="press-tag">tools that don't lie to you</div>
+  <div class="press-tag2">eight open source tools for the MCP ecosystem</div>
+  <div style="height:40px"></div>
   <div class="press-key">[ press enter ]</div>
-  <div class="press-sub">tools that don't lie to you</div>
 </div>
 
 <div class="screen">
@@ -99,6 +102,73 @@ var typing = false;
 var typeQueue = [];
 var booted = false;
 var userFacts = [];
+var shimmerRAF = null;
+
+var LOGO = [
+"888     888     d8888888   88888888888 .d88888b. 8888888b.  .d8888b.  ",
+"888     888    d88888888       888    d88P\" \"Y88b888   Y88bd88P  Y88b ",
+"888     888   d88P888888       888    888     888888    888Y88b.      ",
+"Y88b   d88P  d88P 888888       888    888     888888   d88P \"Y888b.   ",
+" Y88b d88P  d88P 888888       888    888     8888888888P\"     \"Y88b. ",
+"  Y88o88P  d88P   888888       888    888     888888 T88b        \"888 ",
+"   Y888P  d8888888888888       888    Y88b. .d88P888  T88b Y88b  d88P ",
+"    Y8P  d88P     88888888888  888     \"Y88888P\" 888   T88b \"Y8888P\"  "
+];
+
+function startShimmer() {
+  var canvas = document.getElementById('logoCanvas');
+  if (!canvas) return;
+
+  var lines = LOGO;
+  var maxLen = 0;
+  lines.forEach(function(l) { if (l.length > maxLen) maxLen = l.length; });
+
+  var t = 0;
+
+  function lerp(a, b, f) { return a + (b - a) * f; }
+
+  function lerpColor(c1, c2, f) {
+    return [
+      Math.round(lerp(c1[0], c2[0], f)),
+      Math.round(lerp(c1[1], c2[1], f)),
+      Math.round(lerp(c1[2], c2[2], f))
+    ];
+  }
+
+  var base = [57, 211, 83];
+  var highlight = [200, 255, 220];
+
+  function frame() {
+    t += 0.015;
+    var html = '';
+    for (var row = 0; row < lines.length; row++) {
+      var line = lines[row];
+      for (var col = 0; col < line.length; col++) {
+        var ch = line[col];
+        if (ch === ' ') { html += ' '; continue; }
+
+        var stripePos = (col / maxLen + row / lines.length) * 2;
+        var wave = Math.sin(t * 2 - stripePos * 3);
+        var f = (wave + 1) / 2;
+        f = Math.pow(f, 2);
+
+        var color = lerpColor(base, highlight, f);
+        html += '<span style="color:rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')">' + ch + '</span>';
+      }
+      html += '\n';
+    }
+    canvas.innerHTML = html;
+    shimmerRAF = requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+function stopShimmer() {
+  if (shimmerRAF) {
+    cancelAnimationFrame(shimmerRAF);
+    shimmerRAF = null;
+  }
+}
 
 var TOOLS = [
   { name:'relay', lang:'go', npm:'userelay', stars:12, dl:'1778/mo', forks:1, url:'https://github.com/valtors/relay',
@@ -140,6 +210,8 @@ var CONTRIBUTORS = [
 
 var COMMANDS = ['help','tools','stats','contributors','scan','trace','remember','recall','install','whoami','philosophy','github','clear','exit'];
 var allCmds = COMMANDS.concat(TOOLS.map(function(t){return t.name}));
+
+var SPINNER = ['\u280b','\u2819','\u2839','\u2838','\u283c','\u2834','\u2826','\u2827','\u2807','\u280f'];
 
 function print(text, cls) {
   var div = document.createElement('div');
@@ -203,14 +275,6 @@ function printTool(t) {
   printGap();
 }
 
-function boxLine(width, left, right, fill) {
-  return left + (fill || '-').repeat(width - 2) + right;
-}
-
-function boxMid(width, fill) {
-  return '|' + ' '.repeat(width - 2) + '|';
-}
-
 function pad(str, width, ch) {
   ch = ch || ' ';
   if (str.length >= width) return str;
@@ -219,6 +283,7 @@ function pad(str, width, ch) {
 
 function padCenter(str, width) {
   var total = width - str.length;
+  if (total < 0) return str;
   var left = Math.floor(total / 2);
   var right = total - left;
   return ' '.repeat(left) + str + ' '.repeat(right);
@@ -226,104 +291,53 @@ function padCenter(str, width) {
 
 function runSetup() {
   pressScreen.classList.add('gone');
-  var W = 52;
+  stopShimmer();
 
-  var setup = [
-    function(cb) {
-      var top = boxLine(W, '+', '+');
-      print(top, 'accent');
-      cb();
-    },
-    function(cb) {
-      typeLine('|' + padCenter('valtors v0.1.0', W-2) + '|', 'accent', 6, cb);
-    },
-    function(cb) {
-      print(boxLine(W, '+', '+'), 'accent');
-      cb();
-    },
-    function(cb) { print(boxMid(W), 'ddim'); cb(); },
-    function(cb) {
-      typeLine('| checking dependencies...                  |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   go runtime............ ok              |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   rust toolchain........ ok              |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   sqlite................ ok              |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   telemetry............. not found       |', 'accent', 4, cb);
-    },
-    function(cb) { print(boxMid(W), 'ddim'); cb(); },
-    function(cb) {
-      typeLine('| mounting filesystems...                   |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   /dev/honesty -> /integrity             |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   /dev/sqlite   -> /data                 |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   /dev/nocloud  -> /sovereignty           |', 'dim', 4, cb);
-    },
-    function(cb) { print(boxMid(W), 'ddim'); cb(); },
-    function(cb) {
-      typeLine('| loading tools...                          |', 'dim', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   relay    [go]    12 stars  1778 dl/mo  |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   reflow   [ts]     7 stars   126 dl/mo   |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   observer [go]     3 stars              |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   mcprobe  [go]     2 stars              |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   vault    [go]     1 stars              |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   pulse    [go]     1 stars              |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   cairn    [rust]   1 stars              |', '', 4, cb);
-    },
-    function(cb) {
-      typeLine('|   smith    [rust]   1 stars              |', '', 4, cb);
-    },
-    function(cb) { print(boxMid(W), 'ddim'); cb(); },
-    function(cb) {
-      typeLine('| 8 tools | 28 stars | 1904 dl/mo | 8 ppl  |', 'accent', 6, cb);
-    },
-    function(cb) {
-      typeLine('| 624 commits | 0 paid | MIT | no telemetry |', 'accent', 6, cb);
-    },
-    function(cb) { print(boxMid(W), 'ddim'); cb(); },
-    function(cb) {
-      typeLine('| init complete.                            |', 'accent', 6, cb);
-    },
-    function(cb) {
-      print(boxLine(W, '+', '+'), 'accent');
-      cb();
-    },
-  ];
+  var W = 54;
 
-  var i = 0;
-  function next() {
-    if (i < setup.length) {
-      setup[i](function() { i++; setTimeout(next, 40); });
-    } else {
-      afterSetup();
-    }
-  }
-  next();
+  print('+' + '-'.repeat(W - 2) + '+', 'accent');
+  typeLine('|' + padCenter('valtors v0.1.0 -- MCP ecosystem tools', W-2) + '|', 'accent', 4, function() {
+  print('+' + '-'.repeat(W - 2) + '+', 'accent');
+  print('|' + ' '.repeat(W - 2) + '|', 'ddim');
+
+  typeLine('|  checking dependencies...', 'dim', 5, function() {
+  print('|    go runtime............ ok', 'dim');
+  print('|    rust toolchain........ ok', 'dim');
+  print('|    sqlite................ ok', 'dim');
+  print('|    telemetry............. ', 'dim');
+  printHTML('<span class="line dim" style="display:inline">|    telemetry............. </span><span style="color:var(--accent)">not found (good)</span>', '');
+  printGap();
+
+  typeLine('|  mounting filesystems...', 'dim', 5, function() {
+  print('|    /dev/honesty -> /integrity', 'dim');
+  print('|    /dev/sqlite   -> /data', 'dim');
+  print('|    /dev/nocloud  -> /sovereignty', 'dim');
+  printGap();
+
+  typeLine('|  loading tools...', 'dim', 5, function() {
+  print('|    relay    [go]    12 stars  1778 dl/mo', '');
+  print('|    reflow   [ts]     7 stars   126 dl/mo', '');
+  print('|    observer [go]     3 stars', '');
+  print('|    mcprobe  [go]     2 stars', '');
+  print('|    vault    [go]     1 stars', '');
+  print('|    pulse    [go]     1 stars', '');
+  print('|    cairn    [rust]   1 stars', '');
+  print('|    smith    [rust]   1 stars', '');
+  printGap();
+
+  print('|  8 tools | 28 stars | 1904 dl/mo | 8 people', 'accent');
+  print('|  624 commits | 0 paid | MIT | no telemetry', 'accent');
+  printGap();
+
+  typeLine('|  init complete.', 'accent', 8, function() {
+  print('+' + '-'.repeat(W - 2) + '+', 'accent');
+
+  afterSetup();
+  });
+  });
+  });
+  });
+  });
 }
 
 function afterSetup() {
@@ -492,35 +506,22 @@ function runCommand(raw) {
       print('what actually happened (30 tool calls):', 'accent');
       printGap();
       var calls = [
-        ['read_file', '/docs/report.pdf'],
-        ['read_file', '/docs/report.pdf', 'page 2-4'],
-        ['list_directory', '/docs/'],
-        ['read_file', '/docs/notes.txt'],
+        ['read_file', '/docs/report.pdf'], ['read_file', '/docs/report.pdf', 'page 2-4'],
+        ['list_directory', '/docs/'], ['read_file', '/docs/notes.txt'],
         ['web_fetch', 'https://schemas.pdf.org/metadata'],
-        ['read_file', '/docs/report.pdf', 'page 5-8'],
-        ['grep', '/docs/', '"conclusion"'],
-        ['read_file', '/docs/notes.txt'],
-        ['write_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
-        ['read_file', '/docs/appendix.pdf'],
-        ['list_directory', '/docs/'],
-        ['read_file', '/docs/refs.bib'],
+        ['read_file', '/docs/report.pdf', 'page 5-8'], ['grep', '/docs/', '"conclusion"'],
+        ['read_file', '/docs/notes.txt'], ['write_file', '/tmp/summary.md'],
+        ['read_file', '/tmp/summary.md'], ['read_file', '/docs/appendix.pdf'],
+        ['list_directory', '/docs/'], ['read_file', '/docs/refs.bib'],
         ['web_fetch', 'https://doi.org/10.1234/example'],
-        ['read_file', '/tmp/summary.md'],
-        ['write_file', '/tmp/summary.md'],
+        ['read_file', '/tmp/summary.md'], ['write_file', '/tmp/summary.md'],
         ['web_fetch', 'https://api.openai.com/v1/embeddings'],
-        ['read_file', '/docs/report.pdf', 'page 9'],
-        ['read_file', '/docs/report.pdf', 'page 10-12'],
-        ['read_file', '/tmp/summary.md'],
-        ['write_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
-        ['write_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
-        ['write_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
-        ['write_file', '/tmp/summary.md'],
-        ['read_file', '/tmp/summary.md'],
+        ['read_file', '/docs/report.pdf', 'page 9'], ['read_file', '/docs/report.pdf', 'page 10-12'],
+        ['read_file', '/tmp/summary.md'], ['write_file', '/tmp/summary.md'],
+        ['read_file', '/tmp/summary.md'], ['read_file', '/tmp/summary.md'],
+        ['write_file', '/tmp/summary.md'], ['read_file', '/tmp/summary.md'],
+        ['write_file', '/tmp/summary.md'], ['read_file', '/tmp/summary.md'],
+        ['write_file', '/tmp/summary.md'], ['read_file', '/tmp/summary.md'],
         ['write_file', '/tmp/summary.md']
       ];
       calls.forEach(function(c, i) {
@@ -569,17 +570,15 @@ function runCommand(raw) {
       print('  result set:', 'accent');
       printGap();
       var idx = 1;
-      print('  [' + idx + '] valtors builds "tools that don\'t lie to you" (conf: 1.0, recorded: at boot)', 'dim');
+      print('  [' + idx + '] valtors builds "tools that don\'t lie to you" (conf: 1.0, at boot)', 'dim');
       idx++;
       userFacts.forEach(function(f) {
-        print('  [' + idx + '] user states "' + f + '" (conf: 1.0, recorded: just now)', 'dim');
+        print('  [' + idx + '] user states "' + f + '" (conf: 1.0, just now)', 'dim');
         idx++;
       });
-      print('  [' + idx + '] user states "tamish is 21" (conf: 0.95, recorded: 2026-07-15)', 'dim');
-      idx++;
-      print('  [' + idx + '] user states "prefers go over rust" (conf: 0.8, recorded: 2026-06-01)', 'dim');
-      idx++;
-      print('  [' + idx + '] user states "likes oil paintings" (conf: 0.7, recorded: 2026-05-20)', 'dim');
+      print('  [' + idx + '] user states "tamish is 21" (conf: 0.95, 2026-07-15)', 'dim'); idx++;
+      print('  [' + idx + '] user states "prefers go over rust" (conf: 0.8, 2026-06-01)', 'dim'); idx++;
+      print('  [' + idx + '] user states "likes oil paintings" (conf: 0.7, 2026-05-20)', 'dim');
       printGap();
       var total = 4 + userFacts.length;
       print('  ' + total + ' active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
@@ -627,18 +626,16 @@ function runCommand(raw) {
 
     case 'philosophy':
       printGap();
-      typeLine('', '', 10, function() {
-        typeLine('you don\'t need permission to build tools that work.', '', 30, function() {
-          typeLine('you don\'t need a framework to justify a decision.', '', 30, function() {
-            typeLine('you don\'t need a server in someone else\'s cloud', '', 30, function() {
-              typeLine('to store your own data.', '', 30, function() {
-                printGap();
-                typeLine('own your tools.', 'accent', 40, function() {
-                  typeLine('own your data.', 'accent', 40, function() {
-                    typeLine('own your infrastructure.', 'accent', 40, function() {
-                      printGap();
-                      print('that\'s it. that\'s the whole thing.', 'dim');
-                    });
+      typeLine('you don\'t need permission to build tools that work.', '', 30, function() {
+        typeLine('you don\'t need a framework to justify a decision.', '', 30, function() {
+          typeLine('you don\'t need a server in someone else\'s cloud', '', 30, function() {
+            typeLine('to store your own data.', '', 30, function() {
+              printGap();
+              typeLine('own your tools.', 'accent', 40, function() {
+                typeLine('own your data.', 'accent', 40, function() {
+                  typeLine('own your infrastructure.', 'accent', 40, function() {
+                    printGap();
+                    print('that\'s it. that\'s the whole thing.', 'dim');
                   });
                 });
               });
@@ -680,48 +677,32 @@ function runCommand(raw) {
 
 document.addEventListener('keydown', function(e) {
   if (!booted) {
-    if (e.key === 'Enter') {
-      runSetup();
-    }
+    if (e.key === 'Enter') { runSetup(); }
     return;
   }
   if (e.key === 'Enter' && document.activeElement === input) {
     var val = input.value;
-    if (val.trim()) {
-      cmdHistory.unshift(val);
-      histIdx = -1;
-    }
+    if (val.trim()) { cmdHistory.unshift(val); histIdx = -1; }
     input.value = '';
     runCommand(val);
   } else if (e.key === 'ArrowUp' && document.activeElement === input) {
     e.preventDefault();
-    if (histIdx < cmdHistory.length - 1) {
-      histIdx++;
-      input.value = cmdHistory[histIdx];
-    }
+    if (histIdx < cmdHistory.length - 1) { histIdx++; input.value = cmdHistory[histIdx]; }
   } else if (e.key === 'ArrowDown' && document.activeElement === input) {
     e.preventDefault();
-    if (histIdx > 0) {
-      histIdx--;
-      input.value = cmdHistory[histIdx];
-    } else {
-      histIdx = -1;
-      input.value = '';
-    }
+    if (histIdx > 0) { histIdx--; input.value = cmdHistory[histIdx]; }
+    else { histIdx = -1; input.value = ''; }
   } else if (e.key === 'Tab' && document.activeElement === input) {
     e.preventDefault();
     var current = input.value.trim().toLowerCase();
     var matches = allCmds.filter(function(c){ return c.startsWith(current); });
-    if (matches.length > 0) {
-      tabIdx = (tabIdx + 1) % matches.length;
-      input.value = matches[tabIdx];
-    }
+    if (matches.length > 0) { tabIdx = (tabIdx + 1) % matches.length; input.value = matches[tabIdx]; }
   }
 });
 
-document.addEventListener('click', function() {
-  if (booted) input.focus();
-});
+document.addEventListener('click', function() { if (booted) input.focus(); });
+
+startShimmer();
 </script>
 </body>
 </html>
