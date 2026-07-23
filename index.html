@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>valtors</title>
 <meta name="description" content="valtors — open source tools for the MCP ecosystem. MIT. no telemetry.">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0a0a0a;--fg:#e0e0e0;--dim:#666;--accent:#39d353;--warn:#e0504f;--blue:#00add8;--purple:#a855f7;--yellow:#e8b500;--border:#1a1a1a;--mono:'SF Mono','Fira Code','JetBrains Mono','Cascadia Code','Courier New',monospace}
+:root{--bg:#0a0a0a;--fg:#e0e0e0;--dim:#555;--ddim:#333;--accent:#39d353;--warn:#e0504f;--blue:#00add8;--purple:#a855f7;--yellow:#e8b500;--border:#1a1a1a;--mono:'SF Mono','Fira Code','JetBrains Mono','Cascadia Code','Courier New',monospace}
 html{font-size:15px}
-body{background:var(--bg);color:var(--fg);font-family:var(--mono);line-height:1.6;overflow:hidden;height:100vh}
+body{background:var(--bg);color:var(--fg);font-family:var(--mono);line-height:1.5;overflow:hidden;height:100vh}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 
@@ -23,37 +24,32 @@ a:hover{text-decoration:underline}
 #input{background:none;border:none;color:var(--fg);font-family:var(--mono);font-size:15px;outline:none;flex:1;caret-color:var(--accent)}
 #input::placeholder{color:var(--dim)}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 .line{white-space:pre-wrap;word-break:break-word;min-height:1em}
 .line.cmd{color:var(--fg)}
 .line.cmd::before{content:'$ ';color:var(--accent)}
 .line.dim{color:var(--dim)}
+.line.ddim{color:var(--ddim)}
 .line.accent{color:var(--accent)}
 .line.warn{color:var(--warn)}
 .line.blue{color:var(--blue)}
 .line.purple{color:var(--purple)}
 .line.yellow{color:var(--yellow)}
 .line.bold{font-weight:bold}
-.line.gap{margin-top:16px}
+.line.gap{margin-top:12px}
 .line.small{font-size:13px}
+.line.ascii{white-space:pre;line-height:1.2}
 
-.link-row{padding:4px 0}
+.link-row{padding:2px 0}
 .link-row a{color:var(--blue)}
 .link-row a:hover{color:var(--accent)}
 
-.bar-fill{display:inline-block;background:var(--accent);height:10px;border-radius:1px}
-.bar-empty{display:inline-block;background:var(--border);height:10px;border-radius:1px}
-.bar-warn{display:inline-block;background:var(--warn);height:10px;border-radius:1px}
-.bar-blue{display:inline-block;background:var(--blue);height:10px;border-radius:1px}
-.bar-purple{display:inline-block;background:var(--purple);height:10px;border-radius:1px}
-
-.press-enter{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
-.press-enter .pe-text{font-size:14px;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase}
-.press-enter .pe-key{margin-top:24px;font-size:24px;color:var(--accent);animation:blink 1.5s ease-in-out infinite}
-.press-enter .pe-sub{margin-top:12px;font-size:12px;color:var(--dim)}
-.press-enter.gone{display:none}
-
-.cursor-block{display:inline-block;width:8px;height:16px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:text-bottom}
+.press-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;background:var(--bg)}
+.press-screen.gone{display:none}
+.press-logo{font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:32px;line-height:1.2;text-align:center;white-space:pre}
+.press-key{font-size:20px;color:var(--accent);animation:pulse 1.5s ease-in-out infinite;margin-bottom:8px}
+.press-sub{font-size:12px;color:var(--dim);margin-top:16px}
 
 .hint{position:fixed;bottom:8px;right:16px;font-size:12px;color:var(--dim);pointer-events:none}
 .hint kbd{background:var(--border);padding:1px 5px;border-radius:2px;font-family:var(--mono);color:var(--fg)}
@@ -62,15 +58,22 @@ a:hover{text-decoration:underline}
   html{font-size:13px}
   .hint{display:none}
   .screen{padding:12px}
+  .press-logo{font-size:10px}
 }
 </style>
 </head>
 <body>
 
-<div class="press-enter" id="pressEnter">
-  <div class="pe-text">valtors</div>
-  <div class="pe-key">[ press enter ]</div>
-  <div class="pe-sub">tools that don't lie to you</div>
+<div class="press-screen" id="pressScreen">
+<pre class="press-logo">
+    _    __   ____    _    ____
+   /|  / /  /  _/  /|  / /  __/
+  / | / /  / /   / | / /  / /
+ /  |/ / _/ /   /  |/ / _/ /
+/_/|__/ /___/  /_/|__/ /___/
+</pre>
+  <div class="press-key">[ press enter ]</div>
+  <div class="press-sub">tools that don't lie to you</div>
 </div>
 
 <div class="screen">
@@ -87,7 +90,7 @@ a:hover{text-decoration:underline}
 var output = document.getElementById('output');
 var input = document.getElementById('input');
 var inputLine = document.getElementById('inputLine');
-var pressEnter = document.getElementById('pressEnter');
+var pressScreen = document.getElementById('pressScreen');
 var hintEl = document.getElementById('hintEl');
 var cmdHistory = [];
 var histIdx = -1;
@@ -95,6 +98,7 @@ var tabIdx = 0;
 var typing = false;
 var typeQueue = [];
 var booted = false;
+var userFacts = [];
 
 var TOOLS = [
   { name:'relay', lang:'go', npm:'userelay', stars:12, dl:'1778/mo', forks:1, url:'https://github.com/valtors/relay',
@@ -124,14 +128,14 @@ var TOOLS = [
 ];
 
 var CONTRIBUTORS = [
-  { login:'tamish560', contributions:310, repos:'all 8 repos', avatar:'https://avatars.githubusercontent.com/u/189916421?v=4' },
-  { login:'YRWoods', contributions:3, repos:'reflow', avatar:'https://avatars.githubusercontent.com/u/243696695?v=4' },
-  { login:'ishaan-jindal', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/122903391?v=4' },
-  { login:'aikyaam', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/151955025?v=4' },
-  { login:'nabsei', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/166228107?v=4' },
-  { login:'rubysnewjourney', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/283093796?v=4' },
-  { login:'caioribeiroclw-pixel', contributions:1, repos:'observer', avatar:'https://avatars.githubusercontent.com/u/266331747?v=4' },
-  { login:'singhlovepreet9', contributions:1, repos:'observer', avatar:'https://avatars.githubusercontent.com/u/43858328?v=4' }
+  { login:'tamish560', contributions:310, repos:'all 8 repos' },
+  { login:'YRWoods', contributions:3, repos:'reflow' },
+  { login:'ishaan-jindal', contributions:1, repos:'relay' },
+  { login:'aikyaam', contributions:1, repos:'relay' },
+  { login:'nabsei', contributions:1, repos:'relay' },
+  { login:'rubysnewjourney', contributions:1, repos:'relay' },
+  { login:'caioribeiroclw-pixel', contributions:1, repos:'observer' },
+  { login:'singhlovepreet9', contributions:1, repos:'observer' }
 ];
 
 var COMMANDS = ['help','tools','stats','contributors','scan','trace','remember','recall','install','whoami','philosophy','github','clear','exit'];
@@ -175,17 +179,15 @@ function processQueue() {
       div.textContent = item.text.substring(0, i+1);
       output.scrollTop = output.scrollHeight;
       i++;
-      setTimeout(type, item.speed + (Math.random() * 8 - 4));
+      setTimeout(type, item.speed + (Math.random() * 6 - 3));
     } else {
       typing = false;
-      if (item.cb) setTimeout(item.cb, 80);
+      if (item.cb) setTimeout(item.cb, 60);
       processQueue();
     }
   }
   type();
 }
-
-function sleep(ms, cb) { setTimeout(cb, ms); }
 
 function printTool(t) {
   var langTag = t.lang==='go'?'[go]':t.lang==='rust'?'[rust]':'[ts]';
@@ -201,52 +203,122 @@ function printTool(t) {
   printGap();
 }
 
+function boxLine(width, left, right, fill) {
+  return left + (fill || '-').repeat(width - 2) + right;
+}
+
+function boxMid(width, fill) {
+  return '|' + ' '.repeat(width - 2) + '|';
+}
+
+function pad(str, width, ch) {
+  ch = ch || ' ';
+  if (str.length >= width) return str;
+  return str + ch.repeat(width - str.length);
+}
+
+function padCenter(str, width) {
+  var total = width - str.length;
+  var left = Math.floor(total / 2);
+  var right = total - left;
+  return ' '.repeat(left) + str + ' '.repeat(right);
+}
+
 function runSetup() {
-  pressEnter.classList.add('gone');
-  var steps = [
-    { text:'valtos v0.1.0', cls:'accent', wait:200 },
-    { text:'', wait:150 },
-    { text:'checking dependencies...', cls:'dim', wait:300 },
-    { text:'  go runtime............ ok', cls:'dim', wait:100 },
-    { text:'  rust toolchain........ ok', cls:'dim', wait:100 },
-    { text:'  sqlite................ ok', cls:'dim', wait:100 },
-    { text:'  telemetry............. not found (good)', cls:'accent', wait:200 },
-    { text:'', wait:150 },
-    { text:'mounting filesystems...', cls:'dim', wait:300 },
-    { text:'  /dev/honesty mounted on /integrity', cls:'dim', wait:100 },
-    { text:'  /dev/sqlite mounted on /data', cls:'dim', wait:100 },
-    { text:'  /dev/nocloud mounted on /sovereignty', cls:'dim', wait:200 },
-    { text:'', wait:150 },
-    { text:'loading tools...', cls:'dim', wait:250 },
-    { text:'  relay    [go]   12 stars   1778 dl/mo', cls:'', wait:80 },
-    { text:'  reflow   [ts]    7 stars    126 dl/mo', cls:'', wait:80 },
-    { text:'  observer [go]    3 stars', cls:'', wait:80 },
-    { text:'  mcprobe  [go]    2 stars', cls:'', wait:80 },
-    { text:'  vault    [go]    1 stars', cls:'', wait:80 },
-    { text:'  pulse    [go]    1 stars', cls:'', wait:80 },
-    { text:'  cairn    [rust]  1 stars', cls:'', wait:80 },
-    { text:'  smith    [rust]  1 stars', cls:'', wait:80 },
-    { text:'', wait:150 },
-    { text:'8 tools loaded. 28 stars. 1904 monthly downloads.', cls:'accent', wait:300 },
-    { text:'8 contributors. 624 commits. none paid.', cls:'accent', wait:300 },
-    { text:'', wait:200 },
-    { text:'init complete.', cls:'accent', wait:400 },
+  pressScreen.classList.add('gone');
+  var W = 52;
+
+  var setup = [
+    function(cb) {
+      var top = boxLine(W, '+', '+');
+      print(top, 'accent');
+      cb();
+    },
+    function(cb) {
+      typeLine('|' + padCenter('valtors v0.1.0', W-2) + '|', 'accent', 6, cb);
+    },
+    function(cb) {
+      print(boxLine(W, '+', '+'), 'accent');
+      cb();
+    },
+    function(cb) { print(boxMid(W), 'ddim'); cb(); },
+    function(cb) {
+      typeLine('| checking dependencies...                  |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   go runtime............ ok              |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   rust toolchain........ ok              |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   sqlite................ ok              |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   telemetry............. not found       |', 'accent', 4, cb);
+    },
+    function(cb) { print(boxMid(W), 'ddim'); cb(); },
+    function(cb) {
+      typeLine('| mounting filesystems...                   |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   /dev/honesty -> /integrity             |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   /dev/sqlite   -> /data                 |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   /dev/nocloud  -> /sovereignty           |', 'dim', 4, cb);
+    },
+    function(cb) { print(boxMid(W), 'ddim'); cb(); },
+    function(cb) {
+      typeLine('| loading tools...                          |', 'dim', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   relay    [go]    12 stars  1778 dl/mo  |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   reflow   [ts]     7 stars   126 dl/mo   |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   observer [go]     3 stars              |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   mcprobe  [go]     2 stars              |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   vault    [go]     1 stars              |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   pulse    [go]     1 stars              |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   cairn    [rust]   1 stars              |', '', 4, cb);
+    },
+    function(cb) {
+      typeLine('|   smith    [rust]   1 stars              |', '', 4, cb);
+    },
+    function(cb) { print(boxMid(W), 'ddim'); cb(); },
+    function(cb) {
+      typeLine('| 8 tools | 28 stars | 1904 dl/mo | 8 ppl  |', 'accent', 6, cb);
+    },
+    function(cb) {
+      typeLine('| 624 commits | 0 paid | MIT | no telemetry |', 'accent', 6, cb);
+    },
+    function(cb) { print(boxMid(W), 'ddim'); cb(); },
+    function(cb) {
+      typeLine('| init complete.                            |', 'accent', 6, cb);
+    },
+    function(cb) {
+      print(boxLine(W, '+', '+'), 'accent');
+      cb();
+    },
   ];
 
   var i = 0;
   function next() {
-    if (i < steps.length) {
-      var s = steps[i];
-      if (s.text === '') {
-        printGap();
-        i++;
-        setTimeout(next, s.wait);
-      } else {
-        typeLine(s.text, s.cls || '', 6, function() {
-          i++;
-          setTimeout(next, s.wait || 50);
-        });
-      }
+    if (i < setup.length) {
+      setup[i](function() { i++; setTimeout(next, 40); });
     } else {
       afterSetup();
     }
@@ -475,6 +547,7 @@ function runCommand(raw) {
       print('cairn v0.1.0 -- storing fact...', 'purple');
       printGap();
       var factText = raw.trim().substring(9).trim();
+      userFacts.push(factText);
       print('  subject:    user', 'dim');
       print('  predicate:   states', 'dim');
       print('  object:      ' + factText, 'dim');
@@ -495,13 +568,21 @@ function runCommand(raw) {
       printGap();
       print('  result set:', 'accent');
       printGap();
-      print('  [1] user states "the sky is blue" (conf: 1.0, recorded: just now)', 'dim');
-      print('  [2] valtors builds "tools that don\'t lie to you" (conf: 1.0, recorded: at boot)', 'dim');
-      print('  [3] user states "tamish is 21" (conf: 0.95, recorded: 2026-07-15)', 'dim');
-      print('  [4] user states "prefers go over rust" (conf: 0.8, recorded: 2026-06-01)', 'dim');
-      print('  [5] user states "likes oil paintings" (conf: 0.7, recorded: 2026-05-20)', 'dim');
+      var idx = 1;
+      print('  [' + idx + '] valtors builds "tools that don\'t lie to you" (conf: 1.0, recorded: at boot)', 'dim');
+      idx++;
+      userFacts.forEach(function(f) {
+        print('  [' + idx + '] user states "' + f + '" (conf: 1.0, recorded: just now)', 'dim');
+        idx++;
+      });
+      print('  [' + idx + '] user states "tamish is 21" (conf: 0.95, recorded: 2026-07-15)', 'dim');
+      idx++;
+      print('  [' + idx + '] user states "prefers go over rust" (conf: 0.8, recorded: 2026-06-01)', 'dim');
+      idx++;
+      print('  [' + idx + '] user states "likes oil paintings" (conf: 0.7, recorded: 2026-05-20)', 'dim');
       printGap();
-      print('  5 active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
+      var total = 4 + userFacts.length;
+      print('  ' + total + ' active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
       printGap();
       print('cairn doesn\'t delete. it closes. you can ask what was true on any date.', 'accent');
       printHTML('<a href="https://github.com/valtors/cairn">github.com/valtors/cairn</a>', 'purple');
