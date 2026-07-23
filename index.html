@@ -1,44 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="no-js dark">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>valtors - tools that don't lie to you.</title>
-<meta name="description" content="Open source developer tools for the MCP ecosystem. Relay, Reflow, Observer, and mcprobe. MIT licensed.">
+<title>valtors — tools that don't lie to you.</title>
+<meta name="description" content="eight open source tools for the MCP ecosystem. MIT. no telemetry. no bullshit. built by developers nobody paid.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --bg: #fafafa;
-  --bg-soft: #f0f0f0;
-  --bg-card: #f5f5f5;
-  --text: #1a1a1a;
-  --text-soft: #666666;
-  --text-muted: #999999;
-  --border: #e8e8e8;
-  --opacity-label: 0.35;
-  --contrib-0: #e8e8e8;
-  --contrib-1: #c6e8c9;
-  --contrib-2: #7bc97f;
-  --contrib-3: #3ba53f;
-  --contrib-4: #1a6b2e;
-}
-
-.dark {
-  --bg: #0a0a0a;
-  --bg-soft: #111111;
-  --bg-card: #141414;
-  --text: #fafafa;
-  --text-soft: #aaaaaa;
-  --text-muted: #666666;
+  --bg: #000000;
+  --bg-soft: #0a0a0a;
+  --bg-card: #0f0f0f;
+  --text: #ffffff;
+  --text-soft: #888888;
+  --text-muted: #555555;
   --border: #1a1a1a;
-  --opacity-label: 0.4;
+  --border-bright: #333333;
   --contrib-0: #1a1a1a;
   --contrib-1: #0e4429;
   --contrib-2: #006d32;
@@ -46,19 +27,54 @@
   --contrib-4: #39d353;
 }
 
+html:not(.dark) {
+  --bg: #fafafa;
+  --bg-soft: #f0f0f0;
+  --bg-card: #f5f5f5;
+  --text: #0a0a0a;
+  --text-soft: #555555;
+  --text-muted: #999999;
+  --border: #e0e0e0;
+  --border-bright: #cccccc;
+  --contrib-0: #e8e8e8;
+  --contrib-1: #c6e8c9;
+  --contrib-2: #7bc97f;
+  --contrib-3: #3ba53f;
+  --contrib-4: #1a6b2e;
+}
+
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.4s, color 0.4s;
+  overflow-x: hidden;
 }
 
 a { color: inherit; text-decoration: none; }
-.container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+.serif { font-family: 'Instrument Serif', serif; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+.no-js .reveal { opacity: 1; transform: none; }
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* Scroll progress */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--text);
+  width: 0;
+  z-index: 9999;
+  transition: width 0.1s;
+}
 
 /* Theme toggle */
 .theme-toggle {
@@ -70,468 +86,484 @@ a { color: inherit; text-decoration: none; }
   height: 44px;
   border-radius: 50%;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-bright);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
-.theme-toggle:hover { transform: translateY(-2px); }
+.theme-toggle:hover { transform: translateY(-2px); border-color: var(--text); }
 .theme-toggle svg { width: 18px; height: 18px; color: var(--text); }
 .dark-icon { display: none; }
-.dark .dark-icon { display: block; }
-.dark .light-icon { display: none; }
+html:not(.dark) .dark-icon { display: block; }
+html:not(.dark) .light-icon { display: none; }
 
 /* Nav */
 nav {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
   z-index: 999;
-  padding: 14px 24px;
-  background: transparent;
-  color: var(--text);
-  transition: background 0.3s, border-color 0.3s;
+  padding: 16px 32px;
+  transition: background 0.3s, border-color 0.3s, padding 0.3s;
   border-bottom: 1px solid transparent;
 }
 nav.scrolled {
-  background: rgba(250,250,250,0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
-}
-.dark nav.scrolled {
-  background: rgba(10,10,10,0.85);
+  padding: 12px 32px;
 }
 .nav-inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.01em;
 }
-.nav-logo svg { display: block; }
-.nav-links {
-  display: flex;
-  gap: 28px;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-soft);
-}
-.nav-links a { transition: color 0.2s; }
-.nav-links a:hover { color: var(--text); }
-.nav-actions {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-.nav-gh {
-  color: var(--text-soft);
-  transition: color 0.2s;
-}
-.nav-gh:hover { color: var(--text); }
-.nav-cta {
+.nav-logo::before {
+  content: '';
+  width: 10px;
+  height: 10px;
   background: var(--text);
-  color: var(--bg);
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: opacity 0.2s;
+  display: inline-block;
 }
-.nav-cta:hover { opacity: 0.85; }
-@media (max-width: 768px) { .nav-links { display: none; } }
+.nav-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+.nav-right a { color: var(--text-soft); transition: color 0.2s; }
+.nav-right a:hover { color: var(--text); }
+
+/* Section labels */
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+}
 
 /* Hero */
 .hero {
-  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
-  padding: 140px 24px 80px;
-  color: var(--text);
-  transition: background 0.3s, color 0.3s;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
 }
-.hero-inner { max-width: 1000px; margin: 0 auto; }
-.hero-eyebrow {
+.hero-mark {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
   text-transform: uppercase;
-  opacity: var(--opacity-label);
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
-.hero h1 {
-  font-size: 46px;
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 18px;
-  max-width: 640px;
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(80px, 16vw, 200px);
+  font-weight: 400;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  margin-bottom: 32px;
+}
+.hero-tagline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
 }
 .hero-sub {
-  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   font-weight: 300;
   color: var(--text-soft);
-  margin-bottom: 36px;
-  max-width: 500px;
-  line-height: 1.5;
+  max-width: 520px;
+  line-height: 1.6;
 }
-.hero-actions {
+.hero-scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  text-transform: uppercase;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
 }
-.btn-primary {
+.hero-scroll-line {
+  width: 1px;
+  height: 40px;
+  background: var(--border-bright);
+  position: relative;
+  overflow: hidden;
+}
+.hero-scroll-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
   background: var(--text);
-  color: var(--bg);
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  animation: scroll-line 2s ease-in-out infinite;
 }
-.btn-primary:hover { opacity: 0.85; }
-.btn-outline {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 22px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+@keyframes scroll-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
 }
-.btn-outline:hover { border-color: var(--text); }
-.hero-community {
+
+/* Manifesto */
+.manifesto {
+  min-height: 200vh;
+  position: relative;
+}
+.manifesto-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 14px;
-  color: var(--text-soft);
+  justify-content: center;
+  overflow: hidden;
+}
+.manifesto-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(28px, 4.5vw, 56px);
   font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  text-align: center;
+  max-width: 900px;
+  padding: 0 32px;
+  transform-origin: center;
+  will-change: transform, opacity;
 }
-.hero-community strong { color: var(--text); font-weight: 600; }
-.hero-avatars { display: flex; }
-.hero-avatars .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid var(--bg);
-  margin-left: -8px;
-  object-fit: cover;
+.manifesto-text em {
+  font-style: italic;
+  color: var(--text);
 }
-.hero-avatars .avatar:first-child { margin-left: 0; }
-
-@media (max-width: 768px) {
-  .hero { padding: 100px 24px 40px; }
-  .hero h1 { font-size: 32px; }
-  .hero-sub { font-size: 16px; }
+.manifesto-text .dim {
+  color: var(--text-muted);
 }
 
 /* Stats */
 .stats {
-  padding: 40px 24px 80px;
-  background: var(--bg);
-}
-.stats-inner { max-width: 1000px; margin: 0 auto; }
-.stats-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: var(--opacity-label);
-  margin-bottom: 32px;
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
 }
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-}
-.stat-item {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-.stat-num {
-  font-size: 36px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-}
-.stat-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-weight: 400;
-}
-@media (max-width: 600px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .stat-num { font-size: 26px; }
-}
-
-/* Products */
-.products {
-  padding: 80px 24px;
-  background: var(--bg);
-}
-.products-inner { max-width: 1000px; margin: 0 auto; }
-.section-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: var(--opacity-label);
-  margin-bottom: 16px;
-}
-.section-heading {
-  font-size: 32px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  margin-bottom: 14px;
-  max-width: 650px;
-  line-height: 1.2;
-}
-.section-sub {
-  font-size: 16px;
-  color: var(--text-soft);
-  font-weight: 300;
-  margin-bottom: 48px;
-  max-width: 500px;
-}
-.product-list {
-  display: flex;
-  flex-direction: column;
   gap: 0;
 }
-.product-item {
-  border-top: 1px solid var(--border);
-  padding: 32px 0;
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 24px;
-  align-items: start;
-  transition: padding-left 0.3s;
+.stat-item {
+  border-right: 1px solid var(--border);
+  padding: 24px 24px 0 0;
 }
-.product-item:last-child { border-bottom: 1px solid var(--border); }
-.product-item:hover { padding-left: 12px; }
-.product-name {
-  font-size: 20px;
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 48px;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 12px;
 }
-.product-desc {
-  font-size: 15px;
-  color: var(--text-soft);
-  font-weight: 300;
-  line-height: 1.5;
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
-.product-link {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-soft);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  justify-self: end;
-  transition: color 0.2s;
-}
-.product-link:hover { color: var(--text); }
-@media (max-width: 768px) {
-  .product-item { grid-template-columns: 1fr; gap: 8px; }
-  .product-link { justify-self: start; }
+@media (max-width: 700px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .stat-item { border-right: none; border-top: 1px solid var(--border); padding-top: 16px; }
+  .stat-num { font-size: 36px; }
 }
 
-/* Features */
-.features {
-  padding: 80px 24px;
-  background: var(--bg);
-}
-.features-inner { max-width: 1000px; margin: 0 auto; }
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 48px;
-  margin-top: 40px;
-}
-.feature-item h3 {
-  font-size: 17px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-.feature-item p {
-  font-size: 14px;
-  color: var(--text-soft);
-  font-weight: 300;
-  line-height: 1.6;
-}
-@media (max-width: 768px) {
-  .features-grid { grid-template-columns: 1fr; gap: 32px; }
-}
-
-/* Art section - like Open WebUI's oil painting imagery */
+/* Art breaks */
 .art-section {
-  padding: 20px 24px;
-  background: var(--bg);
+  padding: 0 32px;
+  margin: 40px 0;
 }
-.art-inner { max-width: 1000px; margin: 0 auto; }
 .art-banner {
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  height: 420px;
+  height: 55vh;
+  min-height: 400px;
   position: relative;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-}
-.dark .art-banner {
-  box-shadow: 0 4px 32px rgba(0,0,0,0.3);
 }
 .art-banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: ken-burns 25s ease-in-out infinite alternate;
 }
-@media (max-width: 768px) { .art-banner { height: 280px; } }
+@keyframes ken-burns {
+  0% { transform: scale(1.0) translate(0, 0); }
+  100% { transform: scale(1.15) translate(-3%, -3%); }
+}
+.art-caption {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 16px;
+  text-align: center;
+}
 
-/* Contribution graph */
-.contrib-section {
-  padding: 80px 24px;
-  background: var(--bg);
+/* Tools */
+.tools {
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
 }
-.contrib-inner { max-width: 1000px; margin: 0 auto; }
+.tools-heading {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.tools-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-soft);
+  max-width: 500px;
+  margin-bottom: 80px;
+  line-height: 1.6;
+}
+.tool-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 32px;
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+  align-items: start;
+  transition: padding-left 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.tool-row:hover {
+  padding-left: 16px;
+}
+.tool-row:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.tool-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding-top: 8px;
+}
+.tool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.tool-cut {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text);
+  max-width: 600px;
+}
+.tool-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text-soft);
+  line-height: 1.6;
+  max-width: 560px;
+  margin-top: 4px;
+}
+.tool-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 8px;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.tool-link:hover { color: var(--text); }
+@media (max-width: 768px) {
+  .tool-row { grid-template-columns: 1fr; gap: 12px; }
+  .tool-number { padding-top: 0; }
+  .tool-name { font-size: 28px; }
+  .tool-cut { font-size: 18px; }
+  .tool-link { padding-top: 0; }
+}
+
+/* Principles */
+.principles {
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
+}
+.principles-heading {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 80px;
+}
+.principle {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 24px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  align-items: baseline;
+}
+.principle:last-child { border-bottom: 1px solid var(--border); }
+.principle-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.principle-text {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  max-width: 700px;
+}
+.principle-text strong {
+  font-weight: 500;
+  color: var(--text);
+}
+@media (max-width: 768px) {
+  .principle { grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* Contributions */
+.contrib-section {
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
+}
+ contrib-heading {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 48px;
+}
 .contrib-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 .contrib-total {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   color: var(--text-soft);
 }
 .contrib-total strong { color: var(--text); font-weight: 600; }
-.contrib-graph {
-  display: flex;
-  gap: 3px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-.contrib-week {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.contrib-day {
-  width: 11px;
-  height: 11px;
-  border-radius: 2px;
-  background: var(--contrib-0);
-}
-.dark .contrib-day { border: 1px solid rgba(255,255,255,0.04); }
-.contrib-day.level-1 { background: var(--contrib-1); }
-.contrib-day.level-2 { background: var(--contrib-2); }
-.contrib-day.level-3 { background: var(--contrib-3); }
-.contrib-day.level-4 { background: var(--contrib-4); }
-.contrib-legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 12px;
-  justify-content: flex-end;
-}
-.contrib-legend .contrib-day {
-  width: 11px;
-  height: 11px;
-  border: none;
-}
-
-.contrib-toggle {
-  display: flex;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.toggle-btn {
-  background: var(--bg);
-  color: var(--text-muted);
-  border: none;
-  padding: 6px 14px;
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.toggle-btn:hover { color: var(--text-soft); }
-.toggle-btn.active {
-  background: var(--text);
-  color: var(--bg);
-}
-
 .contrib-graph-monthly {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
   align-items: flex-end;
-  height: 100px;
-  min-height: 100px;
+  height: 110px;
+  min-height: 110px;
 }
 .month-col {
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 }
 .month-bar {
   width: 100%;
-  max-width: 30px;
+  max-width: 32px;
   border-radius: 3px 3px 0 0;
   min-height: 4px;
   transition: opacity 0.2s;
 }
 .month-bar:hover { opacity: 0.75; }
 .month-label {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   color: var(--text-muted);
-  text-align: center;
   white-space: nowrap;
-  flex-shrink: 0;
+}
+.contrib-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+.contrib-legend .swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
 }
 
 /* Contributors */
 .contributors-section {
-  padding: 40px 24px 80px;
-  background: var(--bg);
+  padding: 60px 0 120px;
 }
-.contributors-inner { max-width: 1000px; margin: 0 auto; }
 .contributors-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 32px;
 }
 .contributor-card {
   display: flex;
@@ -541,112 +573,135 @@ nav.scrolled {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--bg-card);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, transform 0.2s;
 }
-.contributor-card:hover { border-color: var(--text); }
+.contributor-card:hover { border-color: var(--text); transform: translateY(-2px); }
 .contributor-card img {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
-.contributor-info {
-  display: flex;
-  flex-direction: column;
-}
 .contributor-name {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text);
 }
 .contributor-meta {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--text-muted);
 }
 
 /* Install */
 .install {
-  padding: 80px 24px;
-  background: var(--bg);
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
 }
-.install-inner { max-width: 1000px; margin: 0 auto; }
-.install-code {
+.install-heading {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.install-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-soft);
+  margin-bottom: 48px;
+}
+.install-terminal {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 28px 32px;
-  margin-top: 36px;
-  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  border-radius: 12px;
+  padding: 32px 36px;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 15px;
-  color: var(--text-soft);
+  line-height: 2.2;
   overflow-x: auto;
-  line-height: 1.8;
 }
-.install-code .prompt { color: var(--text-muted); }
-.install-code .cmd { color: var(--text); }
-
-/* Mission */
-.mission {
-  padding: 80px 24px;
-  background: var(--bg);
+.install-terminal .prompt { color: var(--text-muted); }
+.install-terminal .cmd { color: var(--text); }
+.install-terminal .comment { color: var(--text-muted); font-style: italic; }
+.install-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 18px;
+  background: var(--text);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 4px;
 }
-.mission-inner { max-width: 800px; margin: 0 auto; }
-.mission-quote {
-  font-size: 24px;
-  font-weight: 300;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  color: var(--text);
-  text-align: center;
-  font-style: italic;
-  max-width: 640px;
-  margin: 0 auto;
-}
-.mission-attr {
-  font-size: 13px;
-  color: var(--text-muted);
-  text-align: center;
-  margin-top: 16px;
-  letter-spacing: 0.05em;
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 /* CTA */
 .cta {
-  padding: 60px 24px 80px;
-  background: var(--bg);
-}
-.cta-inner { max-width: 1000px; margin: 0 auto; }
-.cta-box {
+  padding: 120px 0;
   border-top: 1px solid var(--border);
-  padding: 48px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
+  text-align: center;
 }
 .cta-text {
-  font-size: 24px;
-  font-weight: 300;
-  max-width: 500px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  max-width: 700px;
+  margin: 0 auto 48px;
 }
 .cta-actions {
   display: flex;
   gap: 12px;
+  justify-content: center;
   flex-wrap: wrap;
 }
-@media (max-width: 600px) { .cta-box { flex-direction: column; text-align: center; } }
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-outline:hover { border-color: var(--text); transform: translateY(-2px); }
 
 /* Footer */
 footer {
-  padding: 32px 24px;
-  background: var(--bg);
+  padding: 40px 32px;
   border-top: 1px solid var(--border);
 }
 .footer-inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -655,19 +710,55 @@ footer {
   gap: 16px;
 }
 .footer-text {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   color: var(--text-muted);
 }
 .footer-links {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   color: var(--text-muted);
+  transition: color 0.2s;
 }
 .footer-links a:hover { color: var(--text); }
+
+/* Prism grid + click burst */
+.prism-grid {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.click-fx {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 24px; }
+  .hero-title { font-size: 72px; }
+  .tools-heading, .principles-heading, .install-heading { font-size: 40px; }
+  .cta-text { font-size: 32px; }
+  .install-terminal { padding: 24px; font-size: 13px; }
+}
 </style>
 </head>
 <body>
+
+<script>document.documentElement.classList.remove('no-js');</script>
+
+<div class="scroll-progress" id="scrollProgress"></div>
 
 <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
   <svg class="light-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -676,296 +767,303 @@ footer {
 
 <nav id="nav">
   <div class="nav-inner">
-    <div class="nav-logo">
-      <img src="https://raw.githubusercontent.com/valtors/valtors-landing/master/assets/valtors-logo.png" alt="Valtors" style="width:28px;height:28px;border-radius:4px;image-rendering:pixelated" loading="lazy" />
-      <span>valtors</span>
-    </div>
-    <div class="nav-links">
-      <a href="#products">products</a>
-      <a href="https://github.com/valtors">docs</a>
+    <div class="nav-logo">valtors</div>
+    <div class="nav-right">
+      <a href="https://github.com/valtors">github</a>
       <a href="https://valtors.github.io/valtors-landing/blog/mcp-security.html">blog</a>
-      <a href="#community">community</a>
-    </div>
-    <div class="nav-actions">
-      <a href="https://github.com/valtors" class="nav-gh">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      </a>
-      <a href="https://github.com/valtors" class="nav-cta">github</a>
     </div>
   </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">valtors</div>
-    <h1>tools that don't lie to you.</h1>
-    <p class="hero-sub">six open source tools. a server, a toolkit, a proxy, a scanner, a sandbox, and an ai agent that connects to everything you use. Go, TypeScript, boring tech. MIT licensed, zero telemetry, your data stays on your machine. nobody's reading your traffic. nobody's phoning home. nobody's watching.</p>
-    <div class="hero-actions">
-      <a href="#products" class="btn-primary">see what we built</a>
-      <a href="https://github.com/valtors" class="btn-outline">
-        github
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-      </a>
-    </div>
-    <div class="hero-community">
-      <div class="hero-avatars">
-        <img src="https://avatars.githubusercontent.com/u/189916421?v=4" alt="tamish560" class="avatar" loading="lazy" />
-        <img src="https://avatars.githubusercontent.com/u/243696695?v=4" alt="YRWoods" class="avatar" loading="lazy" />
-        <img src="https://avatars.githubusercontent.com/u/117142323?v=4" alt="leemeo3" class="avatar" loading="lazy" />
-        <img src="https://avatars.githubusercontent.com/u/266331747?v=4" alt="caioribeiroclw-pixel" class="avatar" loading="lazy" />
-        <img src="https://avatars.githubusercontent.com/u/122903391?v=4" alt="ishaan-jindal" class="avatar" loading="lazy" />
-        <img src="https://avatars.githubusercontent.com/u/166228107?v=4" alt="nabsei" class="avatar" loading="lazy" />
-      </div>
-      <span>Built by developers nobody paid. <strong>MIT licensed. no telemetry.</strong></span>
+  <div class="hero-mark reveal">open source / MIT / no telemetry</div>
+  <h1 class="hero-title reveal">valtors</h1>
+  <div class="hero-tagline reveal">tools that don't lie to you.</div>
+  <p class="hero-sub reveal">eight open source tools for the MCP ecosystem. go, rust, typescript. boring tech. your data on your machine. nobody's phoning home. nobody's watching.</p>
+  <div class="hero-scroll">
+    <span>scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-sticky">
+    <div class="manifesto-text" id="manifestoText">
+      you don't need permission to build tools that work.<br>
+      you don't need a framework to justify a decision.<br>
+      you don't need a server in someone else's cloud<br>
+      to store your own data.<br><br>
+      <em>own your tools. own your data. own your infrastructure.</em>
     </div>
   </div>
 </section>
 
+<!-- STATS -->
 <section class="stats">
-  <div class="stats-inner">
-    <div class="stats-eyebrow">the numbers</div>
+  <div class="container">
+    <div class="section-label reveal">02 / the numbers</div>
     <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-num">1.8k+</div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="1800" data-suffix="+">0</div>
         <div class="stat-label">Monthly Downloads</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">22</div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="22">0</div>
         <div class="stat-label">GitHub Stars</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">6</div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="8">0</div>
         <div class="stat-label">Open Source Projects</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">6+</div>
+      <div class="stat-item reveal">
+        <div class="stat-num" data-count="6" data-suffix="+">0</div>
         <div class="stat-label">Contributors</div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ART BREAK 1 -->
 <section class="art-section">
-  <div class="art-inner">
-    <div class="art-banner">
-      <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/workbench.jpg" alt="Oil painting of a workbench at golden hour" loading="lazy" />
+  <div class="art-banner reveal">
+    <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/workbench.jpg" alt="Oil painting of a workbench at golden hour" loading="lazy">
+  </div>
+  <div class="art-caption reveal">a workbench at golden hour</div>
+</section>
+
+<!-- TOOLS -->
+<section class="tools" id="tools">
+  <div class="container">
+    <div class="section-label reveal">03 / the workbench</div>
+    <h2 class="tools-heading reveal">eight tools. one philosophy.</h2>
+    <p class="tools-sub reveal">boring tech, zero dependencies where possible, built to outlast the hype cycle.</p>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">01</div>
+      <div class="tool-body">
+        <div class="tool-name">Relay</div>
+        <div class="tool-cut">one binary. forty tools. zero dependencies.</div>
+        <div class="tool-desc">MCP server with 40 tools for AI agents. files, images, PDFs, web fetch, workflows. stdio and HTTP transport. other people install five servers to do what this does alone. npm: userelay.</div>
+      </div>
+      <a href="https://github.com/valtors/relay" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">02</div>
+      <div class="tool-body">
+        <div class="tool-name">Reflow</div>
+        <div class="tool-cut">responsive without breaking SSR. eight frameworks. one API.</div>
+        <div class="tool-desc">SSR-safe responsive toolkit for TypeScript. breakpoints, container queries, fluid typography, viewport tracking. React, Vue, Svelte, Solid, Qwik, Preact, Angular. no hydration mismatch warnings. no framework lock-in. npm: usereflow.</div>
+      </div>
+      <a href="https://github.com/valtors/reflow" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">03</div>
+      <div class="tool-body">
+        <div class="tool-name">Observer</div>
+        <div class="tool-cut">your agent made thirty tool calls. you saw the text. this shows the rest.</div>
+        <div class="tool-desc">transparent MCP proxy for agent observability. logs every tool call to SQLite, exposes trace history, reduces token overhead. it sits between your client and the server and watches. silently.</div>
+      </div>
+      <a href="https://github.com/valtors/observer" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">04</div>
+      <div class="tool-body">
+        <div class="tool-name">mcprobe</div>
+        <div class="tool-cut">you connected a server you didn't audit. this tells you what you missed.</div>
+        <div class="tool-desc">security scanner for MCP servers. finds prompt injection in tool descriptions, tool shadowing, resource exposure to sensitive paths, baseline drift. your MCP server is probably vulnerable. single Go binary.</div>
+      </div>
+      <a href="https://github.com/tamish560/mcprobe" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">05</div>
+      <div class="tool-body">
+        <div class="tool-name">Vault</div>
+        <div class="tool-cut">run untrusted tools without burning down your machine.</div>
+        <div class="tool-desc">strips secrets from environment, blocks sensitive file paths, scans for prompt injection in tool descriptions, logs every action to SQLite. not a real sandbox. an audit layer. honest about what it is.</div>
+      </div>
+      <a href="https://github.com/valtors/vault" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">06</div>
+      <div class="tool-body">
+        <div class="tool-name">Pulse</div>
+        <div class="tool-cut">thirty-eight notifications. three urgent items. your AI does the rest.</div>
+        <div class="tool-desc">connect everything. github, gmail, calendar in one place. asks "what did i miss" and gets a real answer. remembers what matters, forgets what doesn't. local-first, single binary. not a framework. a product.</div>
+      </div>
+      <a href="https://github.com/valtors/pulse" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">07</div>
+      <div class="tool-body">
+        <div class="tool-name">Cairn</div>
+        <div class="tool-cut">agents forget. this makes them remember.</div>
+        <div class="tool-desc">temporal knowledge store in one sqlite file. facts are triples with validity windows. contradictions close old facts, they don't delete them. forgetting is a first-class operation. no neo4j. no cloud. no lock-in.</div>
+      </div>
+      <a href="https://github.com/valtors/cairn" class="tool-link">github -></a>
+    </div>
+
+    <div class="tool-row reveal">
+      <div class="tool-number">08</div>
+      <div class="tool-body">
+        <div class="tool-name">Smith</div>
+        <div class="tool-cut">npm made javascript installable. this does it for MCP.</div>
+        <div class="tool-desc">install, compose, secure, and manage MCP servers. one binary. fetch from npm, git, or local path. spawn all installed servers and expose one unified endpoint. your work tools don't leak into your personal profile.</div>
+      </div>
+      <a href="https://github.com/valtors/smith" class="tool-link">github -></a>
     </div>
   </div>
 </section>
 
-<section class="products" id="products">
-  <div class="products-inner">
-    <div class="section-eyebrow">what we built</div>
-    <h2 class="section-heading">six tools. one philosophy.</h2>
-    <p class="section-sub">boring tech, zero dependencies where possible, built to outlast the hype cycle.</p>
-    <div class="product-list">
-      <div class="product-item">
-        <div class="product-name">Relay</div>
-        <div class="product-desc">one MCP server, 40 tools, one binary. files, images, PDFs, web fetch, workflows. stdio and HTTP transport. zero runtime dependencies. other people install 5 servers to do what this does alone. npm: userelay.</div>
-        <a href="https://github.com/valtors/relay" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-      <div class="product-item">
-        <div class="product-name">Reflow</div>
-        <div class="product-desc">responsive toolkit for TypeScript that doesn't break SSR. same API in React, Vue, Svelte, Solid, Qwik, Preact, Angular. no hydration mismatch warnings. no typeof window checks. no framework lock-in. npm: usereflow.</div>
-        <a href="https://github.com/valtors/reflow" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-      <div class="product-item">
-        <div class="product-name">Observer</div>
-        <div class="product-desc">your agent makes 30 tool calls. you see the final text. observer logs every call to SQLite so you can see what actually happened. SSE transport, tool filtering, trace replay. it sits between your client and the server and watches. silently.</div>
-        <a href="https://github.com/valtors/observer" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-      <div class="product-item">
-        <div class="product-name">mcprobe</div>
-        <div class="product-desc">security scanner for MCP servers. finds prompt injection in tool descriptions, tool shadowing, resource exposure to sensitive paths, baseline drift. your MCP server is probably vulnerable. you connected it to your agent without checking. this tells you what you missed. single Go binary.</div>
-        <a href="https://github.com/tamish560/mcprobe" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-      <div class="product-item">
-        <div class="product-name">Vault</div>
-        <div class="product-desc">run untrusted MCP tools without burning down your machine. strips secrets from environment, blocks sensitive file paths, scans for prompt injection in tool descriptions, logs every action to SQLite. not a real sandbox. an audit layer. honest about what it is.</div>
-        <a href="https://github.com/valtors/vault" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-      <div class="product-item">
-        <div class="product-name">Pulse</div>
-        <div class="product-desc">connect everything. your ai does the rest. github, gmail, calendar in one place. asks "what did i miss" and gets a real answer. 38 notifications become 3 urgent items. remembers what matters, forgets what doesn't. local-first, single binary, your data on your machine. not a framework. a product.</div>
-        <a href="https://github.com/valtors/pulse" class="product-link">
-          GitHub
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="features">
-  <div class="features-inner">
-    <div class="section-eyebrow">why</div>
-    <h2 class="section-heading">everything you need. nothing you don't.</h2>
-    <div class="features-grid">
-      <div class="feature-item">
-        <h3>Open source</h3>
-        <p>MIT licensed. free to use, modify, and build on. no proprietary hooks, no vendor lock-in, no telemetry. if you find telemetry in here, it's a bug.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Local first</h3>
-        <p>single binary, SQLite storage, Go stdlib. your data doesn't leave your machine. boring tech on purpose because boring tech doesn't break at 3am.</p>
-      </div>
-      <div class="feature-item">
-        <h3>MCP native</h3>
-        <p>built for the Model Context Protocol from day one. stdio transport, stdlib JSON-RPC. no magic, no abstraction layers, no frameworks on top of frameworks.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Well documented</h3>
-        <p>clear docs, working examples, guides for every step. you shouldn't have to read source code to understand the API. if you do, that's a bug too.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Security first</h3>
-        <p>mcprobe finds prompt injection, tool shadowing, resource exposure. observer redacts sensitive data by default. security is built in. not bolted on after someone files an issue.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Community driven</h3>
-        <p>built with feedback from developers. contributions welcome. external contributors shipping. no corporate backing, no VC money, no roadmap dictated by a sales team.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
+<!-- ART BREAK 2 -->
 <section class="art-section">
-  <div class="art-inner">
-    <div class="art-banner">
-      <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/open-book.jpg" alt="Oil painting of an open book on a hilltop at dawn" loading="lazy" />
+  <div class="art-banner reveal">
+    <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/open-book.jpg" alt="Oil painting of an open book on a hilltop at dawn" loading="lazy">
+  </div>
+  <div class="art-caption reveal">an open book on a hilltop at dawn</div>
+</section>
+
+<!-- PRINCIPLES -->
+<section class="principles">
+  <div class="container">
+    <div class="section-label reveal">04 / the principles</div>
+    <h2 class="principles-heading reveal">everything you need. nothing you don't.</h2>
+
+    <div class="principle reveal">
+      <div class="principle-num">01</div>
+      <div class="principle-text"><strong>MIT licensed.</strong> free to use, modify, and build on. no proprietary hooks, no vendor lock-in, no telemetry. if you find telemetry in here, it's a bug.</div>
+    </div>
+    <div class="principle reveal">
+      <div class="principle-num">02</div>
+      <div class="principle-text"><strong>Local first.</strong> single binary, sqlite, go stdlib. your data doesn't leave your machine. boring tech on purpose because boring tech doesn't break at 3am.</div>
+    </div>
+    <div class="principle reveal">
+      <div class="principle-num">03</div>
+      <div class="principle-text"><strong>MCP native.</strong> built for the model context protocol from day one. stdio transport, stdlib JSON-RPC. no magic, no abstraction layers, no frameworks on top of frameworks.</div>
+    </div>
+    <div class="principle reveal">
+      <div class="principle-num">04</div>
+      <div class="principle-text"><strong>Security first.</strong> mcprobe finds prompt injection, tool shadowing, resource exposure. observer redacts sensitive data by default. security is built in. not bolted on after someone files an issue.</div>
+    </div>
+    <div class="principle reveal">
+      <div class="principle-num">05</div>
+      <div class="principle-text"><strong>No corporate backing.</strong> no VC money. no roadmap dictated by a sales team. built with feedback from developers. contributions welcome. external contributors shipping.</div>
     </div>
   </div>
 </section>
 
+<!-- CONTRIBUTIONS -->
 <section class="contrib-section">
-  <div class="contrib-inner">
-    <div class="section-eyebrow">Activity</div>
-    <h2 class="section-heading">432 contributions this year. none of them paid.</h2>
-    <div class="contrib-header">
+  <div class="container">
+    <div class="section-label reveal">05 / the proof</div>
+    <h2 class="contrib-heading reveal">432 contributions this year. none of them paid.</h2>
+    <div class="contrib-header reveal">
       <div class="contrib-total"><strong>432</strong> contributions across all repositories</div>
-      <div class="contrib-toggle">
-        <button type="button" class="toggle-btn" id="toggle-weekly" onclick="switchView('weekly')">weekly</button>
-        <button type="button" class="toggle-btn active" id="toggle-monthly" onclick="switchView('monthly')">monthly</button>
-      </div>
     </div>
-    <div class="contrib-graph-monthly" id="contrib-graph-weekly" style="display:none"></div>
-    <div class="contrib-graph-monthly" id="contrib-graph-monthly"></div>
-    <div class="contrib-legend">
+    <div class="contrib-graph-monthly" id="contrib-graph"></div>
+    <div class="contrib-legend reveal">
       <span>Less</span>
-      <div class="contrib-day"></div>
-      <div class="contrib-day level-1"></div>
-      <div class="contrib-day level-2"></div>
-      <div class="contrib-day level-3"></div>
-      <div class="contrib-day level-4"></div>
+      <div class="swatch" style="background:var(--contrib-0)"></div>
+      <div class="swatch" style="background:var(--contrib-1)"></div>
+      <div class="swatch" style="background:var(--contrib-2)"></div>
+      <div class="swatch" style="background:var(--contrib-3)"></div>
+      <div class="swatch" style="background:var(--contrib-4)"></div>
       <span>More</span>
     </div>
   </div>
 </section>
 
+<!-- CONTRIBUTORS -->
 <section class="contributors-section">
-  <div class="contributors-inner">
-    <div class="section-eyebrow">who showed up</div>
-    <h2 class="section-heading">built in the open.</h2>
-    <div class="contributors-grid">
+  <div class="container">
+    <div class="contributors-grid reveal">
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/189916421?v=4" alt="tamish560" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">tamish560</span>
-          <span class="contributor-meta">155 contributions</span>
+        <img src="https://avatars.githubusercontent.com/u/189916421?v=4" alt="tamish560" loading="lazy">
+        <div>
+          <div class="contributor-name">tamish560</div>
+          <div class="contributor-meta">155 contributions</div>
         </div>
       </div>
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/243696695?v=4" alt="YRWoods" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">YRWoods</span>
-          <span class="contributor-meta">3 contributions</span>
+        <img src="https://avatars.githubusercontent.com/u/243696695?v=4" alt="YRWoods" loading="lazy">
+        <div>
+          <div class="contributor-name">YRWoods</div>
+          <div class="contributor-meta">3 contributions</div>
         </div>
       </div>
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/117142323?v=4" alt="leemeo3" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">leemeo3</span>
-          <span class="contributor-meta">2 contributions</span>
+        <img src="https://avatars.githubusercontent.com/u/117142323?v=4" alt="leemeo3" loading="lazy">
+        <div>
+          <div class="contributor-name">leemeo3</div>
+          <div class="contributor-meta">2 contributions</div>
         </div>
       </div>
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/266331747?v=4" alt="caioribeiroclw-pixel" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">caioribeiroclw-pixel</span>
-          <span class="contributor-meta">1 contribution</span>
+        <img src="https://avatars.githubusercontent.com/u/266331747?v=4" alt="caioribeiroclw-pixel" loading="lazy">
+        <div>
+          <div class="contributor-name">caioribeiroclw-pixel</div>
+          <div class="contributor-meta">1 contribution</div>
         </div>
       </div>
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/122903391?v=4" alt="ishaan-jindal" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">ishaan-jindal</span>
-          <span class="contributor-meta">1 contribution</span>
+        <img src="https://avatars.githubusercontent.com/u/122903391?v=4" alt="ishaan-jindal" loading="lazy">
+        <div>
+          <div class="contributor-name">ishaan-jindal</div>
+          <div class="contributor-meta">1 contribution</div>
         </div>
       </div>
       <div class="contributor-card">
-        <img src="https://avatars.githubusercontent.com/u/166228107?v=4" alt="nabsei" loading="lazy" />
-        <div class="contributor-info">
-          <span class="contributor-name">nabsei</span>
-          <span class="contributor-meta">1 contribution</span>
+        <img src="https://avatars.githubusercontent.com/u/166228107?v=4" alt="nabsei" loading="lazy">
+        <div>
+          <div class="contributor-name">nabsei</div>
+          <div class="contributor-meta">1 contribution</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ART BREAK 3 -->
 <section class="art-section">
-  <div class="art-inner">
-    <div class="art-banner">
-      <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/bridge.jpg" alt="Oil painting of a stone bridge over a stream at twilight" loading="lazy" />
-    </div>
+  <div class="art-banner reveal">
+    <img src="https://raw.githubusercontent.com/valtors/relay-landing/master/assets/bridge.jpg" alt="Oil painting of a stone bridge over a stream at twilight" loading="lazy">
   </div>
+  <div class="art-caption reveal">a stone bridge over a stream at twilight</div>
 </section>
 
-<section class="mission">
-  <div class="mission-inner">
-    <div class="mission-quote">"you don't need permission to build tools that work. you don't need a framework to justify a decision. you don't need a server in someone else's cloud to store your own data. own your tools. own your data. own your infrastructure."</div>
-    <div class="mission-attr">valtors</div>
-  </div>
-</section>
-
+<!-- INSTALL -->
 <section class="install">
-  <div class="install-inner">
-    <div class="section-eyebrow">install</div>
-    <h2 class="section-heading">one command. no account. no email. no signup.</h2>
-    <div class="install-code">
+  <div class="container">
+    <div class="section-label reveal">06 / the install</div>
+    <h2 class="install-heading reveal">one command. no account. no email. no signup.</h2>
+    <p class="install-sub reveal">just tools. install and go.</p>
+    <div class="install-terminal reveal" id="installTerminal">
 <span class="prompt">$</span> <span class="cmd">go install github.com/valtors/relay@latest</span>
 <span class="prompt">$</span> <span class="cmd">npm i userelay usereflow</span>
 <span class="prompt">$</span> <span class="cmd">go install github.com/tamish560/mcprobe@latest</span>
+<span class="comment"># cairn + smith: cargo install from source. see github.</span><span class="install-cursor"></span>
     </div>
   </div>
 </section>
 
+<!-- CTA -->
 <section class="cta">
-  <div class="cta-inner">
-    <div class="cta-box">
-      <div class="cta-text">no signup. no pricing tiers. no enterprise plan. just tools. if you're still reading this, you already know.</div>
-      <div class="cta-actions">
-        <a href="https://github.com/valtors" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          star if you want
-        </a>
-        <a href="https://github.com/valtors" class="btn-outline">see the repos</a>
-      </div>
+  <div class="container">
+    <div class="section-label reveal" style="text-align:center;">07 / the end</div>
+    <div class="cta-text reveal">if you're still reading this, you already know.</div>
+    <div class="cta-actions reveal">
+      <a href="https://github.com/valtors" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        star if you want
+      </a>
+      <a href="https://github.com/valtors" class="btn-outline">see the repos</a>
     </div>
   </div>
 </section>
@@ -981,11 +1079,20 @@ footer {
       <a href="https://github.com/tamish560/mcprobe">mcprobe</a>
       <a href="https://github.com/valtors/vault">Vault</a>
       <a href="https://github.com/valtors/pulse">Pulse</a>
+      <a href="https://github.com/valtors/cairn">Cairn</a>
+      <a href="https://github.com/valtors/smith">Smith</a>
     </div>
   </div>
 </footer>
 
+<!-- Prism grid -->
+<div class="prism-grid" id="prismGrid"></div>
+
+<!-- Click burst -->
+<div class="click-fx" id="clickFx"></div>
+
 <script>
+// Theme
 function toggleTheme() {
   const html = document.documentElement;
   if (html.classList.contains('dark')) {
@@ -996,132 +1103,198 @@ function toggleTheme() {
     localStorage.theme = 'dark';
   }
 }
-
 (function() {
   const saved = localStorage.theme;
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if (saved === 'dark' || (!saved && prefersDark)) {
-    document.documentElement.classList.add('dark');
-  }
+  if (saved === 'light') document.documentElement.classList.remove('dark');
+  else document.documentElement.classList.add('dark');
 })();
 
+// Scroll progress
 window.addEventListener('scroll', function() {
-  const nav = document.getElementById('nav');
-  if (window.scrollY > 20) {
-    nav.classList.add('scrolled');
-  } else {
-    nav.classList.remove('scrolled');
-  }
+  const sp = document.getElementById('scrollProgress');
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  sp.style.width = (window.scrollY / h * 100) + '%';
 });
 
-// Render contribution graph
-(function() {
-  var data = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,8],[0,0,0,1,8,35,46],[199,6,15,0,0,0,0]];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Nav scroll
+window.addEventListener('scroll', function() {
+  const nav = document.getElementById('nav');
+  if (window.scrollY > 20) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
 
-  // Render weekly - last 12 weeks as bars
-  var weeklyGraph = document.getElementById('contrib-graph-weekly');
-  var recentWeeks = data.slice(-12);
-  var weekSums = recentWeeks.map(function(week) {
-    return week.reduce(function(a, b) { return a + b; }, 0);
-  });
-  var maxWeek = Math.max.apply(null, weekSums);
-  var weekLabels = ['w1','w2','w3','w4','w5','w6','w7','w8','w9','w10','w11','now'];
-  weekSums.forEach(function(sum, idx) {
-    var col = document.createElement('div');
-    col.className = 'month-col';
-    var bar = document.createElement('div');
-    bar.className = 'month-bar';
-    var pct = maxWeek > 0 ? (sum / maxWeek) : 0;
-    bar.style.height = Math.max(4, pct * 80) + 'px';
-    if (sum === 0) {
-      bar.style.background = '#1a1a1a';
-      bar.style.border = '1px solid #222';
-    } else if (pct <= 0.25) {
-      bar.style.background = 'var(--contrib-1)';
-    } else if (pct <= 0.5) {
-      bar.style.background = 'var(--contrib-2)';
-    } else if (pct <= 0.75) {
-      bar.style.background = 'var(--contrib-3)';
-    } else {
-      bar.style.background = 'var(--contrib-4)';
+// Reveal on scroll
+const io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('is-visible');
+      io.unobserve(e.target);
     }
-    bar.title = weekLabels[idx] + ': ' + sum + ' contributions';
-    var label = document.createElement('div');
-    label.className = 'month-label';
-    label.textContent = weekLabels[idx];
-    col.appendChild(label);
-    col.appendChild(bar);
-    weeklyGraph.appendChild(col);
   });
+}, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
 
-  // Calculate monthly totals from weekly data
+// Manifesto scroll-reactive scaling
+const manifesto = document.getElementById('manifesto');
+const manifestoText = document.getElementById('manifestoText');
+window.addEventListener('scroll', function() {
+  if (!manifesto || !manifestoText) return;
+  const rect = manifesto.getBoundingClientRect();
+  const sectionHeight = rect.height - window.innerHeight;
+  if (sectionHeight <= 0) return;
+  const progress = Math.max(0, Math.min(1, -rect.top / sectionHeight));
+  const scale = 1 + progress * 0.8;
+  const opacity = 1 - progress * 0.4;
+  manifestoText.style.transform = 'scale(' + scale + ')';
+  manifestoText.style.opacity = opacity;
+});
+
+// Count-up
+const countObserver = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const target = parseInt(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const start = performance.now();
+    const duration = 1500;
+    function update(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = Math.floor(eased * target);
+      el.textContent = (val >= 1000 ? (val / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : val) + suffix;
+      if (p < 1) requestAnimationFrame(update);
+      else el.textContent = (target >= 1000 ? (target / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : target) + suffix;
+    }
+    requestAnimationFrame(update);
+    countObserver.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(function(el) { countObserver.observe(el); });
+
+// Contribution graph
+(function() {
+  var data = [[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,1,8,35,46],[199,6,15,0,0,0,0]];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var monthSums = [0,0,0,0,0,0,0,0,0,0,0,0];
-  var weeksPerMonth = Math.ceil(data.length / 12);
+  var wpm = Math.ceil(data.length / 12);
   for (var i = 0; i < data.length; i++) {
-    var monthIdx = Math.min(Math.floor(i / weeksPerMonth), 11);
-    data[i].forEach(function(c) { monthSums[monthIdx] += c; });
+    var mi = Math.min(Math.floor(i / wpm), 11);
+    data[i].forEach(function(c) { monthSums[mi] += c; });
   }
   var maxMonth = Math.max.apply(null, monthSums);
-
-  // Render monthly
-  var monthlyGraph = document.getElementById('contrib-graph-monthly');
+  var graph = document.getElementById('contrib-graph');
   monthSums.forEach(function(sum, idx) {
     var col = document.createElement('div');
     col.className = 'month-col';
     var bar = document.createElement('div');
     bar.className = 'month-bar';
     var pct = maxMonth > 0 ? (sum / maxMonth) : 0;
-    bar.style.height = Math.max(4, pct * 80) + 'px';
-    if (sum === 0) {
-      bar.style.background = '#1a1a1a';
-      bar.style.border = '1px solid #222';
-    } else if (pct <= 0.25) {
-      bar.style.background = 'var(--contrib-1)';
-    } else if (pct <= 0.5) {
-      bar.style.background = 'var(--contrib-2)';
-    } else if (pct <= 0.75) {
-      bar.style.background = 'var(--contrib-3)';
-    } else {
-      bar.style.background = 'var(--contrib-4)';
-    }
+    bar.style.height = Math.max(4, pct * 90) + 'px';
+    if (sum === 0) { bar.style.background = 'var(--contrib-0)'; }
+    else if (pct <= 0.25) { bar.style.background = 'var(--contrib-1)'; }
+    else if (pct <= 0.5) { bar.style.background = 'var(--contrib-2)'; }
+    else if (pct <= 0.75) { bar.style.background = 'var(--contrib-3)'; }
+    else { bar.style.background = 'var(--contrib-4)'; }
     bar.title = months[idx] + ': ' + sum + ' contributions';
     var label = document.createElement('div');
     label.className = 'month-label';
     label.textContent = months[idx];
     col.appendChild(label);
     col.appendChild(bar);
-    monthlyGraph.appendChild(col);
+    graph.appendChild(col);
   });
 })();
 
-function switchView(view) {
-  var weekly = document.getElementById('contrib-graph-weekly');
-  var monthly = document.getElementById('contrib-graph-monthly');
-  var btnW = document.getElementById('toggle-weekly');
-  var btnM = document.getElementById('toggle-monthly');
-  if (view === 'weekly') {
-    weekly.style.display = 'flex';
-    monthly.style.display = 'none';
-    btnW.classList.add('active');
-    btnM.classList.remove('active');
-  } else {
-    weekly.style.display = 'none';
-    monthly.style.display = 'flex';
-    btnW.classList.remove('active');
-    btnM.classList.add('active');
+// Prism grid
+(function(){
+  var g = document.getElementById('prismGrid');
+  var bs = 50;
+  var colors = ['rgba(34,197,94,0.22)','rgba(0,173,216,0.22)','rgba(168,85,247,0.22)','rgba(239,68,68,0.22)','rgba(99,102,241,0.22)','rgba(222,165,132,0.22)'];
+  var lit = null;
+  function build() {
+    var w = window.innerWidth, h = Math.max(window.innerHeight, document.body.scrollHeight);
+    var c = Math.ceil(w / bs), r = Math.ceil(h / bs);
+    g.innerHTML = '';
+    var p = document.createElement('div');
+    p.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column';
+    p.style.width = (c * bs) + 'px';
+    p.style.height = (r * bs) + 'px';
+    for (var i = 0; i < r; i++) {
+      var row = document.createElement('div');
+      row.style.display = 'flex';
+      for (var j = 0; j < c; j++) {
+        var cell = document.createElement('div');
+        cell.style.cssText = 'width:' + bs + 'px;height:' + bs + 'px;border:1px solid rgba(128,128,128,0.04);box-sizing:border-box';
+        row.appendChild(cell);
+      }
+      p.appendChild(row);
+    }
+    g.appendChild(p);
   }
-}
-</script>
+  document.addEventListener('pointermove', function(e) {
+    var rect = g.getBoundingClientRect();
+    var x = e.clientX - rect.left, y = e.clientY - rect.top;
+    var col = Math.floor(x / bs), row = Math.floor(y / bs);
+    if (col < 0 || row < 0) return;
+    if (lit && lit.row === row && lit.col === col) return;
+    if (lit) {
+      lit.el.style.opacity = '0';
+      lit.el.style.transform = 'scale(0.5)';
+      var o = lit;
+      setTimeout(function() { if (o.el.parentNode) o.el.parentNode.removeChild(o.el); }, 1200);
+    }
+    var el = document.createElement('div');
+    el.style.cssText = 'position:absolute;left:' + (col * bs) + 'px;top:' + (row * bs) + 'px;width:' + bs + 'px;height:' + bs + 'px;background:' + colors[Math.floor(Math.random() * colors.length)] + ';opacity:1;transform:scale(1);border-radius:2px;transition:opacity 1.2s ease-out,transform 1.2s ease-out';
+    g.appendChild(el);
+    lit = { row: row, col: col, el: el };
+  });
+  g.addEventListener('pointerleave', function() {
+    if (lit) {
+      lit.el.style.opacity = '0';
+      lit.el.style.transform = 'scale(0.5)';
+      var o = lit;
+      setTimeout(function() { if (o.el.parentNode) o.el.parentNode.removeChild(o.el); }, 1200);
+      lit = null;
+    }
+  });
+  build();
+  var rt;
+  window.addEventListener('resize', function() { clearTimeout(rt); rt = setTimeout(build, 200); });
+})();
 
-<div class="prism-grid" id="prismGrid" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;"></div>
-<div class="click-fx" id="clickFx" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:visible;"></div>
-<script>
-(function(){var g=document.getElementById("prismGrid"),bs=50,colors=["rgba(34,197,94,0.25)","rgba(0,173,216,0.25)","rgba(168,85,247,0.25)","rgba(239,68,68,0.25)","rgba(99,102,241,0.25)","rgba(222,165,132,0.25)"],lit=null;function build(){var w=window.innerWidth,h=Math.max(window.innerHeight,document.body.scrollHeight),c=Math.ceil(w/bs),r=Math.ceil(h/bs);g.innerHTML="";var p=document.createElement("div");p.style.cssText="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column";p.style.width=(c*bs)+"px";p.style.height=(r*bs)+"px";for(var i=0;i<r;i++){var row=document.createElement("div");row.style.display="flex";for(var j=0;j<c;j++){var cell=document.createElement("div");cell.style.cssText="width:"+bs+"px;height:"+bs+"px;border:1px solid rgba(255,255,255,0.04);box-sizing:border-box";row.appendChild(cell);}p.appendChild(row);}g.appendChild(p);}document.addEventListener("pointermove",function(e){var rect=g.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,col=Math.floor(x/bs),row=Math.floor(y/bs);if(col<0||row<0)return;if(lit&&lit.row===row&&lit.col===col)return;if(lit){lit.el.style.opacity="0";lit.el.style.transform="scale(0.5)";var o=lit;setTimeout(function(){if(o.el.parentNode)o.el.parentNode.removeChild(o.el);},1200);}var el=document.createElement("div");el.style.cssText="position:absolute;left:"+(col*bs)+"px;top:"+(row*bs)+"px;width:"+bs+"px;height:"+bs+"px;background:"+colors[Math.floor(Math.random()*colors.length)]+";opacity:1;transform:scale(1);border-radius:2px;transition:opacity 1.2s ease-out,transform 1.2s ease-out";g.appendChild(el);lit={row:row,col:col,el:el};});g.addEventListener("pointerleave",function(){if(lit){lit.el.style.opacity="0";lit.el.style.transform="scale(0.5)";var o=lit;setTimeout(function(){if(o.el.parentNode)o.el.parentNode.removeChild(o.el);},1200);lit=null;}});build();var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(build,200);});})();
+// Click burst
+(function(){
+  var fx = document.getElementById('clickFx');
+  var colors = ['#22c55e','#00add8','#a855f7','#e0504f'];
+  document.addEventListener('click', function(e) {
+    var x = e.clientX, y = e.clientY;
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    var sz = 100, sw = 3;
+    var g = document.createElement('div');
+    g.style.cssText = 'position:absolute;left:' + (x - sz/2) + 'px;top:' + (y - sz/2) + 'px;width:' + sz + 'px;height:' + sz + 'px';
+    for (var a = 0; a < 12; a++) {
+      var angle = a * Math.PI / 6;
+      var dot = document.createElement('div');
+      dot.style.cssText = 'position:absolute;left:' + (sz/2 - sw/2) + 'px;top:' + (sz/2 - sw/2) + 'px;width:' + sw + 'px;height:' + sw + 'px;background:' + color + ';border-radius:50%;transform:translate(0,0);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.5s ease-out 0.2s,width 0.5s ease-out 0.2s,height 0.5s ease-out 0.2s';
+      g.appendChild(dot);
+      (function(d, ang) {
+        setTimeout(function() {
+          d.style.transform = 'translate(' + Math.cos(ang) * sz * 0.45 + 'px,' + Math.sin(ang) * sz * 0.45 + 'px)';
+          d.style.opacity = '0';
+          d.style.width = '0px';
+          d.style.height = '0px';
+        }, 10);
+      })(dot, angle);
+    }
+    var ring = document.createElement('div');
+    ring.style.cssText = 'position:absolute;left:' + (sz/2 - 20) + 'px;top:' + (sz/2 - 20) + 'px;width:40px;height:40px;border:2px solid ' + color + ';border-radius:50%;opacity:0.8;transform:scale(0.3);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.4s ease-out';
+    g.appendChild(ring);
+    setTimeout(function() { ring.style.transform = 'scale(2.5)'; ring.style.opacity = '0'; }, 10);
+    fx.appendChild(g);
+    setTimeout(function() { if (g.parentNode) g.parentNode.removeChild(g); }, 700);
+  });
+})();
 </script>
-<script>
-(function(){var fx=document.getElementById("clickFx"),colors=["#22c55e","#00add8","#a855f7","#e0504f"];document.addEventListener("click",function(e){var x=e.clientX,y=e.clientY,color=colors[Math.floor(Math.random()*colors.length)],sz=100,sw=3,g=document.createElement("div");g.style.cssText="position:absolute;left:"+(x-sz/2)+"px;top:"+(y-sz/2)+"px;width:"+sz+"px;height:"+sz+"px";for(var a=0;a<12;a++){var angle=a*Math.PI/6,dot=document.createElement("div");dot.style.cssText="position:absolute;left:"+(sz/2-sw/2)+"px;top:"+(sz/2-sw/2)+"px;width:"+sw+"px;height:"+sw+"px;background:"+color+";border-radius:50%;transform:translate(0,0);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.5s ease-out 0.2s,width 0.5s ease-out 0.2s,height 0.5s ease-out 0.2s";g.appendChild(dot);(function(d,ang){setTimeout(function(){d.style.transform="translate("+Math.cos(ang)*sz*0.45+"px,"+Math.sin(ang)*sz*0.45+"px)";d.style.opacity="0";d.style.width="0px";d.style.height="0px";},10);})(dot,angle);}var ring=document.createElement("div");ring.style.cssText="position:absolute;left:"+(sz/2-20)+"px;top:"+(sz/2-20)+"px;width:40px;height:40px;border:2px solid "+color+";border-radius:50%;opacity:0.8;transform:scale(0.3);transition:transform 0.4s cubic-bezier(0.2,0.8,0.2,1),opacity 0.4s ease-out";g.appendChild(ring);setTimeout(function(){ring.style.transform="scale(2.5)";ring.style.opacity="0";},10);fx.appendChild(g);setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g);},700);}); })();
-</script>
-
 </body>
 </html>
