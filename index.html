@@ -18,9 +18,10 @@ a:hover{text-decoration:underline}
 .output::-webkit-scrollbar{width:6px}
 .output::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .input-line{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border)}
+.input-line.hidden{display:none}
 .prompt{color:var(--accent);white-space:nowrap}
 #input{background:none;border:none;color:var(--fg);font-family:var(--mono);font-size:15px;outline:none;flex:1;caret-color:var(--accent)}
-.cursor{display:inline-block;width:8px;height:16px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:text-bottom}
+#input::placeholder{color:var(--dim)}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
 .line{white-space:pre-wrap;word-break:break-word;min-height:1em}
@@ -33,89 +34,107 @@ a:hover{text-decoration:underline}
 .line.purple{color:var(--purple)}
 .line.yellow{color:var(--yellow)}
 .line.bold{font-weight:bold}
-.line.center{text-align:center;padding:8px 0}
 .line.gap{margin-top:16px}
 .line.small{font-size:13px}
-
-.ascii{white-space:pre;font-size:12px;line-height:1.3;color:var(--blue)}
-.ascii.small{font-size:10px}
-
-.bar{display:inline-block;background:var(--accent);height:12px;border-radius:1px;margin-right:2px}
-.bar.empty{background:var(--border)}
-.bar.warn{background:var(--warn)}
-.bar.blue{background:var(--blue)}
-.bar.purple{background:var(--purple)}
 
 .link-row{padding:4px 0}
 .link-row a{color:var(--blue)}
 .link-row a:hover{color:var(--accent)}
 
-.badge{display:inline-block;padding:1px 6px;border:1px solid var(--border);border-radius:3px;font-size:12px;color:var(--dim);margin-left:8px}
-.badge.go{color:var(--blue);border-color:var(--blue)}
-.badge.rust{color:var(--purple);border-color:var(--purple)}
-.badge.ts{color:var(--yellow);border-color:var(--yellow)}
-.badge.mit{color:var(--dim)}
+.bar-fill{display:inline-block;background:var(--accent);height:10px;border-radius:1px}
+.bar-empty{display:inline-block;background:var(--border);height:10px;border-radius:1px}
+.bar-warn{display:inline-block;background:var(--warn);height:10px;border-radius:1px}
+.bar-blue{display:inline-block;background:var(--blue);height:10px;border-radius:1px}
+.bar-purple{display:inline-block;background:var(--purple);height:10px;border-radius:1px}
 
-.divider{color:var(--border);margin:8px 0}
+.press-enter{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+.press-enter .pe-text{font-size:14px;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase}
+.press-enter .pe-key{margin-top:24px;font-size:24px;color:var(--accent);animation:blink 1.5s ease-in-out infinite}
+.press-enter .pe-sub{margin-top:12px;font-size:12px;color:var(--dim)}
+.press-enter.gone{display:none}
+
+.cursor-block{display:inline-block;width:8px;height:16px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:text-bottom}
 
 .hint{position:fixed;bottom:8px;right:16px;font-size:12px;color:var(--dim);pointer-events:none}
 .hint kbd{background:var(--border);padding:1px 5px;border-radius:2px;font-family:var(--mono);color:var(--fg)}
 
 @media(max-width:600px){
   html{font-size:13px}
-  .ascii{font-size:9px}
-  .ascii.small{font-size:8px}
   .hint{display:none}
   .screen{padding:12px}
 }
 </style>
 </head>
 <body>
+
+<div class="press-enter" id="pressEnter">
+  <div class="pe-text">valtors</div>
+  <div class="pe-key">[ press enter ]</div>
+  <div class="pe-sub">tools that don't lie to you</div>
+</div>
+
 <div class="screen">
   <div class="output" id="output"></div>
-  <div class="input-line">
+  <div class="input-line hidden" id="inputLine">
     <span class="prompt">valtors:~$</span>
-    <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
+    <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type help" autofocus>
   </div>
 </div>
-<div class="hint">type <kbd>help</kbd> or <kbd>tab</kbd> to cycle commands</div>
+
+<div class="hint" id="hintEl" style="display:none">type <kbd>help</kbd> or <kbd>tab</kbd> to cycle commands</div>
+
 <script>
 var output = document.getElementById('output');
 var input = document.getElementById('input');
+var inputLine = document.getElementById('inputLine');
+var pressEnter = document.getElementById('pressEnter');
+var hintEl = document.getElementById('hintEl');
 var cmdHistory = [];
 var histIdx = -1;
 var tabIdx = 0;
 var typing = false;
 var typeQueue = [];
+var booted = false;
 
 var TOOLS = [
-  { name:'relay', lang:'go', npm:'userelay', stars:'10', url:'https://github.com/valtors/relay',
+  { name:'relay', lang:'go', npm:'userelay', stars:12, dl:'1778/mo', forks:1, url:'https://github.com/valtors/relay',
     cut:'one binary. forty tools. zero dependencies.',
     desc:'MCP server with 40 tools. files, images, PDFs, web fetch, workflows. stdio + HTTP transport. other people install five servers to do what this does alone.' },
-  { name:'reflow', lang:'ts', npm:'usereflow', stars:'7', url:'https://github.com/valtors/reflow',
+  { name:'reflow', lang:'ts', npm:'usereflow', stars:7, dl:'126/mo', forks:2, url:'https://github.com/valtors/reflow',
     cut:'responsive without breaking SSR. eight frameworks. one API.',
     desc:'SSR-safe responsive toolkit. breakpoints, container queries, fluid typography. React, Vue, Svelte, Solid, Qwik, Preact, Angular. no hydration mismatch warnings.' },
-  { name:'observer', lang:'go', npm:null, stars:'3', url:'https://github.com/valtors/observer',
+  { name:'observer', lang:'go', npm:null, stars:3, dl:null, forks:2, url:'https://github.com/valtors/observer',
     cut:'your agent made thirty tool calls. you saw the text. this shows the rest.',
     desc:'transparent MCP proxy. logs every tool call to SQLite, exposes trace history, reduces token overhead. sits between your client and the server and watches.' },
-  { name:'mcprobe', lang:'go', npm:null, stars:'2', url:'https://github.com/tamish560/mcprobe',
+  { name:'mcprobe', lang:'go', npm:null, stars:2, dl:null, forks:0, url:'https://github.com/tamish560/mcprobe',
     cut:'you connected a server you didn\'t audit. this tells you what you missed.',
     desc:'security scanner for MCP servers. finds prompt injection in tool descriptions, tool shadowing, resource exposure to sensitive paths. your MCP server is probably vulnerable.' },
-  { name:'vault', lang:'go', npm:null, stars:'1', url:'https://github.com/valtors/vault',
+  { name:'vault', lang:'go', npm:null, stars:1, dl:null, forks:0, url:'https://github.com/valtors/vault',
     cut:'run untrusted tools without burning down your machine.',
     desc:'strips secrets from env, blocks sensitive file paths, scans for prompt injection, logs every action to SQLite. not a real sandbox. an audit layer. honest about what it is.' },
-  { name:'pulse', lang:'go', npm:null, stars:'0', url:'https://github.com/valtors/pulse',
+  { name:'pulse', lang:'go', npm:null, stars:1, dl:null, forks:0, url:'https://github.com/valtors/pulse',
     cut:'thirty-eight notifications. three urgent items. your AI does the rest.',
     desc:'connect github, gmail, calendar. asks "what did i miss" and gets a real answer. remembers what matters, forgets what doesn\'t. local-first, single binary.' },
-  { name:'cairn', lang:'rust', npm:null, stars:'0', url:'https://github.com/valtors/cairn',
+  { name:'cairn', lang:'rust', npm:null, stars:1, dl:null, forks:0, url:'https://github.com/valtors/cairn',
     cut:'agents forget. this makes them remember.',
     desc:'temporal knowledge store in one sqlite file. facts are triples with validity windows. contradictions close old facts, they don\'t delete them. forgetting is a first-class operation.' },
-  { name:'smith', lang:'rust', npm:null, stars:'0', url:'https://github.com/valtors/smith',
+  { name:'smith', lang:'rust', npm:null, stars:1, dl:null, forks:0, url:'https://github.com/valtors/smith',
     cut:'npm made javascript installable. this does it for MCP.',
     desc:'install, compose, secure, and manage MCP servers. one binary. fetch from npm, git, or local path. spawn all installed servers, expose one unified endpoint.' }
 ];
 
-var COMMANDS = ['help','tools','scan','trace','remember','recall','install','whoami','philosophy','github','clear','exit'];
+var CONTRIBUTORS = [
+  { login:'tamish560', contributions:310, repos:'all 8 repos', avatar:'https://avatars.githubusercontent.com/u/189916421?v=4' },
+  { login:'YRWoods', contributions:3, repos:'reflow', avatar:'https://avatars.githubusercontent.com/u/243696695?v=4' },
+  { login:'ishaan-jindal', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/122903391?v=4' },
+  { login:'aikyaam', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/151955025?v=4' },
+  { login:'nabsei', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/166228107?v=4' },
+  { login:'rubysnewjourney', contributions:1, repos:'relay', avatar:'https://avatars.githubusercontent.com/u/283093796?v=4' },
+  { login:'caioribeiroclw-pixel', contributions:1, repos:'observer', avatar:'https://avatars.githubusercontent.com/u/266331747?v=4' },
+  { login:'singhlovepreet9', contributions:1, repos:'observer', avatar:'https://avatars.githubusercontent.com/u/43858328?v=4' }
+];
+
+var COMMANDS = ['help','tools','stats','contributors','scan','trace','remember','recall','install','whoami','philosophy','github','clear','exit'];
 var allCmds = COMMANDS.concat(TOOLS.map(function(t){return t.name}));
 
 function print(text, cls) {
@@ -137,7 +156,6 @@ function printHTML(html, cls) {
 }
 
 function printGap() { print('', 'gap'); }
-function printDivider() { print('--- --- --- --- --- --- --- --- ---', 'dim'); }
 
 function typeLine(text, cls, speed, cb) {
   typeQueue.push({text:text, cls:cls, speed:speed||12, cb:cb});
@@ -160,53 +178,110 @@ function processQueue() {
       setTimeout(type, item.speed + (Math.random() * 8 - 4));
     } else {
       typing = false;
-      if (item.cb) setTimeout(item.cb, 100);
+      if (item.cb) setTimeout(item.cb, 80);
       processQueue();
     }
   }
   type();
 }
 
+function sleep(ms, cb) { setTimeout(cb, ms); }
+
 function printTool(t) {
-  print(t.name + (t.lang==='go'?' [go]':t.lang==='rust'?' [rust]':' [ts]') + (t.npm?' [npm: '+t.npm+']':''), 'accent bold');
+  var langTag = t.lang==='go'?'[go]':t.lang==='rust'?'[rust]':'[ts]';
+  var npmTag = t.npm ? ' [npm: '+t.npm+']' : '';
+  var dlTag = t.dl ? ' ['+t.dl+']' : '';
+  print(t.name + ' ' + langTag + npmTag + dlTag, 'accent bold');
   print(t.cut, 'dim');
   printGap();
   print(t.desc);
   printGap();
-  printHTML('stars: ' + t.stars + '  |  ' + '<a href="'+t.url+'">'+t.url+'</a>', 'dim');
+  var meta = 'stars: ' + t.stars + '  forks: ' + t.forks + '  |  ';
+  printHTML(meta + '<a href="'+t.url+'">'+t.url+'</a>', 'dim');
   printGap();
 }
 
-function boot() {
-  var bootLines = [
-    'valtos v0.1.0 -- MCP ecosystem tools',
-    'kernel: boring-tech 6.8.0',
-    'mounting /dev/honesty... ok',
-    'mounting /dev/sqlite... ok',
-    'mounting /dev/nocloud... ok',
-    'loading tools: relay reflow observer mcprobe vault pulse cairn smith',
-    '',
-    'welcome. type a command. or don\'t. i\'m not your manager.',
-    ''
+function runSetup() {
+  pressEnter.classList.add('gone');
+  var steps = [
+    { text:'valtos v0.1.0', cls:'accent', wait:200 },
+    { text:'', wait:150 },
+    { text:'checking dependencies...', cls:'dim', wait:300 },
+    { text:'  go runtime............ ok', cls:'dim', wait:100 },
+    { text:'  rust toolchain........ ok', cls:'dim', wait:100 },
+    { text:'  sqlite................ ok', cls:'dim', wait:100 },
+    { text:'  telemetry............. not found (good)', cls:'accent', wait:200 },
+    { text:'', wait:150 },
+    { text:'mounting filesystems...', cls:'dim', wait:300 },
+    { text:'  /dev/honesty mounted on /integrity', cls:'dim', wait:100 },
+    { text:'  /dev/sqlite mounted on /data', cls:'dim', wait:100 },
+    { text:'  /dev/nocloud mounted on /sovereignty', cls:'dim', wait:200 },
+    { text:'', wait:150 },
+    { text:'loading tools...', cls:'dim', wait:250 },
+    { text:'  relay    [go]   12 stars   1778 dl/mo', cls:'', wait:80 },
+    { text:'  reflow   [ts]    7 stars    126 dl/mo', cls:'', wait:80 },
+    { text:'  observer [go]    3 stars', cls:'', wait:80 },
+    { text:'  mcprobe  [go]    2 stars', cls:'', wait:80 },
+    { text:'  vault    [go]    1 stars', cls:'', wait:80 },
+    { text:'  pulse    [go]    1 stars', cls:'', wait:80 },
+    { text:'  cairn    [rust]  1 stars', cls:'', wait:80 },
+    { text:'  smith    [rust]  1 stars', cls:'', wait:80 },
+    { text:'', wait:150 },
+    { text:'8 tools loaded. 28 stars. 1904 monthly downloads.', cls:'accent', wait:300 },
+    { text:'8 contributors. 624 commits. none paid.', cls:'accent', wait:300 },
+    { text:'', wait:200 },
+    { text:'init complete.', cls:'accent', wait:400 },
   ];
+
   var i = 0;
   function next() {
-    if (i < bootLines.length) {
-      if (bootLines[i] === '') { printGap(); i++; setTimeout(next, 50); }
-      else { typeLine(bootLines[i], 'dim', 8, function(){ i++; setTimeout(next, 30); }); }
+    if (i < steps.length) {
+      var s = steps[i];
+      if (s.text === '') {
+        printGap();
+        i++;
+        setTimeout(next, s.wait);
+      } else {
+        typeLine(s.text, s.cls || '', 6, function() {
+          i++;
+          setTimeout(next, s.wait || 50);
+        });
+      }
     } else {
-      input.focus();
-      setTimeout(autoDemo, 8000);
+      afterSetup();
     }
   }
   next();
 }
 
-var demoed = false;
-function autoDemo() {
-  if (demoed || input.value.length > 0) return;
-  demoed = true;
-  runCommand('help');
+function afterSetup() {
+  printGap();
+  printGap();
+
+  print('remember valtors builds tools that don\'t lie to you', 'cmd');
+  printGap();
+  typeLine('cairn v0.1.0 -- storing fact...', 'purple', 8, function() {
+    printGap();
+    print('  subject:    valtors', 'dim');
+    print('  predicate:   builds', 'dim');
+    print('  object:      tools that don\'t lie to you', 'dim');
+    print('  confidence: 1.0', 'dim');
+    print('  recorded:   ' + new Date().toISOString(), 'dim');
+    print('  valid_from:  now', 'dim');
+    print('  valid_to:    open', 'dim');
+    printGap();
+    typeLine('stored. cairn doesn\'t forget. it closes facts when they contradict.', 'accent', 10, function() {
+      printGap();
+      printGap();
+      typeLine('type help to see what else this thing does.', 'dim', 12, function() {
+        printGap();
+        inputLine.classList.remove('hidden');
+        input.focus();
+        hintEl.style.display = 'block';
+        booted = true;
+      });
+    });
+  });
 }
 
 function runCommand(raw) {
@@ -225,18 +300,20 @@ function runCommand(raw) {
     case 'help':
       print('available commands:', 'accent');
       printGap();
-      print('  help        this. what you\'re looking at.');
-      print('  tools       list all eight tools');
-      print('  scan        demo: scan an MCP server for vulnerabilities');
-      print('  trace       demo: see what your agent actually did');
-      print('  remember    demo: store a fact in cairn');
-      print('  recall      demo: query cairn for a fact');
-      print('  install     install any valtors tool');
-      print('  whoami      who is valtors');
-      print('  philosophy  the one thing that matters');
-      print('  github      open the repos');
-      print('  clear       wipe the screen');
-      print('  exit        good question');
+      print('  help         this. what you\'re looking at.');
+      print('  tools        list all eight tools');
+      print('  stats        stars, downloads, forks, contributors');
+      print('  contributors who built this');
+      print('  scan         demo: scan an MCP server for vulnerabilities');
+      print('  trace        demo: see what your agent actually did');
+      print('  remember     store a fact in cairn');
+      print('  recall       query cairn for stored facts');
+      print('  install      see the install command for any tool');
+      print('  whoami       who is valtors');
+      print('  philosophy   the one thing that matters');
+      print('  github       all repos with star counts');
+      print('  clear        wipe the screen');
+      print('  exit         good question');
       printGap();
       print('or type any tool name for details:', 'dim');
       print('  relay  reflow  observer  mcprobe  vault  pulse  cairn  smith', 'dim');
@@ -248,10 +325,53 @@ function runCommand(raw) {
       TOOLS.forEach(function(t, i) {
         var num = (i+1).toString().padStart(2,'0');
         var lang = t.lang === 'go' ? 'go' : t.lang === 'rust' ? 'rs' : 'ts';
-        print('  ' + num + '  ' + t.name.padEnd(10) + '[' + lang + ']' + '  ' + t.cut, 'dim');
+        var line = '  ' + num + '  ' + t.name.padEnd(10) + '[' + lang + ']' + '  ' + t.stars + ' stars  ' + t.cut;
+        print(line, 'dim');
       });
       printGap();
-      print('type any name for details. or "install <name>" to see the command.', 'dim');
+      print('type any name for details. or "install <name>" for the command.', 'dim');
+      break;
+
+    case 'stats':
+      var totalStars = TOOLS.reduce(function(s,t){return s+t.stars},0);
+      var totalForks = TOOLS.reduce(function(s,t){return s+t.forks},0);
+      var totalDl = 0;
+      TOOLS.forEach(function(t){ if(t.dl){ totalDl += parseInt(t.dl) } });
+      print('valtors by the numbers', 'accent');
+      printGap();
+      print('  tools          8');
+      print('  stars          ' + totalStars);
+      print('  forks          ' + totalForks);
+      print('  contributors   ' + CONTRIBUTORS.length);
+      print('  commits        624 (last 12 months)');
+      print('  npm downloads  ' + totalDl + '/mo');
+      print('  languages      go, rust, typescript');
+      print('  license        MIT');
+      print('  telemetry      none');
+      print('  vc funding     none');
+      printGap();
+      print('per repo:', 'dim');
+      printGap();
+      TOOLS.forEach(function(t) {
+        var bar = '';
+        var s = t.stars;
+        for (var i = 0; i < 12; i++) { bar += i < s ? '#' : '.'; }
+        var dl = t.dl ? t.dl.padEnd(10) : '           ';
+        print('  ' + t.name.padEnd(10) + '[' + bar + '] ' + t.stars + ' stars  ' + dl, 'dim');
+      });
+      break;
+
+    case 'contributors':
+      print('8 contributors. none paid.', 'accent');
+      printGap();
+      CONTRIBUTORS.forEach(function(c, i) {
+        var num = (i+1).toString().padStart(2,'0');
+        var line = '  ' + num + '  ' + c.login.padEnd(20) + c.contributions + ' commits  ' + c.repos;
+        if (i === 0) print(line, 'accent');
+        else print(line, 'dim');
+      });
+      printGap();
+      print('want to contribute? fork any repo. send a PR. no CLA.', 'dim');
       break;
 
     case 'scan':
@@ -334,7 +454,7 @@ function runCommand(raw) {
       calls.forEach(function(c, i) {
         var num = (i+1).toString().padStart(3,' ');
         var line = '  ' + num + '  ' + c[0].padEnd(16) + (c[1]||'') + (c[2] ? ' (' + c[2] + ')' : '');
-        var cls = i < 3 ? 'dim' : i < 10 ? '' : i < 20 ? 'dim' : 'dim';
+        var cls = 'dim';
         if (c[0] === 'write_file') cls = 'warn';
         if (c[0] === 'web_fetch') cls = 'blue';
         print(line, cls);
@@ -355,13 +475,13 @@ function runCommand(raw) {
       print('cairn v0.1.0 -- storing fact...', 'purple');
       printGap();
       var factText = raw.trim().substring(9).trim();
-      print('  subject:   user', 'dim');
-      print('  predicate:  states', 'dim');
-      print('  object:     ' + factText, 'dim');
+      print('  subject:    user', 'dim');
+      print('  predicate:   states', 'dim');
+      print('  object:      ' + factText, 'dim');
       print('  confidence: 1.0', 'dim');
       print('  recorded:   ' + new Date().toISOString(), 'dim');
-      print('  valid_from: now', 'dim');
-      print('  valid_to:   open', 'dim');
+      print('  valid_from:  now', 'dim');
+      print('  valid_to:    open', 'dim');
       printGap();
       print('stored. cairn doesn\'t forget. it closes facts when they contradict.', 'accent');
       printGap();
@@ -376,11 +496,12 @@ function runCommand(raw) {
       print('  result set:', 'accent');
       printGap();
       print('  [1] user states "the sky is blue" (conf: 1.0, recorded: just now)', 'dim');
-      print('  [2] user states "tamish is 21" (conf: 0.95, recorded: 2026-07-15)', 'dim');
-      print('  [3] user states "prefers go over rust" (conf: 0.8, recorded: 2026-06-01)', 'dim');
-      print('  [4] user states "likes oil paintings" (conf: 0.7, recorded: 2026-05-20)', 'dim');
+      print('  [2] valtors builds "tools that don\'t lie to you" (conf: 1.0, recorded: at boot)', 'dim');
+      print('  [3] user states "tamish is 21" (conf: 0.95, recorded: 2026-07-15)', 'dim');
+      print('  [4] user states "prefers go over rust" (conf: 0.8, recorded: 2026-06-01)', 'dim');
+      print('  [5] user states "likes oil paintings" (conf: 0.7, recorded: 2026-05-20)', 'dim');
       printGap();
-      print('  4 active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
+      print('  5 active facts. 2 closed (contradicted). 0 forgotten.', 'dim');
       printGap();
       print('cairn doesn\'t delete. it closes. you can ask what was true on any date.', 'accent');
       printHTML('<a href="https://github.com/valtors/cairn">github.com/valtors/cairn</a>', 'purple');
@@ -451,8 +572,8 @@ function runCommand(raw) {
       printGap();
       TOOLS.forEach(function(t) {
         var bar = '';
-        var s = parseInt(t.stars);
-        for (var i = 0; i < 10; i++) { bar += i < s ? '#' : '.'; }
+        var s = t.stars;
+        for (var i = 0; i < 12; i++) { bar += i < s ? '#' : '.'; }
         printHTML('  <a href="'+t.url+'">'+t.url+'</a>  [' + bar + '] ' + t.stars + ' stars', 'link-row');
       });
       printGap();
@@ -476,8 +597,14 @@ function runCommand(raw) {
   printGap();
 }
 
-input.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
+document.addEventListener('keydown', function(e) {
+  if (!booted) {
+    if (e.key === 'Enter') {
+      runSetup();
+    }
+    return;
+  }
+  if (e.key === 'Enter' && document.activeElement === input) {
     var val = input.value;
     if (val.trim()) {
       cmdHistory.unshift(val);
@@ -485,13 +612,13 @@ input.addEventListener('keydown', function(e) {
     }
     input.value = '';
     runCommand(val);
-  } else if (e.key === 'ArrowUp') {
+  } else if (e.key === 'ArrowUp' && document.activeElement === input) {
     e.preventDefault();
     if (histIdx < cmdHistory.length - 1) {
       histIdx++;
       input.value = cmdHistory[histIdx];
     }
-  } else if (e.key === 'ArrowDown') {
+  } else if (e.key === 'ArrowDown' && document.activeElement === input) {
     e.preventDefault();
     if (histIdx > 0) {
       histIdx--;
@@ -500,7 +627,7 @@ input.addEventListener('keydown', function(e) {
       histIdx = -1;
       input.value = '';
     }
-  } else if (e.key === 'Tab') {
+  } else if (e.key === 'Tab' && document.activeElement === input) {
     e.preventDefault();
     var current = input.value.trim().toLowerCase();
     var matches = allCmds.filter(function(c){ return c.startsWith(current); });
@@ -511,15 +638,9 @@ input.addEventListener('keydown', function(e) {
   }
 });
 
-input.addEventListener('input', function() {
-  tabIdx = -1;
-});
-
 document.addEventListener('click', function() {
-  input.focus();
+  if (booted) input.focus();
 });
-
-boot();
 </script>
 </body>
 </html>
