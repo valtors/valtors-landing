@@ -194,7 +194,10 @@ var TOOLS = [
     desc:'temporal knowledge store in one sqlite file. facts are triples with validity windows. contradictions close old facts, they don\'t delete them. forgetting is a first-class operation.' },
   { name:'smith', lang:'rust', npm:null, stars:1, dl:null, forks:0, url:'https://github.com/valtors/smith',
     cut:'npm made javascript installable. this does it for MCP.',
-    desc:'install, compose, secure, and manage MCP servers. one binary. fetch from npm, git, or local path. spawn all installed servers, expose one unified endpoint.' }
+    desc:'install, compose, secure, and manage MCP servers. one binary. fetch from npm, git, or local path. spawn all installed servers, expose one unified endpoint.' },
+  { name:'forge', lang:'go', npm:null, stars:0, dl:null, forks:0, url:'https://github.com/valtors/forge',
+    cut:'the operating system for AI agents. one binary. everything else is automatic.',
+    desc:'local-first agent runtime. writes a config file, forge handles memory (cairn), sandboxing (vault), observation (observer), MCP management (smith), security (mcprobe), notifications (pulse). ties the whole ecosystem together.' }
 ];
 
 var CONTRIBUTORS = [
@@ -323,9 +326,10 @@ function runSetup() {
   print('|    pulse    [go]     1 stars', '');
   print('|    cairn    [rust]   1 stars', '');
   print('|    smith    [rust]   1 stars', '');
+  print('|    forge    [go]      new', '');
   printGap();
 
-  print('|  8 tools | 28 stars | 1904 dl/mo | 8 people', 'accent');
+  print('|  9 tools | 28 stars | 1904 dl/mo | 8 people', 'accent');
   print('|  624 commits | 0 paid | MIT | no telemetry', 'accent');
   printGap();
 
@@ -368,7 +372,7 @@ function runCommand(raw) {
       print('available commands:', 'accent');
       printGap();
       print('  help         this. what you\'re looking at.');
-      print('  tools        list all eight tools');
+      print('  tools        list all nine tools');
       print('  stats        stars, downloads, forks, contributors');
       print('  contributors who built this');
       print('  scan         demo: scan an MCP server for vulnerabilities');
@@ -383,11 +387,11 @@ function runCommand(raw) {
       print('  exit         good question');
       printGap();
       print('or type any tool name for details:', 'dim');
-      print('  relay  reflow  observer  mcprobe  vault  pulse  cairn  smith', 'dim');
+      print('  relay  reflow  observer  mcprobe  vault  pulse  cairn  smith  forge', 'dim');
       break;
 
     case 'tools':
-      print('eight tools. one philosophy. boring tech.', 'accent');
+      print('nine tools. one philosophy. boring tech.', 'accent');
       printGap();
       TOOLS.forEach(function(t, i) {
         var num = (i+1).toString().padStart(2,'0');
